@@ -13,8 +13,7 @@ const Home = () => {
         
         let mFunctions: APIResponseHandlingFunctions =
         {
-            OnSuccess: () => {console.log()},
-            OnError: () =>{console.error("ErrorGuy")},
+
         };
         // GetCheckoutInitInfo(1, 1,  "", mFunctions);
 
