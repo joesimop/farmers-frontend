@@ -1,53 +1,46 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import { useState, useEffect } from 'react';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import React, { useEffect } from 'react';
+import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
+import { FieldControlModel } from '../../lib/Constants/DataModels';
 
-export interface DropdownSelectorProps {
-    options: string[],
-    firstselected: string,
-    onSelect?: Function
+interface DropdownSelectorProps {
+    options: string[];
+    firstValue: string;
+    onChanged: (value: string) => void;
+    fieldState: FieldControlModel;
 }
-  
-const  DropdownSelector = (SelectorData:DropdownSelectorProps) => {
-    const [selectedOption, setSelectedOption] = useState<string>('');
 
-    const handleChange = (event: SelectChangeEvent) => {
-        setSelectedOption(event.target.value);
-        if(SelectorData.onSelect !== undefined)
-        {
-            SelectorData.onSelect();
-        }
+const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, firstValue, onChanged, fieldState }) => {
+    const [selectedValue, setSelectedValue] = React.useState(firstValue);
+
+    const handleChange = (event: SelectChangeEvent<string>) => {
+        const value = event.target.value as string;
+        setSelectedValue(value);
+        onChanged(value);
+        console.log("received value: ", value);
     };
 
-    useEffect(() => {
-        setSelectedOption(SelectorData.firstselected);
-    }   , []);
-
-    
-    const options:string[] = SelectorData.options;
+    useEffect(() => {     
+        setSelectedValue(firstValue);
+    }, [firstValue]);
 
     return (
-        <div>
-            <Box sx={{ minWidth: 130 }}>
-            <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Age</InputLabel>
+        <div className="default-padding">
+            <FormControl fullWidth disabled={fieldState.fieldStatus === "disabled"} error={fieldState.fieldStatus === "error"}>
+                <InputLabel id="dropdown-selector-label">{fieldState.input_label}</InputLabel>
                 <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={selectedOption}
-                label="Age"
-                onChange={handleChange}
+                    sx={{ textAlign: "left" }}
+                    variant="standard"
+                    labelId="dropdown-selector-label"
+                    value={selectedValue}
+                    onChange={handleChange}
                 >
-                {options.map((element) => {
-                    return <MenuItem value={element}>{element}</MenuItem>
-                })}
+                    {options.map((option, index) => (
+                        <MenuItem key={index} value={option}>
+                            {option}
+                        </MenuItem>
+                    ))}
                 </Select>
             </FormControl>
-            </Box>
         </div>
     );
 };

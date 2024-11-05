@@ -11,3 +11,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+h1{
+  color: #494F55;
+}
+
+.default-padding {
+  margin: 20px;
+}
+
+/* style={{ marginTop: "0px", height: "100%", position: "fixed", display: "flow", justifyContent: "center", overflow: "scroll", width: "90%" }} */
+.DefaultPageContainer {
+  margin-top: 0px; 
+  height: 100%; 
+  position: fixed; 
+  display: flow;
+  justify-content: center;
+  overflow: scroll;
+  width: 90%;
+};

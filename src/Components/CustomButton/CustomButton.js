@@ -1,6 +1,6 @@
-import React from 'react';
 import './CustomButton.css'; // External CSS for styling and animations
-import { redirect, useNavigate } from 'react-router-dom'; // For navigation
+import { useNavigate } from 'react-router-dom'; // For navigation
+import "../../index.css"
 
 const CustomButton = ({
   text = 'Click Me', // Button text
@@ -13,7 +13,7 @@ const CustomButton = ({
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (to != '') {
+    if (to !== '') {
       navigate(to); 
     } else if (onClick != null) {
         onClick();
@@ -22,7 +22,7 @@ const CustomButton = ({
 
   return (
     <button
-      className={`custom-button ${animate ? 'animate' : ''}`}
+      className={`custom-button default-padding ${animate ? 'animate' : ''}`}
       style={{ backgroundColor: color, color: textColor }}
       onClick={handleClick}
     >
