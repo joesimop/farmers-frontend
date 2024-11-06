@@ -14,6 +14,8 @@ import {
   VendorModel,
 } from "../../lib/Constants/DataModels";
 
+import DataLabel from "../../Components/DataLabel/DataLabel";
+
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { DBResHandlers, 
   DB_GetVendorTokensFeesForMarket, 
@@ -23,6 +25,8 @@ import { DBResHandlers,
 import { useAlert } from "../../Components/Alerts/AlertContext";
 
 import '../../index.css';
+import { Margin } from "@mui/icons-material";
+import FlexGrid from "../../FlexGrid/FlexGrid";
 
 interface TokenTrackerModel {
   quantity: number;
@@ -293,6 +297,8 @@ const Checkout = () => {
         onDateChanged={handleDateChanged}
       />
 
+      <hr className="solid" style={{marginBottom: "10px"}}/>
+
       {/* VENDOR SELECTION */}
       <SearchableDropdownSelector
         options={[...Vendors.map((vendor: VendorModel) => {return vendor.business_name})]}
@@ -308,6 +314,14 @@ const Checkout = () => {
         onChange={handleTokensChanged}
       />
 
+      <FlexGrid items = 
+        {[
+          <DataLabel label="Market Fee" value={marketFee} />,
+          <DataLabel label="Profit" value={netVendorProfit} />
+        ]}
+      />
+      
+
     <CustomButton
       text="Submit To Database"
       color="#1E90FF"
@@ -315,9 +329,6 @@ const Checkout = () => {
       onClick={submitCheckoutToDatabase}
       animate={false}
     />
-
-    <h1 style={{ color: "black" }}>{netVendorProfit}</h1>
-    <h1 style={{ color: "black" }}>{marketFee}</h1>
     </div>
   );
 

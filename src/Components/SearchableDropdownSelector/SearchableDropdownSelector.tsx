@@ -32,7 +32,7 @@ const SearchableDropdownSelector = (SelectorData:DropdownSelectorProps) => {
                 onChange={(event:any, newValue:string | null) => handleChange(event, newValue)}
                 disableClearable={true}
                 options={SelectorData.options}
-                renderInput={(params) => <TextField {...params} label="Vendors" variant="standard"/>}
+                renderInput={(params) => <TextField {...params} label="Select Vendor..." variant="standard"/>}
                 disabled={SelectorData.fieldState.fieldStatus === "disabled"}/>
         </div>
     );
