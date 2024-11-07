@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FieldControlModel } from "../../lib/Constants/DataModels";
 import TextField from "@mui/material/TextField";
 import { MarketTokensModel } from "../../lib/Constants/DataModels";
+import FlexGrid from "../../FlexGrid/FlexGrid";
 import "../../index.css";
 
 interface CheckoutNumericalEntryProps {
@@ -42,22 +43,22 @@ const CheckoutNumericalEntry: React.FC<CheckoutNumericalEntryProps> = ({ fields,
         
     }, [fields, quantities]);
 
+    const TokenFieldItems = tokenFields.map((field: MarketTokensModel, index: number) => (
+      <TextField
+        key={field.type}
+        type="number"
+        value={quantities[index]}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleChange(event, index)}
+        label={field.type}
+        disabled={fieldState.fieldStatus === "disabled"}
+        variant="standard"
+        fullWidth // Optional: makes the TextField take up the full width of its container
+      />
+    ));
+
   return (
-    <div className="default-padding">
-
-      {tokenFields.map((field: MarketTokensModel, index: number) => (
-        <TextField
-          style={{ margin: "10px" }}
-          key={field.type}
-          type="number"
-          value={quantities[index]}
-          onChange={ (event: React.ChangeEvent<HTMLInputElement>) => handleChange(event, index) }
-          label={field.type}
-          disabled={fieldState.fieldStatus === "disabled"}
-          variant="standard"
-        />
-      ))}
-
+    <div className="form-margin" style= {{}}>
+      <FlexGrid items={TokenFieldItems} />
     </div>
   );
 };

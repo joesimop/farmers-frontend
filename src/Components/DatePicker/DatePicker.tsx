@@ -23,7 +23,7 @@ const  DatePickerComponent: React.FC<DatePickerProps>  = ({initalDate, fieldStat
   }
 
   return (
-    <div className='default-padding' style={{}}>
+    <div className='form-margin' style={{}}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DemoContainer components={['DatePicker', 'DatePicker']}>
           <DatePicker

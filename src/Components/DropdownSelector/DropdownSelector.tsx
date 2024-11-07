@@ -25,7 +25,7 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, firstValue
     }, [firstValue]);
 
     return (
-        <div className="default-padding">
+        <div className="form-margin">
             <FormControl fullWidth disabled={fieldState.fieldStatus === "disabled"} error={fieldState.fieldStatus === "error"}>
                 <InputLabel id="dropdown-selector-label">{fieldState.input_label}</InputLabel>
                 <Select
