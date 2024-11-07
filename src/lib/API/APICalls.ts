@@ -126,10 +126,14 @@ export const DB_GetReportingOptions = ( MarketManager: number, DBHandlers?: DBRe
 
 }
 
-export const DB_GetReports = ( MarketManager: number, MarketID: number, MarketDate: string, DBHandlers?: DBResHandlers ) => {
+export const DB_GetReports = ( MarketManager: number, MarketID: number | undefined, MarketDate: string, DBHandlers?: DBResHandlers ) => {
 
-    let endpoint = `${curUrl}market_manager/${MarketManager}/reporting/options`;
-    AxiosGet(endpoint,DBHandlers)
+
+    let MarketIDString = MarketID === undefined ? "" : "market_id=" + MarketID + "&";
+    let MarketDateString = MarketDate === "" ? "" : "market_date=" + MarketDate + "&";
+
+    let endpoint = `${curUrl}market_manager/${MarketManager}/reporting/report?${MarketIDString}${MarketDateString}sort_by=MARKET_DATE&sort_direction=DESC`;
+    AxiosGet(endpoint,DBHandlers);
 }
 
 export const DB_SubmitCheckout = ( MarketManager: number, Data: CheckoutModel, DBHandlers?: DBResHandlers) => {

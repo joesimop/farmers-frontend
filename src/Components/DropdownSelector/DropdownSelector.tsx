@@ -7,9 +7,10 @@ interface DropdownSelectorProps {
     firstValue: string;
     onChanged: (value: string) => void;
     fieldState: FieldControlModel;
+    includeNone?: boolean;
 }
 
-const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, firstValue, onChanged, fieldState }) => {
+const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, firstValue, onChanged, fieldState, includeNone = false }) => {
     const [selectedValue, setSelectedValue] = React.useState(firstValue);
 
     const handleChange = (event: SelectChangeEvent<string>) => {
@@ -33,7 +34,13 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, firstValue
                     labelId="dropdown-selector-label"
                     value={selectedValue}
                     onChange={handleChange}
+                    
                 >
+                    {includeNone &&
+                    <MenuItem value = "">
+                        <em>None</em>
+                    </MenuItem>}
+
                     {options.map((option, index) => (
                         <MenuItem key={index} value={option}>
                             {option}

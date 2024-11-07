@@ -6,7 +6,7 @@ import { DBResHandlers } from '../../lib/API/APICalls';
 import { DataGrid, GridColDef } from '@mui/x-data-grid/';
 import Box from '@mui/material/Box';
 
-const columns: GridColDef<(typeof tmpRows)[number]>[] = [
+const columns: GridColDef<(typeof tmpRows)>[] = [
   { field: 'id', headerName: 'ID', width: 90 },
   {
     field: 'firstName',

@@ -52,3 +52,17 @@ export interface AlertDataModel {
     type: alerttype;
     visible: boolean;
 }
+
+export interface ReportTokenModel {
+    type: string,
+    count: number
+}
+
+export type ReportModel  ={
+    id: number,
+    market_date: string,
+    business_name: string,
+    fees_paid: number,
+    gross: number,
+    tokens: ReportTokenModel[]
+}
