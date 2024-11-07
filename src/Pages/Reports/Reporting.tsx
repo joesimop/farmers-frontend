@@ -113,7 +113,8 @@ const Reporting = () => {
 
   const getReports = () => {
 
-    let marketID = possibleMarketSelections.find((market: MarketSelectorModel) => market.market_name === selectedMarket)?.market_id;
+    let marketID = possibleMarketSelections.find(
+      (market: MarketSelectorModel) => market.market_name === selectedMarket)?.market_id;
 
     DB_GetReports(1, marketID === 0 ? undefined : marketID, selectedDate, getReportHandlers);
 
@@ -213,7 +214,7 @@ const Reporting = () => {
         includeNone={true}
       />
 
-  <CustomButton
+    <CustomButton
         text="Retrieve Reports"
         color="#1E90FF"
         textColor="#fff"
@@ -221,7 +222,7 @@ const Reporting = () => {
         onClick={getReports}/>
 
 
-      <TypedDataGrid<ReportModel> data={reportData} hiddenFields={["tokens", "gross"]}/>
+      <TypedDataGrid<ReportModel> data={reportData} hiddenFields={["tokens"]}/>
 
     </div>
 

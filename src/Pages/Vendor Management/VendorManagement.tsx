@@ -5,37 +5,12 @@ import { DB_GetVendorsForMarketManger } from '../../lib/API/APICalls';
 import { DBResHandlers } from '../../lib/API/APICalls';
 import { DataGrid, GridColDef } from '@mui/x-data-grid/';
 import Box from '@mui/material/Box';
+import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
 
-const columns: GridColDef<(typeof tmpRows)>[] = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  {
-    field: 'firstName',
-    headerName: 'First name',
-    width: 150,
-    editable: true,
-  },
-/*  {
-    field: 'lastName',
-    headerName: 'Last name',
-    width: 150,
-    editable: true,
-  },
-  {
-    field: 'age',
-    headerName: 'Age',
-    type: 'number',
-    width: 110,
-    editable: true,
-  },
-  {
-    field: 'fullName',
-    headerName: 'Full name',
-    description: 'This column has a value getter and is not sortable.',
-    sortable: false,
-    width: 160,
-    valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
-  },*/
-];
+interface TempVendorModel {
+  id: number;
+  firstName: string;
+}
 
 const tmpRows = [
   { id: 1, lastName: 'Snow', firstName: 'Jon', age: 14 },
@@ -51,7 +26,6 @@ const tmpRows = [
 
 const VendorManagement = () => {
 
-  // const [Vendors, setVendors] = React.useState<string[]>([]);
   const [rows, setRows] = React.useState<any[]>(tmpRows);
 
   const getVendors= () => {
@@ -62,23 +36,18 @@ const VendorManagement = () => {
             console.log(response);
             let tmppRows=[{}];
             response.data.forEach((item: any) => {
-              let newValue = {};
               item.vendors.forEach((vendor: any) => {
-                newValue = {id: vendor.id, firstName: vendor.name}
+                let newValue = {id: vendor.id, firstName: vendor.name}
                 tmppRows.push(newValue);
               })
             }); 
             
             tmppRows.splice(0,1);
-            console.log(tmppRows);
             setRows(tmppRows);
 
         },
         OnError: (response: any, status: number) => {
             console.error("STATUS: " + status);
-        },
-        OnFinally: () => {
-            console.log("Finally");
         }
     };
     DB_GetVendorsForMarketManger(1, mFunctions);
@@ -94,21 +63,8 @@ const VendorManagement = () => {
         onClick={getVendors}/>
 
       <Box sx={{ height: 400, width: '100%' }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
-            },
-          },
-        }}
-        pageSizeOptions={[5]}
-        checkboxSelection
-        disableRowSelectionOnClick
-      />
-    </Box>
+        <TypedDataGrid<TempVendorModel> data={rows} hiddenFields={[]} />
+       </Box>
       </div>
 
   );
