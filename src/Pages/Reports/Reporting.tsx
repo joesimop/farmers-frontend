@@ -1,49 +1,16 @@
 import './Reporting.css'; // External CSS for styling and animations
-import React from 'react';
-import CustomButton from '../../Components/CustomButton/CustomButton';
 import { DB_GetReportingOptions, DB_GetReports,  DBResHandlers} from '../../lib/API/APICalls';
 import DropdownSelector from '../../Components/DropdownSelector/DropdownSelector';
-import {useState, useEffect, useCallback} from 'react';
+import {useState, useEffect, useCallback, useMemo} from 'react';
 import dayjs from 'dayjs';
 import { ReportModel } from '../../lib/Constants/DataModels';
 import { DisplayAlert } from '../../Components/Popups/PopupHelpers';
+import "../../index.css";
 // import { DataGrid, GridColDef } from '@mui/x-data-grid/';
 import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
 import Box from '@mui/material/Box';
+import PrimaryButton from '../../Components/Buttons/PrimaryButton';
 
-// const columns: GridColDef<ReportModel>[] = [
-//   { field: 'id', headerName: 'ID', width: 90 },
-//   {
-//     field: 'market_date',
-//     headerName: 'Market Date',
-//     width: 150,
-//     editable: true,
-//   },
-//   {
-//     field: 'business_name',
-//     headerName: 'Busniess',
-//     width: 150,
-//     editable: true,
-//   },
-//   {
-//     field: 'fees_paid',
-//     headerName: 'Market Fee',
-//     width: 150,
-//     editable: true,
-//   },
-//   {
-//     field: 'gross',
-//     headerName: 'Gross Profit',
-//     width: 150,
-//     editable: true,
-//   },
-//   {
-//     field: 'tokens',
-//     headerName: 'First name',
-//     width: 150,
-//     editable: true,
-//   }
-// ];
 
 interface MarketSelectorModel {
   market_name: string;
@@ -60,7 +27,7 @@ const Reporting = () => {
   const [selectedMarket, setSelectedMarket] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
 
-  let getReportingOptionsHandlers: DBResHandlers =
+  let getReportingOptionsHandlers: DBResHandlers = useMemo<DBResHandlers>(() => (
   {
       OnSuccess: (response: any, status: number) => {
           console.log("STATUS: " + status);
@@ -75,20 +42,16 @@ const Reporting = () => {
       OnFinally: () => {
           console.log("Finally");
       }
-  };
+  }), []);
 
   let getReportHandlers: DBResHandlers =
   {
       OnSuccess: (response: any, status: number) => {
-          console.log("STATUS: " + status);
-          console.log(response);
           DisplayAlert('success', "Successfully retrieved report options", status);
           setReportData(response.data);
       },
       OnError: (response: any, status: number) => {
-          console.error("STATUS: " + status);
           DisplayAlert('success', "Error retrieving report options", status);
-
       },
       OnFinally: () => {
           console.log("Finally");
@@ -105,11 +68,6 @@ const Reporting = () => {
     setSelectedDate(value);
   }
 
-  const getReportOptions= () => {
-
-    DB_GetReportingOptions(1, getReportingOptionsHandlers);
-  }
-
   const getReports = () => {
 
     let marketID = possibleMarketSelections.find(
@@ -121,16 +79,14 @@ const Reporting = () => {
 
   const getMarketOptions = useCallback( () => {  
 
-    if(possibleMarketSelections.length === 0) {
-      return [];
-    }
+    if(possibleMarketSelections.length === 0) { return []; }
     return possibleMarketSelections.map((market: MarketSelectorModel) => market.market_name);
+
   }, [possibleMarketSelections]);
 
   const getDateOptions = useCallback((curMarket: string) => {  
-    if(possibleMarketSelections.length === 0) {
-      return [];
-    }
+    
+    if(possibleMarketSelections.length === 0) { return []; }
 
     let marketIndex: number = possibleMarketSelections.findIndex((market: MarketSelectorModel) => market.market_name === curMarket);
     let aggregatedDates: string[][] = [];
@@ -146,11 +102,8 @@ const Reporting = () => {
         }
         aggregatedDates.push(market.market_dates);
       });
-
-      console.log("AGGREGATED DATES" + aggregatedDates.flat());
     }
-    console.log("Market Index: " + marketIndex);
-
+    
     console.log(possibleMarketSelections[marketIndex].market_dates);
     aggregatedDates.push(marketIndex > -1 ? possibleMarketSelections[marketIndex].market_dates : []);
 
@@ -162,19 +115,15 @@ const Reporting = () => {
   }, [possibleMarketSelections]);
 
   useEffect(() => {
-    console.log("AHHHHHHHH");
-    if(possibleMarketSelections.length === 0) {
-      return;
-    }
 
+    if(possibleMarketSelections.length === 0) { return; }
     setPossibleDates(getDateOptions(selectedMarket));
+
   }, [selectedMarket, possibleMarketSelections, getDateOptions]);
 
   useEffect(() => {
 
-    if(possibleMarketSelections.length === 0) {
-      return;
-    }
+    if(possibleMarketSelections.length === 0) { return; }
 
     setSelectedMarket(possibleMarketSelections[0].market_name);
     setPossibleDates( getDateOptions(possibleMarketSelections[0].market_name));
@@ -183,50 +132,44 @@ const Reporting = () => {
     
   },[possibleMarketSelections, getMarketOptions, getDateOptions]);
 
+  useEffect(() => { DB_GetReportingOptions(1, getReportingOptionsHandlers)}, [getReportingOptionsHandlers] ); 
+
   return (
-    <div>
-    <h1>Reporting</h1>
-    <CustomButton
-        text="Get Report Options"
-        color="#1E90FF"
-        textColor="#fff"
-        animate={false}
-        onClick={getReportOptions}/>
+    <div className='DefaultPageContainer' style={{display: "flex", flexDirection: "column"}}>
+    <h1 style={{textAlign: 'left'}}>Reporting</h1>
+    {/* MARKET SELECTION */}
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
+      <div style={{display: 'flex', flexDirection: 'row', justifyContent: "space-between", minWidth: '30%'}}>
+        <DropdownSelector
+            fieldState={{fieldStatus: "active",
+              input_label: "Markets"}}
+            options={possibleMarkets}
+            firstValue={possibleMarketSelections.length > 0 ? possibleMarketSelections[0].market_name : ""}
+            onChanged={handleMarketSelectionChanged}
+            includeNone={true}
+          />
 
-      {/* MARKET SELECTION */}
-    <DropdownSelector
+        <DropdownSelector
         fieldState={{fieldStatus: "active",
-          input_label: "Markets"}}
-        options={possibleMarkets}
-        firstValue={possibleMarketSelections.length > 0 ? possibleMarketSelections[0].market_name : ""}
-        onChanged={handleMarketSelectionChanged}
-        includeNone={true}
-      />
+          input_label: "Dates"}}
+            options={possibleDates}
+            firstValue={possibleDates[0]}
+            onChanged={handleDateSelectionChanged}
+            includeNone={true}
+          />
+          </div>
 
-          {/* Date SELECTION */}
-    <DropdownSelector
-    fieldState={{fieldStatus: "active",
-      input_label: "Dates"}}
-        options={possibleDates}
-        firstValue={possibleDates[0]}
-        onChanged={handleDateSelectionChanged}
-        includeNone={true}
-      />
+        <PrimaryButton sx={{maxHeight: '3em', marginTop: '0.9em'}} text="Retrieve Reports" onClick={getReports}/>  
 
-    <CustomButton
-        text="Retrieve Reports"
-        color="#1E90FF"
-        textColor="#fff"
-        animate={false}
-        onClick={getReports}/>
-
-
-      <TypedDataGrid<ReportModel> data={reportData} hiddenFields={["tokens"]}/>
-
-    </div>
-
+      </div>
     
-
+  
+      <Box sx={{ flexGrow: 1 }}>
+        {reportData.length > 0 ? 
+        <TypedDataGrid<ReportModel> data={reportData} hiddenFields={["tokens"]}/> : 
+        <h1>No data to display</h1>}
+      </Box>
+    </div>
     
   );
 };

@@ -29,12 +29,11 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, firstValue
             <FormControl fullWidth disabled={fieldState.fieldStatus === "disabled"} error={fieldState.fieldStatus === "error"}>
                 <InputLabel id="dropdown-selector-label">{fieldState.input_label}</InputLabel>
                 <Select
-                    sx={{ textAlign: "left" }}
+                    sx={{ textAlign: "left", minWidth: "200px" }}
                     variant="standard"
                     labelId="dropdown-selector-label"
                     value={selectedValue}
                     onChange={handleChange}
-                    
                 >
                     {includeNone &&
                     <MenuItem value = "">

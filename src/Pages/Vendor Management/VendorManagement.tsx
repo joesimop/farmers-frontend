@@ -1,11 +1,10 @@
 import React from 'react';
 import './VendorManagement.css'; // External CSS for styling and animations
-import CustomButton from '../../Components/CustomButton/CustomButton';
 import { DB_GetVendorsForMarketManger } from '../../lib/API/APICalls';
 import { DBResHandlers } from '../../lib/API/APICalls';
-import { DataGrid, GridColDef } from '@mui/x-data-grid/';
 import Box from '@mui/material/Box';
 import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
+import PrimaryButton from '../../Components/Buttons/PrimaryButton';
 
 interface TempVendorModel {
   id: number;
@@ -55,12 +54,8 @@ const VendorManagement = () => {
   return (
       <div>
         <p>Vendor Management</p>
-        <CustomButton
-        text="Get Vendors"
-        color="#1E90FF"
-        textColor="#fff"
-        animate={false}
-        onClick={getVendors}/>
+
+        <PrimaryButton text="Get Vendors" onClick={getVendors}/>
 
       <Box sx={{ height: 400, width: '100%' }}>
         <TypedDataGrid<TempVendorModel> data={rows} hiddenFields={[]} />

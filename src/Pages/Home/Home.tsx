@@ -1,44 +1,33 @@
 import './Home.css'; // External CSS for styling and animations
-import CustomButton from '../../Components/CustomButton/CustomButton';
 import { DisplayAlert, DisplayModal } from '../../Components/Popups/PopupHelpers';
+import PrimaryButton from '../../Components/Buttons/PrimaryButton';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
 
+  const navigate = useNavigate();
 
   return (
     <div>
-        <CustomButton
+        <PrimaryButton
             text="Go to Checkout"
-            color="#1E90FF"
-            textColor="#fff"
-            to = 'checkout'
-            animate={false} />
+            onClick={() => {navigate('checkout')}} />
 
-        <CustomButton
+        <PrimaryButton
             text="Vendor Management"
-            color="#1E90FF"
-            textColor="#fff"
-            to = 'vendormanagement'
-            animate={false} />
+            onClick={() => {navigate("vendormanagement")}} />
 
-        <CustomButton
+        <PrimaryButton
             text="Reporting"
-            color="#1E90FF"
-            textColor="#fff"
-            to = 'reporting'
-            animate={false} />
+            onClick={() => {navigate("reporting")}} />
 
-        <CustomButton
+        <PrimaryButton
             text="Test Alert"
-            color="#1E90FF"
-            textColor="#fff"
             onClick={ () => DisplayAlert('info', "This is a Warning.")} />
 
-        <CustomButton
+        <PrimaryButton
             text="Test Modal"
-            color="#1E90FF"
-            textColor="#fff"
-            onClick={ () => DisplayModal(<CustomButton/>, ()=> {}, ()=> {})} />
+            onClick={ () => DisplayModal(<h1>Hullo</h1>, ()=> {}, ()=> {})} />
 
     </div>
 

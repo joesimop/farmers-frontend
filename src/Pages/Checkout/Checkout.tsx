@@ -1,5 +1,4 @@
 import dayjs, { Dayjs } from "dayjs";
-import CustomButton from "../../Components/CustomButton/CustomButton";
 import DatePickerComponent from "../../Components/DatePicker/DatePicker";
 import CheckoutNumericalEntry from "../../Components/CheckoutNumericalEntry/CheckoutNumericalEntry";
 import SearchableDropdownSelector from "../../Components/SearchableDropdownSelector/SearchableDropdownSelector";
@@ -24,10 +23,10 @@ import { DBResHandlers,
 } from "../../lib/API/APICalls";
 
 import '../../index.css';
-import { Margin } from "@mui/icons-material";
 import FlexGrid from "../../FlexGrid/FlexGrid";
 
 import { DisplaySuccessAlert, DisplayErrorAlert } from "../../Components/Popups/PopupHelpers";
+import PrimaryButton from "../../Components/Buttons/PrimaryButton";
 
 interface TokenTrackerModel {
   quantity: number;
@@ -320,13 +319,8 @@ const Checkout = () => {
       />
       
 
-    <CustomButton
-      text="Submit To Database"
-      color="#1E90FF"
-      textColor="#fff"
-      onClick={submitCheckoutToDatabase}
-      animate={false}
-    />
+    <PrimaryButton text="Submit To Database" onClick={submitCheckoutToDatabase} />
+
     </div>
   );
 
