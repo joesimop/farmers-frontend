@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 import { ReportModel } from '../../lib/Constants/DataModels';
 import { DisplayAlert } from '../../Components/Popups/PopupHelpers';
 import "../../index.css";
-// import { DataGrid, GridColDef } from '@mui/x-data-grid/';
 import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
 import Box from '@mui/material/Box';
 import PrimaryButton from '../../Components/Buttons/PrimaryButton';
@@ -30,13 +29,10 @@ const Reporting = () => {
   let getReportingOptionsHandlers: DBResHandlers = useMemo<DBResHandlers>(() => (
   {
       OnSuccess: (response: any, status: number) => {
-          console.log("STATUS: " + status);
-          console.log(response);
           DisplayAlert('success', "Successfully retrieved report options", status);
           setPossibleMarketSelections(response.data);
       },
       OnError: (response: any, status: number) => {
-          console.error("STATUS: " + status);
           DisplayAlert('success', "Error retrieving report options", status);
       },
       OnFinally: () => {
@@ -89,17 +85,13 @@ const Reporting = () => {
     if(possibleMarketSelections.length === 0) { return []; }
 
     let marketIndex: number = possibleMarketSelections.findIndex((market: MarketSelectorModel) => market.market_name === curMarket);
+    if (marketIndex === -1) { return []; }
+    
     let aggregatedDates: string[][] = [];
-
-    if (marketIndex === -1) {
-      return [];
-    }
-    else if (marketIndex === 0) {
+    if (marketIndex === 0) {
 
       possibleMarketSelections.forEach((market: MarketSelectorModel, index: number) => {
-        if(index === 0) {
-          return;
-        }
+        if(index === 0) { return; }
         aggregatedDates.push(market.market_dates);
       });
     }
