@@ -22,11 +22,12 @@ import { DBResHandlers,
   DB_SubmitCheckout, 
   DB_GetCheckoutInfoForManager 
 } from "../../lib/API/APICalls";
-import { useAlert } from "../../Components/Alerts/AlertContext";
 
 import '../../index.css';
 import { Margin } from "@mui/icons-material";
 import FlexGrid from "../../FlexGrid/FlexGrid";
+
+import { DisplaySuccessAlert, DisplayErrorAlert } from "../../Components/Popups/PopupHelpers";
 
 interface TokenTrackerModel {
   quantity: number;
@@ -47,9 +48,6 @@ const GrossProfitTokenModel: TokenTrackerModel = {
   }
 
 const Checkout = () => {
-
-  //Alert Context
-  const { APIAlerts } = useAlert();
 
   // State Variables
   const [fieldState, setFourmState] = useState<FieldControlModel[]>([...CheckoutFieldDefaults]);
@@ -87,13 +85,13 @@ const Checkout = () => {
       OnSuccess: (response: any) => {
         // console.log("STATUS: ", response);
         if (response !== undefined) {
-          APIAlerts.sendResponseSuccessAlert("Data Sent Successfully", response.status);
+          DisplaySuccessAlert("Data Sent Successfully", response.status);
           return;
         }
       },
-      OnError: (error: any) => { APIAlerts.sendResponseErrorAlert("Failed To Send Data", error.status); 
+      OnError: (error: any) => { DisplayErrorAlert("Failed To Send Data", error.status); 
       }
-  }),[APIAlerts]);
+  }),[]);
 
   const OnVendorsAndTokensRecieved = useMemo<DBResHandlers>(() => ({
 

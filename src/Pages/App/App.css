@@ -28,6 +28,16 @@
   color: #61dafb;
 }
 
+.app-container {
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.app-container.blurred {
+  filter: blur(5px);
+  pointer-events: none; /* Prevent interactions */
+  opacity: 0.5; /* Optional: Dim effect */
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

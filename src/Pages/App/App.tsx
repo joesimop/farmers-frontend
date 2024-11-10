@@ -4,16 +4,20 @@ import Checkout from '../Checkout/Checkout'
 import Reporting from '../Reports/Reporting';
 import VendorManagement from '../Vendor Management/VendorManagement';
 import { BrowserRouter, Route, Routes, } from "react-router-dom";
-import { AlertProvider } from '../../Components/Alerts/AlertContext';
-import AlertBanner from '../../Components/Alerts/AlertBanner';
+import { AlertBanner } from '../../Components/Popups/Alerts';
+import { PopupModal } from '../../Components/Popups/Modals';
+import { usePopupStore } from '../../Components/Popups/PopupDefnitions';
 
 function App() {
+
+  const { modal } = usePopupStore();
+
   return (
-    <div className="App">
+    <div className={`app-container ${modal ? 'blurred' : 'App'}`}>
       <header className="App-header">
-        <AlertProvider>
+        <AlertBanner />
           <BrowserRouter>
-          <AlertBanner />
+            <PopupModal />
             <Routes>
               <Route path="/"  element={<Home />}/>
               <Route path="/checkout" element={<Checkout />} />
@@ -21,7 +25,6 @@ function App() {
               <Route path="/vendormanagement" element={<VendorManagement/>} />
             </Routes>
         </BrowserRouter>
-    </AlertProvider>
       </header>
     </div>
   );

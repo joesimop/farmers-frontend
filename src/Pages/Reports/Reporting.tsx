@@ -6,7 +6,7 @@ import DropdownSelector from '../../Components/DropdownSelector/DropdownSelector
 import {useState, useEffect, useCallback} from 'react';
 import dayjs from 'dayjs';
 import { ReportModel } from '../../lib/Constants/DataModels';
-import { useAlert } from "../../Components/Alerts/AlertContext";
+import { DisplayAlert } from '../../Components/Popups/PopupHelpers';
 // import { DataGrid, GridColDef } from '@mui/x-data-grid/';
 import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
 import Box from '@mui/material/Box';
@@ -53,8 +53,6 @@ interface MarketSelectorModel {
 
 const Reporting = () => {
 
-  const { APIAlerts } = useAlert();
-
   const [possibleMarketSelections, setPossibleMarketSelections] = useState<MarketSelectorModel[]>([]);
   const [possibleMarkets, setPossibleMarkets] = useState<string[]>([]);
   const [possibleDates, setPossibleDates] = useState<string[]>([]);
@@ -67,12 +65,12 @@ const Reporting = () => {
       OnSuccess: (response: any, status: number) => {
           console.log("STATUS: " + status);
           console.log(response);
-          APIAlerts.sendResponseSuccessAlert(status + " Successfully retrieved report options");
+          DisplayAlert('success', "Successfully retrieved report options", status);
           setPossibleMarketSelections(response.data);
       },
       OnError: (response: any, status: number) => {
           console.error("STATUS: " + status);
-          APIAlerts.sendResponseErrorAlert(status + " Error retrieving report options");
+          DisplayAlert('success', "Error retrieving report options", status);
       },
       OnFinally: () => {
           console.log("Finally");
@@ -84,12 +82,13 @@ const Reporting = () => {
       OnSuccess: (response: any, status: number) => {
           console.log("STATUS: " + status);
           console.log(response);
-          APIAlerts.sendResponseSuccessAlert(status + " Successfully retrieved report options");
+          DisplayAlert('success', "Successfully retrieved report options", status);
           setReportData(response.data);
       },
       OnError: (response: any, status: number) => {
           console.error("STATUS: " + status);
-          APIAlerts.sendResponseErrorAlert(status + " Error retrieving report options");
+          DisplayAlert('success', "Error retrieving report options", status);
+
       },
       OnFinally: () => {
           console.log("Finally");
