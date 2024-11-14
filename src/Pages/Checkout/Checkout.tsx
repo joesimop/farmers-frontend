@@ -256,7 +256,7 @@ const Checkout = () => {
     <div className="DefaultPageContainer">
 
       <h1 style={{textAlign:"left"}}>Checkout</h1>
-      <MSMForm>
+      <MSMForm isAuto >
         <FormSection sectionKey="CheckoutOptions">
 
            {/* MARKET SELECTION */}
