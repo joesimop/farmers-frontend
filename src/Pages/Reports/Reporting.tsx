@@ -1,6 +1,6 @@
 import './Reporting.css'; // External CSS for styling and animations
 import { DB_GetReportingOptions, DB_GetReports,  DBResHandlers} from '../../lib/API/APICalls';
-import DropdownSelector from '../../Components/DropdownSelector/DropdownSelector';
+import DropdownSelector from '../../Components/Inputs/DropdownSelector';
 import {useState, useEffect, useCallback, useMemo} from 'react';
 import dayjs from 'dayjs';
 import { ReportModel } from '../../lib/Constants/DataModels';
@@ -9,6 +9,8 @@ import "../../index.css";
 import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
 import Box from '@mui/material/Box';
 import PrimaryButton from '../../Components/Buttons/PrimaryButton';
+import MSMForm from '../../Components/Form Flow/MSMForm';
+import FormSection from '../../Components/Form Flow/FormSection';
 
 
 interface MarketSelectorModel {
@@ -131,29 +133,32 @@ const Reporting = () => {
     <h1 style={{textAlign: 'left'}}>Reporting</h1>
     {/* MARKET SELECTION */}
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
-      <div style={{display: 'flex', flexDirection: 'row', justifyContent: "space-between", minWidth: '30%'}}>
-        <DropdownSelector
-            fieldState={{fieldStatus: "active",
-              input_label: "Markets"}}
-            options={possibleMarkets}
-            firstValue={possibleMarketSelections.length > 0 ? possibleMarketSelections[0].market_name : ""}
-            onChanged={handleMarketSelectionChanged}
-            includeNone={true}
-          />
+      <div style={{minWidth: '30%'}}>
+        <MSMForm>
+          <FormSection sectionKey='ReportInputs'>
+            <div style={{display: 'flex', gap: '1em', flexDirection: 'row'}}>
+              <DropdownSelector
+                options={possibleMarkets}
+                defaultValue={possibleMarketSelections.length > 0 ? possibleMarketSelections[0].market_name : ""}
+                onChanged={handleMarketSelectionChanged}
+                includeNone={true}
+                formKey='Markets'
+              />
 
-        <DropdownSelector
-        fieldState={{fieldStatus: "active",
-          input_label: "Dates"}}
-            options={possibleDates}
-            firstValue={possibleDates[0]}
-            onChanged={handleDateSelectionChanged}
-            includeNone={true}
-          />
-          </div>
-
-        <PrimaryButton sx={{maxHeight: '3em', marginTop: '0.9em'}} text="Retrieve Reports" onClick={getReports}/>  
-
+              <DropdownSelector
+                  options={possibleDates}
+                  defaultValue={possibleDates[0]}
+                  onChanged={handleDateSelectionChanged}
+                  includeNone={true}
+                  formKey='Dates'
+                />
+            </div>
+          </FormSection>
+        </MSMForm>
+        
       </div>
+      <PrimaryButton sx={{maxHeight: '3em', marginTop: '0.9em'}} text="Retrieve Reports" onClick={getReports}/>  
+    </div>
     
   
       <Box sx={{ flexGrow: 1 }}>
