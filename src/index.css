@@ -40,6 +40,11 @@ h1{
   margin: 20px 0px;
 }
 
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 /* style={{ marginTop: "0px", height: "100%", position: "fixed", display: "flow", justifyContent: "center", overflow: "scroll", width: "90%" }} */
 .DefaultPageContainer {
   margin-top: 0px; 
@@ -48,4 +53,5 @@ h1{
   justify-content: left;
   overflow: scroll;
   width: 90%;
-};
+}
+
