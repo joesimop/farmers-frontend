@@ -19,6 +19,13 @@ import { DBResHandlers,
   DB_GetCheckoutInfoForManager 
 } from "../../lib/API/APICalls";
 
+import {
+  processMarketsResponse,
+  processVendorsAndTokensResponse,
+  processSubmissionResponse,
+  TokenFieldModel, GrossProfitTokenModel
+} from "./CheckoutDataValidation";
+
 import '../../index.css';
 import DataLabel from "../../Components/DataLabel/DataLabel";
 import FlexGrid from "../../FlexGrid/FlexGrid";
@@ -29,100 +36,18 @@ import { resetMSMFormSections } from "../../Components/Form Flow/MSMFormStateFun
 import { DisplaySuccessAlert, DisplayErrorAlert } from "../../Components/Popups/PopupHelpers";
 
 
-interface TokenTrackerModel {
-  quantity: number;
-  Token: MarketTokensModel;
-}
-
-const GrossProfitTokenModel: TokenTrackerModel = {
-    quantity: 0,
-    Token: { id: 1, type: "Gross Profit", per_dollar_value: 1 },
-  }
-
 const Checkout = () => {
 
   // State Variables
   const [Markets, setMarkets] = useState<MarketCheckoutDataModel[]>([]);
   const [Vendors, setVendors] = useState<VendorModel[]>([]);
   const [Fees, setFees] = useState<MarketFeeModel[]>([]);
-  const [Tokens, setTokens] = useState<TokenTrackerModel[]>([GrossProfitTokenModel]);
+  const [Tokens, setTokens] = useState<TokenFieldModel[]>([GrossProfitTokenModel]);
   const [selectedMarket, setSelectedMarket] = useState<MarketCheckoutDataModel>();
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [selectedVendor, setSelectedVendor] = useState<VendorModel>();
   const [netVendorProfit, setNetVendorProfit] = useState<number>(0);
   const [marketFee, setMarketFee] = useState<number>(0);
-
-
-////////////////////////////////
-//    DB REQUEST HANDLERS     //
-////////////////////////////////
-
-  const OnMarketsRecieved = useMemo<DBResHandlers>(() => (
-    {
-    OnSuccess: (response: any) => {
-      
-      if (response === undefined || response.data === undefined) { return; }
-
-      setMarkets([...response.data]);
-      setSelectedMarket(response.data[0]);
-
-    },
-    OnError: (error: any) => {}
-  }),[]);
-
-  const OnSubmissionAttempt = useMemo<DBResHandlers>(() => (
-    {
-      OnSuccess: (response: any) => {
-        
-        if (response !== undefined) {
-          DisplaySuccessAlert("Data Sent Successfully", response.status);
-          return;
-        }
-      },
-      OnError: (error: any) => { DisplayErrorAlert("Failed To Send Data", error.status); 
-      }
-  }),[]);
-
-  const OnVendorsAndTokensRecieved = useMemo<DBResHandlers>(() => ({
-
-      OnSuccess: (response: any) => {
-
-        //VALIDATE RESPONSE
-        if (response === undefined || response.data === undefined) { return; }
-
-        let data = response.data;
-        // console.log("DATA: ", data);  
-
-        // POPULATE VENDORS
-        if (data.vendors !== undefined) {
-          setVendors([...data.vendors]);
-        } else {
-          console.warn("NO VENDORS FOUND FOR: ", selectedMarket?.market_name);
-          setVendors([]);
-        }
-
-        // POPULATE TOKENS
-        if (data.tokens !== undefined && data.tokens !== null) {
-          setTokens([GrossProfitTokenModel, 
-            ...data.tokens.map((token: MarketTokensModel) => {return { quantity: 0, Token: token }})]);
-        } else {
-          console.warn("NO TOKENS FOUND FOR: ", selectedMarket?.market_name);
-          setTokens([GrossProfitTokenModel]);
-        }
-
-        // POPULATE FEES
-        if(data.fees !== undefined && data.fees !== null) { 
-          setFees(data.fees);
-        }
-        else {
-          console.warn("NO FEES FOUND FOR: ", selectedMarket?.market_name);
-          setFees([]);
-        }
-      },
-
-      OnError: (error: any) => {},
-
-  }),[selectedMarket]);
 
 
 ////////////////////////////////
@@ -187,13 +112,12 @@ const Checkout = () => {
   };
 
   const submitCheckoutToDatabase = () => {
-    //TODO: If Date is null, pass an empty string
+    // TODO: If Date is null, pass an empty string
     if (selectedMarket === undefined || selectedDate === null || selectedVendor === undefined) {
-      console.warn("MISSING DATA");
+      DisplayErrorAlert("Must fill all fields before submitting checkout")
       return;
     }
 
-    console.log("SUBMITTING TOKENS", GenerateTokensForSubmission());
     // Builds the data sent to the db
     let Data: CheckoutModel = {
       market_vendor_id: selectedVendor?.market_vendor_id,
@@ -203,30 +127,57 @@ const Checkout = () => {
       tokens: GenerateTokensForSubmission(),
     };
 
-    DB_SubmitCheckout(1, Data, OnSubmissionAttempt);
+    //Submit Checkout
+    DB_SubmitCheckout(1, Data, {
+      OnSuccess: (response: any) => {
+        const message = processSubmissionResponse(response);
+        DisplaySuccessAlert(message, response.status);
+      },
+      OnError: (error: any) => {
+        DisplayErrorAlert("Failed To Send Data", error.status);
+      },
+    });
   };
+
 
 ////////////////////////////////
 //        USE EFFECTS         //
 ////////////////////////////////
 
   // On First Load
-  useEffect(() => { DB_GetCheckoutInfoForManager(1, OnMarketsRecieved); }, [OnMarketsRecieved]);
-
-  // On Market Changed
   useEffect(() => {
+    DB_GetCheckoutInfoForManager(1, {
+      OnSuccess: (response: any) => {
+        const markets = processMarketsResponse(response);
+        setMarkets(markets);
+        setSelectedMarket(markets[0]);
+      },
+      OnError: (error: any) => {},
+    });
+  }, []);
 
+  // On Market or Date Changed
+  useEffect(() => {
     if (selectedMarket !== undefined && selectedDate !== null) {
-      DB_GetVendorTokensFeesForMarket(1, selectedMarket?.market_id, selectedDate?.format("YYYY-MM-DD"), OnVendorsAndTokensRecieved);
+      DB_GetVendorTokensFeesForMarket(1, selectedMarket?.market_id, selectedDate?.format("YYYY-MM-DD"),
+        {
+          OnSuccess: (response: any) => {
+            const { vendors, tokens, fees } = processVendorsAndTokensResponse( response, selectedMarket?.market_name);
+            setVendors(vendors);
+            setTokens(tokens);
+            setFees(fees);
+          },
+          OnError: (error: any) => {},
+        }
+      );
     }
-
-  }, [selectedMarket, OnVendorsAndTokensRecieved, selectedDate]);
+  }, [selectedMarket, selectedDate]);
 
   // On Vendor Changed
   useEffect(() => {
-   
-    if (selectedVendor !== undefined) { refreshMarketFee(); }
-
+    if (selectedVendor !== undefined) {
+      refreshMarketFee();
+    }
   }, [selectedVendor, refreshMarketFee]);
 
 ////////////////////////////////
@@ -241,7 +192,7 @@ const Checkout = () => {
   */
       const GenerateTokensForSubmission: Function = (): any[] => {
         let tokensToSubmit: TokenSubmissionModel[] = [];
-        Tokens.forEach((token: TokenTrackerModel, index: number) => {
+        Tokens.forEach((token: TokenFieldModel, index: number) => {
           if (index !== 0) {
             tokensToSubmit.push({
               market_token_id: token.Token.id,
@@ -255,7 +206,8 @@ const Checkout = () => {
     <div className="DefaultPageContainer">
 
       <h1 style={{textAlign:"left"}}>Checkout</h1>
-      <MSMForm isAuto >
+
+      <MSMForm isAuto>
         <FormSection sectionKey="CheckoutOptions">
 
            {/* MARKET SELECTION */}
@@ -289,7 +241,7 @@ const Checkout = () => {
 
         <FormSection sectionKey="TokenSelection" isNested disableOnReset>
           <FlexGrid>
-            {Tokens.map((token: TokenTrackerModel, index: number) => (
+            {Tokens.map((token: TokenFieldModel, index: number) => (
               <TokenInput
                 key={selectedMarket?.market_name + token.Token.type}
                 name={token.Token.type}
