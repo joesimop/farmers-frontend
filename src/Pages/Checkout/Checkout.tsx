@@ -24,7 +24,7 @@ import DataLabel from "../../Components/DataLabel/DataLabel";
 import FlexGrid from "../../FlexGrid/FlexGrid";
 import MSMForm from "../../Components/Form Flow/MSMForm";
 import FormSection from "../../Components/Form Flow/FormSection";
-import { resetMSMForm } from "../../Components/Form Flow/MSMFormStateFunctions";
+import { resetMSMFormSections } from "../../Components/Form Flow/MSMFormStateFunctions";
 
 import { DisplaySuccessAlert, DisplayErrorAlert } from "../../Components/Popups/PopupHelpers";
 
@@ -134,7 +134,7 @@ const Checkout = () => {
     console.log("NEW MARKET: ", value);
     let newMarket: MarketCheckoutDataModel | undefined = Markets.find((market: MarketCheckoutDataModel) => market.market_name === value);
     setSelectedMarket(newMarket);
-    resetMSMForm();
+    resetMSMFormSections();
     
   };
 

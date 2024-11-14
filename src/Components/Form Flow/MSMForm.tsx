@@ -2,6 +2,7 @@
 import React, { useContext, useEffect } from 'react';
 import { FormSection } from './FormSection';
 import { useMSMFormStore } from './MSMFormState';
+import { initSectionState, resetMSMForm } from './MSMFormStateFunctions';
 
 interface MSMFormContext{
   isAuto: boolean
@@ -42,9 +43,13 @@ export const MSMForm: React.FC<MSMFormProps> = ({ children, isAuto }) => {
   //Constructor for the form group
   useEffect(() => {
     if(isAuto){
+      console.log("CALLING THIS")
       const sectionKeys = buildSectionKeys(children);
-      useMSMFormStore.getState().initSectionManger(sectionKeys);
+      initSectionState(sectionKeys)
     }
+    return () => {
+      resetMSMForm()
+    };
   }, []);
 
   return (

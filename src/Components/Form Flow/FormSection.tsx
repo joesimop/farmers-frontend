@@ -1,8 +1,10 @@
 // FormGroup.tsx
 import React, { useEffect, useContext, useState } from 'react';
 import { useMSMFormStore } from './MSMFormState';
+import { initFieldState } from './MSMFormStateFunctions';
 import { useFormContext } from './MSMForm';
 import "../../index.css";
+import { RestartAlt } from '@mui/icons-material';
 
 
 // Form Section Context
@@ -75,15 +77,16 @@ export const FormSection: React.FC<FormSectionProps> = ({ children, sectionKey, 
     return fieldKeys;
     }
 
+  
   //Subscribe to hear for section changes, need to resub if children change.
   useEffect(() => {
-
+    
     if (isAuto){
       // Subscribe to the Zustand Section Changes
     const unsubscribe = useMSMFormStore.subscribe(
       (state) => state.activeSectionIndex,
       (activeSectionIndex) => {
-
+        
         const activeSectionKey = useMSMFormStore.getState().sectionKeys[activeSectionIndex];
         const isActiveSection =  activeSectionKey === sectionKey;
         
@@ -91,10 +94,9 @@ export const FormSection: React.FC<FormSectionProps> = ({ children, sectionKey, 
         // Activates section for filling out
         if (isActiveSection) {
           const fieldKeys = buildFieldKeys(children);
-          useMSMFormStore.getState().initFocusManager(fieldKeys);
+          initFieldState(fieldKeys)
           setDisabled(false);
         } else {
-          console.log(disabled)
 
           // If we are not the active section, and the index has been set back to 0,
           // we have been reset. Disables the form if disableOnReset is set.

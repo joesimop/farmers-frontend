@@ -6,23 +6,25 @@ export const SECTION_DONE = "SECTION_DONE";
 
 export interface FieldManagerState {
     fieldKeys: string[];
-    fieldCount: number;
     activeFieldIndex: number;
     activeFieldKey: string;
     initFocusManager: (keys: string[]) => void;
-    nextField (): void;
+    resetFocusManager: () => void;
+    nextField: () => void;
 }
 
 export const createFocusManagerState: StateCreator<FieldManagerState> = (set) => ({
     fieldKeys: [],
-    fieldCount: 0,
     activeFieldIndex: 0,
     activeFieldKey: "",
     initFocusManager: (keys) => set({ 
         fieldKeys: [...keys, SECTION_DONE], 
-        fieldCount: keys.length, 
-        activeFieldIndex: 0,
-        activeFieldKey: keys[0]}),
+        activeFieldIndex: -1,
+        activeFieldKey: ""}),
     nextField: () => set((state) => ({ activeFieldIndex: state.activeFieldIndex + 1, 
                                        activeFieldKey:   state.fieldKeys[state.activeFieldIndex + 1] })),
+    resetFocusManager: () => set(() => ({
+        activeFieldIndex: -1,
+        activeFieldKey: ""
+        }))
 })

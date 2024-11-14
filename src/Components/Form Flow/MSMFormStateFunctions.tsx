@@ -11,7 +11,23 @@ export function nextMSMFormSection() {
   useMSMFormStore.getState().nextSection();
 }
 
+export function initSectionState(sectionKeys: string[]) {
+  useMSMFormStore.getState().initSectionManger(sectionKeys);
+  useMSMFormStore.getState().nextSection();
+}
+
+// Sets sectionIndex and formIndex to 0. 
+export function resetMSMFormSections() {
+    useMSMFormStore.getState().resetSectionManager();
+}
+
 // Sets sectionIndex and formIndex to 0. 
 export function resetMSMForm() {
-    useMSMFormStore.getState().resetSectionManager();
+  useMSMFormStore.getState().resetSectionManager();
+  useMSMFormStore.getState().resetFocusManager()
+}
+
+export function initFieldState(fieldKeys: string[]) {
+  useMSMFormStore.getState().initFocusManager(fieldKeys);
+  useMSMFormStore.getState().nextField();
 }

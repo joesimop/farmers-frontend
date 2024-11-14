@@ -18,8 +18,8 @@ export const createSectionMangerState: StateCreator<SectionManagerState> = (set)
     initSectionManger: (keys) => set({ 
         sectionKeys: keys, 
         sectionCount: keys.length,
-        activeSectionIndex: 0, 
-        activeSectionKey: keys[0]}),
+        activeSectionIndex: -1, 
+        activeSectionKey: ""}),
     nextSection: () => set((state) => ({ activeSectionIndex: state.activeSectionIndex + 1,
                                          activeSectionKey:   state.sectionKeys[state.activeSectionIndex + 1]
      })),

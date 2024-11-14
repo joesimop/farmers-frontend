@@ -28,7 +28,6 @@ function useAutoField(isAuto: boolean, inputRef: RefObject<HTMLInputElement>, se
             const isCurrentFocus = activeFieldKey === formKey;
             
             if(isCurrentFocus) {
-              console.log("focusing")
               const timer = setTimeout(() => {
                 if(inputRef.current){
                   inputRef.current.focus();
