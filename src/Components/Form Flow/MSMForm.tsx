@@ -43,7 +43,6 @@ export const MSMForm: React.FC<MSMFormProps> = ({ children, isAuto }) => {
   //Constructor for the form group
   useEffect(() => {
     if(isAuto){
-      console.log("CALLING THIS")
       const sectionKeys = buildSectionKeys(children);
       initSectionState(sectionKeys)
     }

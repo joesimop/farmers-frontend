@@ -65,7 +65,6 @@ const Checkout = () => {
 
       setMarkets([...response.data]);
       setSelectedMarket(response.data[0]);
-      // console.log("MARKETS: ", response.data);
 
     },
     OnError: (error: any) => {}
@@ -74,7 +73,7 @@ const Checkout = () => {
   const OnSubmissionAttempt = useMemo<DBResHandlers>(() => (
     {
       OnSuccess: (response: any) => {
-        // console.log("STATUS: ", response);
+        
         if (response !== undefined) {
           DisplaySuccessAlert("Data Sent Successfully", response.status);
           return;
@@ -216,8 +215,8 @@ const Checkout = () => {
 
   // On Market Changed
   useEffect(() => {
-    
-    if (selectedMarket !== undefined && selectedMarket.market_id !== undefined) {
+
+    if (selectedMarket !== undefined && selectedDate !== null) {
       DB_GetVendorTokensFeesForMarket(1, selectedMarket?.market_id, selectedDate?.format("YYYY-MM-DD"), OnVendorsAndTokensRecieved);
     }
 
