@@ -1,10 +1,9 @@
 import dayjs, { Dayjs } from "dayjs";
-import DatePickerComponent from "../../Components/DatePicker/DatePicker";
-import CheckoutNumericalEntry from "../../Components/CheckoutNumericalEntry/CheckoutNumericalEntry";
-import SearchableDropdownSelector from "../../Components/SearchableDropdownSelector/SearchableDropdownSelector";
-import DropdownSelector from "../../Components/DropdownSelector/DropdownSelector";
+import DatePickerComponent from "../../Components/Inputs/DatePicker";
+import SearchableDropdownSelector from "../../Components/Inputs/SearchableDropdownSelector";
+import DropdownSelector from "../../Components/Inputs/DropdownSelector";
+import TokenInput from "../../Components/Inputs/TokenInput";
 import {
-  FieldControlModel,
   MarketCheckoutDataModel,
   MarketTokensModel,
   CheckoutModel,
@@ -12,8 +11,6 @@ import {
   MarketFeeModel,
   VendorModel,
 } from "../../lib/Constants/DataModels";
-
-import DataLabel from "../../Components/DataLabel/DataLabel";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { DBResHandlers, 
@@ -23,23 +20,19 @@ import { DBResHandlers,
 } from "../../lib/API/APICalls";
 
 import '../../index.css';
+import DataLabel from "../../Components/DataLabel/DataLabel";
 import FlexGrid from "../../FlexGrid/FlexGrid";
+import MSMForm from "../../Components/Form Flow/MSMForm";
+import FormSection from "../../Components/Form Flow/FormSection";
+import { resetMSMForm } from "../../Components/Form Flow/MSMFormStateFunctions";
 
 import { DisplaySuccessAlert, DisplayErrorAlert } from "../../Components/Popups/PopupHelpers";
-import PrimaryButton from "../../Components/Buttons/PrimaryButton";
+
 
 interface TokenTrackerModel {
   quantity: number;
   Token: MarketTokensModel;
 }
-
-const FIELD_LOC = { MARKET: 0, DATE: 1, VENDOR: 2, TOKENS: 3 }
-const CheckoutFieldDefaults: FieldControlModel[] = [ 
-  { fieldStatus: "active", input_label: "Market" },
-  { fieldStatus: "active", input_label: "Market Date" },
-  { fieldStatus: "disabled", input_label: "Vendor" },
-  { fieldStatus: "disabled", input_label: "" },
-];
 
 const GrossProfitTokenModel: TokenTrackerModel = {
     quantity: 0,
@@ -49,7 +42,6 @@ const GrossProfitTokenModel: TokenTrackerModel = {
 const Checkout = () => {
 
   // State Variables
-  const [fieldState, setFourmState] = useState<FieldControlModel[]>([...CheckoutFieldDefaults]);
   const [Markets, setMarkets] = useState<MarketCheckoutDataModel[]>([]);
   const [Vendors, setVendors] = useState<VendorModel[]>([]);
   const [Fees, setFees] = useState<MarketFeeModel[]>([]);
@@ -104,27 +96,19 @@ const Checkout = () => {
 
         // POPULATE VENDORS
         if (data.vendors !== undefined) {
-
           setVendors([...data.vendors]);
-
         } else {
-
           console.warn("NO VENDORS FOUND FOR: ", selectedMarket?.market_name);
           setVendors([]);
-
         }
 
         // POPULATE TOKENS
         if (data.tokens !== undefined && data.tokens !== null) {
-
           setTokens([GrossProfitTokenModel, 
             ...data.tokens.map((token: MarketTokensModel) => {return { quantity: 0, Token: token }})]);
-          
         } else {
-
           console.warn("NO TOKENS FOUND FOR: ", selectedMarket?.market_name);
           setTokens([GrossProfitTokenModel]);
-
         }
 
         // POPULATE FEES
@@ -147,23 +131,17 @@ const Checkout = () => {
 //////////////////////////////// 
   const handleMarketChanged = (value: string) => {
 
-    setFourmState((prev) => {prev[FIELD_LOC.DATE].fieldStatus = "active"; return [...prev];});
-
+    console.log("NEW MARKET: ", value);
     let newMarket: MarketCheckoutDataModel | undefined = Markets.find((market: MarketCheckoutDataModel) => market.market_name === value);
     setSelectedMarket(newMarket);
-
+    resetMSMForm();
+    
   };
 
-  const handleDateChanged = (value: Dayjs | null) => {
-
-    setFourmState((prev) => {prev[FIELD_LOC.VENDOR].fieldStatus = "active"; return [...prev];});
-    setSelectedDate(value);
-
-  };
+  const handleDateChanged = (value: Dayjs | null) => { setSelectedDate(value); };
 
   const handleVendorChanged = (value: string) => {
 
-    setFourmState((prev) => {prev[FIELD_LOC.TOKENS].fieldStatus = "active"; return [...prev];});
     let selectedVendor: VendorModel | undefined = Vendors.find((vendor: VendorModel) => vendor.business_name === value);
     if(selectedVendor !== undefined) {
       setSelectedVendor(selectedVendor);
@@ -174,7 +152,7 @@ const Checkout = () => {
     setMarketFee((prev) => {
 
       let fee = Fees.find((fee: MarketFeeModel) => fee.vendor_type === selectedVendor?.type);
-      // console.log("FEE: ", selectedVendor?.type, fee);  
+      
       if(fee !== undefined) {
 
         let GP = Tokens[0].quantity; /* Gross Profit */
@@ -278,49 +256,58 @@ const Checkout = () => {
     <div className="DefaultPageContainer">
 
       <h1 style={{textAlign:"left"}}>Checkout</h1>
+      <MSMForm>
+        <FormSection sectionKey="CheckoutOptions">
 
-      {/* MARKET SELECTION */}
-      <DropdownSelector
-        fieldState={fieldState[FIELD_LOC.MARKET]}
-        options={Markets.map((market: MarketCheckoutDataModel) => market.market_name)}
-        firstValue={Markets[0] ? Markets[0].market_name : ""}
-        onChanged={handleMarketChanged}
-      />
+           {/* MARKET SELECTION */}
+          <DropdownSelector
+            options={Markets.map((market: MarketCheckoutDataModel) => market.market_name)}
+            defaultValue={Markets[0] ? Markets[0].market_name : ""}
+            onChanged={handleMarketChanged}
+            formKey={"Market"}
+          />
+          
+          {/* DATE SELECTION */}
+          <DatePickerComponent
+            initalDate={dayjs()}
+            onDateChanged={handleDateChanged}
+            formKey={"Date"}
+          />
 
-      {/* DATE SELECTION */}
-      <DatePickerComponent
-        initalDate={dayjs()}
-        fieldState={fieldState[FIELD_LOC.DATE]}
-        onDateChanged={handleDateChanged}
-      />
+        </FormSection>
 
-      <hr className="solid" style={{marginBottom: "10px"}}/>
+        <FormSection sectionKey="VendorSelection" disableOnReset>
 
-      {/* VENDOR SELECTION */}
-      <SearchableDropdownSelector
-        options={[...Vendors.map((vendor: VendorModel) => {return vendor.business_name})]}
-        firstselected=""
-        onSelect={handleVendorChanged}
-        fieldState={fieldState[FIELD_LOC.VENDOR]}
-      />
+          {/* VENDOR SELECTION */}
+          <SearchableDropdownSelector
+            options={[...Vendors.map((vendor: VendorModel) => {return vendor.business_name})]}
+            firstselected=""
+            onSelect={handleVendorChanged}
+            formKey={"CheckoutVendor"}
+          />
 
-      {/* TOKENS */}
-      <CheckoutNumericalEntry
-        fields={[...Tokens.map((token: TokenTrackerModel) => token.Token)]}
-        fieldState={fieldState[FIELD_LOC.TOKENS]}
-        onChange={handleTokensChanged}
-      />
+        </FormSection>
 
-      <FlexGrid items = 
-        {[
-          <DataLabel label="Market Fee" value={marketFee} />,
-          <DataLabel label="Profit" value={netVendorProfit} />
-        ]}
-      />
-      
+        <FormSection sectionKey="TokenSelection" isNested disableOnReset>
+          <FlexGrid>
+            {Tokens.map((token: TokenTrackerModel, index: number) => (
+              <TokenInput
+                key={selectedMarket?.market_name + token.Token.type}
+                name={token.Token.type}
+                type={token.Token.type}
+                perDollarValue={token.Token.per_dollar_value}
+                listIndex={index}
+                formKey={token.Token.type + index}
+                onChange={handleTokensChanged} />
+            ))}
+          </FlexGrid>
+        </FormSection>
+      </MSMForm>
 
-    <PrimaryButton text="Submit To Database" onClick={submitCheckoutToDatabase} />
-
+      <FlexGrid>
+        <DataLabel label="Market Fee" value={marketFee} />
+        <DataLabel label="Profit" value={netVendorProfit} />
+      </FlexGrid>
     </div>
   );
 
