@@ -1,8 +1,8 @@
-import { alerttype, vendortype, feetype, fieldstatus } from "./Types";
+import { alerttype, VendorType, FeeType, fieldstatus } from "./Types";
 
 export interface MarketFeeModel {
-    vendor_type: vendortype,
-    fee_type: feetype,
+    vendor_type: VendorType,
+    fee_type: FeeType,
     flat: number,
     percent: number,
 }
@@ -13,7 +13,7 @@ export interface VendorModel {
     business_name: string; 
     cpc_expr: string;
     current_cpc: string;
-    type: vendortype;
+    type: VendorType;
   }
 
 export interface TokenSubmissionModel {

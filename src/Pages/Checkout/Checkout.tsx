@@ -34,6 +34,9 @@ import FormSection from "../../Components/Form Flow/FormSection";
 import { resetMSMFormSections } from "../../Components/Form Flow/MSMFormStateFunctions";
 
 import { DisplaySuccessAlert, DisplayErrorAlert } from "../../Components/Popups/PopupHelpers";
+import { FeeType } from "../../lib/Constants/Types";
+import { capitalizeFirstLetter } from "../../Helpers";
+import DescribeText from "../../Components/DescribeText";
 
 
 const Checkout = () => {
@@ -48,6 +51,7 @@ const Checkout = () => {
   const [selectedVendor, setSelectedVendor] = useState<VendorModel>();
   const [netVendorProfit, setNetVendorProfit] = useState<number>(0);
   const [marketFee, setMarketFee] = useState<number>(0);
+  const [marketFeeModel, setMarketFeeModel] = useState<MarketFeeModel | null>(null);
 
 
 ////////////////////////////////
@@ -55,7 +59,6 @@ const Checkout = () => {
 //////////////////////////////// 
   const handleMarketChanged = (value: string) => {
 
-    console.log("NEW MARKET: ", value);
     let newMarket: MarketCheckoutDataModel | undefined = Markets.find((market: MarketCheckoutDataModel) => market.market_name === value);
     setSelectedMarket(newMarket);
     resetMSMFormSections();
@@ -72,28 +75,66 @@ const Checkout = () => {
     }
   };
 
-  const refreshMarketFee = useCallback( () => {
-    setMarketFee((prev) => {
+  const calculateMarketFee = useCallback(() => {
 
-      let fee = Fees.find((fee: MarketFeeModel) => fee.vendor_type === selectedVendor?.type);
-      
-      if(fee !== undefined) {
-
-        let GP = Tokens[0].quantity; /* Gross Profit */
-        switch(fee.fee_type) {
-          case "PERCENT_GROSS":         return GP * fee.percent;
-          case "FLAT_FEE":              return fee.flat;
-          case "FLAT_PERCENT_COMBO":    return fee.flat + fee.percent * GP;
-          case "MAX_OF_EITHER":         return fee.flat > fee.percent * GP ? fee.flat : fee.percent * GP;
-          case "GOV_FEE":               return fee.flat
-
-        }
+      if (!marketFeeModel) {
+        setMarketFee(0);
+        return;
       }
 
-      console.warn("NO FEE FOUND FOR: ", selectedVendor?.type);
-      return 0;
+      let calculatedFee = 0;
 
-  });}, [Fees, Tokens, selectedVendor]);
+      let GP = Tokens[0].quantity; /* Gross Profit */
+      switch(marketFeeModel.fee_type) {
+        case FeeType.PERCENT_GROSS:         calculatedFee = GP * marketFeeModel.percent; break;
+        case FeeType.FLAT_FEE:              calculatedFee =  marketFeeModel.flat; break;
+        case FeeType.FLAT_PERCENT_COMBO:    calculatedFee = marketFeeModel.flat + marketFeeModel.percent * GP; break;
+        case FeeType.MAX_OF_EITHER:         calculatedFee = marketFeeModel.flat > marketFeeModel.percent * GP ? marketFeeModel.flat : marketFeeModel.percent * GP; break;
+        case FeeType.GOV_FEE:               calculatedFee = marketFeeModel.flat
+
+      }
+      
+
+      setMarketFee(calculatedFee);
+    }, [marketFeeModel, Tokens]); /* Fees, Tokens, selectedVendor */
+
+    // Generate the string explaining the market fee calculation
+    const getMarketFeeCalculationString = (): string => {
+      
+      if(!(Fees && Fees.length > 0)){
+        return "No vendor fees found for this market"
+      }
+
+      if (!marketFeeModel) {
+        if(selectedVendor){
+          return `No fee found for ${capitalizeFirstLetter(selectedVendor.type)}`;
+        }
+        return "No fees applicable."
+      }
+
+      const GP = Tokens[0].quantity; // Gross Profit
+
+      switch (marketFeeModel.fee_type) {
+        case FeeType.PERCENT_GROSS:
+          return `Percent Gross: ${marketFeeModel.percent * 100}% of Gross Profit (${GP} * ${marketFeeModel.percent} = ${marketFee})`;
+
+        case FeeType.FLAT_FEE:
+          return `Flat Fee: $${marketFee}`;
+
+        case FeeType.FLAT_PERCENT_COMBO:
+          return `Flat + Percent: $${marketFeeModel.flat} + (${GP} * ${marketFeeModel.percent} = ${marketFeeModel.percent * GP})`;
+
+        case FeeType.MAX_OF_EITHER:
+          const percentFee = marketFeeModel.percent * GP;
+          return `Max of Either: $${marketFeeModel.flat} or (${GP} * ${marketFeeModel.percent} = ${percentFee})`;
+
+        case FeeType.GOV_FEE:
+          return `Government Fee: $${marketFee}`;
+
+        default:
+          return "Unknown fee type";
+      }
+    };
 
   const handleTokensChanged = (newValue: number, fieldIndex: number) => {
 
@@ -108,8 +149,19 @@ const Checkout = () => {
 
     setTokens((prev) => {prev[fieldIndex].quantity = newValue; return [...prev];});
 
-    refreshMarketFee();
+    calculateMarketFee();
   };
+
+    // Update the market fee model when the vendor changes
+    useEffect(() => {
+      const fee = Fees.find((fee: MarketFeeModel) => fee.vendor_type === selectedVendor?.type);
+      setMarketFeeModel(fee || null);
+    }, [selectedVendor, Fees]);
+  
+    // Recalculate the market fee when the model or tokens change
+    useEffect(() => {
+      calculateMarketFee();
+    }, [marketFeeModel, Tokens]);
 
   const submitCheckoutToDatabase = () => {
     // TODO: If Date is null, pass an empty string
@@ -173,12 +225,6 @@ const Checkout = () => {
     }
   }, [selectedMarket, selectedDate]);
 
-  // On Vendor Changed
-  useEffect(() => {
-    if (selectedVendor !== undefined) {
-      refreshMarketFee();
-    }
-  }, [selectedVendor, refreshMarketFee]);
 
 ////////////////////////////////
 //     HELPER FUNCTIONS       //
@@ -256,7 +302,9 @@ const Checkout = () => {
       </MSMForm>
 
       <FlexGrid>
-        <DataLabel label="Market Fee" value={marketFee} />
+        <DescribeText text={getMarketFeeCalculationString()}>
+          <DataLabel label="Market Fee" value={marketFee} />
+        </DescribeText>
         <DataLabel label="Profit" value={netVendorProfit} />
       </FlexGrid>
     </div>
