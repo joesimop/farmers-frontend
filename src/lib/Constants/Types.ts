@@ -15,6 +15,12 @@ export enum FeeType {
     GOV_FEE = "GOV_FEE"
 }
 
+export interface ProducerContact {
+    first_name: string,
+    last_name: string,
+    email: string
+}
+
 export type fieldstatus = "active" | "disabled" | "error"
 
 export type alerttype = OverridableStringUnion<AlertColor, AlertPropsColorOverrides>;

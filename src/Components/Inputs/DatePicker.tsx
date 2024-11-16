@@ -15,7 +15,7 @@ interface DatePickerProps{
   onDateChanged: (value: Dayjs | null) => void;
 }
 
-const  DatePickerComponent: React.FC<DatePickerProps> = ({initalDate, formKey, onDateChanged}) => {
+const  MSMDatePicker: React.FC<DatePickerProps> = ({initalDate, formKey, onDateChanged}) => {
  
   // Initialize the selected value
   const [Date, setDate] = React.useState<Dayjs | null>();
@@ -47,4 +47,4 @@ const  DatePickerComponent: React.FC<DatePickerProps> = ({initalDate, formKey, o
     );
   }
 
-  export default DatePickerComponent;
+  export default MSMDatePicker;

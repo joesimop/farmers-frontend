@@ -5,6 +5,7 @@ import { DBResHandlers } from '../../lib/API/APICalls';
 import Box from '@mui/material/Box';
 import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
 import PrimaryButton from '../../Components/Buttons/PrimaryButton';
+import CreateVendorForm from '../../Components/Forms/CreateVendorFrom';
 
 interface TempVendorModel {
   id: number;
@@ -55,11 +56,14 @@ const VendorManagement = () => {
       <div>
         <p>Vendor Management</p>
 
-        <PrimaryButton text="Get Vendors" onClick={getVendors}/>
+        <CreateVendorForm onSubmit={() => console.log("Submitted!")}/>
+
+
+        {/* <PrimaryButton text="Get Vendors" onClick={getVendors}/>
 
       <Box sx={{ height: 400, width: '100%' }}>
         <TypedDataGrid<TempVendorModel> data={rows} hiddenFields={[]} />
-       </Box>
+       </Box> */}
       </div>
 
   );

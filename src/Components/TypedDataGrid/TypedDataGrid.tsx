@@ -3,9 +3,11 @@ import { DataGrid } from '@mui/x-data-grid';
 interface TypedDataGridProps<T> {
   data: T[]; // Array of data items of type T
   hiddenFields?: string[]; // Optional array of fields to hide
+  hideFooter?: boolean;
+  hideHeader?: boolean;
 }
 
-const TypedDataGrid = <T,>({ data, hiddenFields = [] }: TypedDataGridProps<T>) => {
+const TypedDataGrid = <T,>({ data, hiddenFields = [], hideFooter = false, hideHeader = false }: TypedDataGridProps<T>) => {
 
     const columns =  data.length
     ? (Object.keys(data[0] as string[]) as Array<keyof T>)
@@ -32,6 +34,8 @@ const TypedDataGrid = <T,>({ data, hiddenFields = [] }: TypedDataGridProps<T>) =
           }}
           pageSizeOptions={[5]}
         disableRowSelectionOnClick
+        hideFooter={hideFooter}
+        columnHeaderHeight={hideHeader ? 0 : 56}
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from "dayjs";
-import DatePickerComponent from "../../Components/Inputs/DatePicker";
+import MSMDatePicker from "../../Components/Inputs/DatePicker";
 import SearchableDropdownSelector from "../../Components/Inputs/SearchableDropdownSelector";
 import DropdownSelector from "../../Components/Inputs/DropdownSelector";
 import TokenInput from "../../Components/Inputs/TokenInput";
@@ -265,7 +265,7 @@ const Checkout = () => {
           />
           
           {/* DATE SELECTION */}
-          <DatePickerComponent
+          <MSMDatePicker
             initalDate={dayjs()}
             onDateChanged={handleDateChanged}
             formKey={"Date"}
