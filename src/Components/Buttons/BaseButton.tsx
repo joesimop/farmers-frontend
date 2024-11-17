@@ -52,7 +52,7 @@ const BaseButton: React.FC<BaseButtonProps> = ({
         fontFamily: 'var(--app-font)',
         ...sx,
       }}
-      // disabled={disabled}
+      disabled={disabled}
     >
       {text}
     </Button>
