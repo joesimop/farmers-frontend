@@ -24,7 +24,7 @@ const FlexGrid: React.FC<FlexGridProps> = ({
   const itemSize = maxColumns / (Math.min(React.Children.count(children), maxColumns));
 
   return (
-    <Grid2 container spacing={{ xs: 2, md: 4 }} justifyContent="flex-end"
+    <Grid2 container spacing={{ xs: 2, md: 4 }} justifyContent="space-between"
            columns={limitColumns ? maxColumns : { xs: 4, sm: 8, md: 12 }} 
            {...gridProps}>
       {React.Children.map(children, (child, index) => (
