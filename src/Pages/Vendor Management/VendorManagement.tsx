@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
 import PrimaryButton from '../../Components/Buttons/PrimaryButton';
 import CreateVendorForm from '../../Components/Forms/CreateVendorFrom';
+import { DisplayModal } from '../../Components/Popups/PopupHelpers';
 
 interface TempVendorModel {
   id: number;
@@ -53,18 +54,21 @@ const VendorManagement = () => {
     DB_GetVendorsForMarketManger(1, mFunctions);
   }
   return (
-      <div>
+      <>
         <p>Vendor Management</p>
 
-        <CreateVendorForm onSubmit={() => console.log("Submitted!")}/>
 
-
-        {/* <PrimaryButton text="Get Vendors" onClick={getVendors}/>
+         <PrimaryButton text="Get Vendors" onClick={getVendors}/>
+         <PrimaryButton
+            text="Add Vendor"
+            onClick={ () => DisplayModal(<CreateVendorForm onSubmit={() => console.log("Submitted!")}/>
+            , ()=> {}, ()=> {}, "Submit")}
+             />
 
       <Box sx={{ height: 400, width: '100%' }}>
         <TypedDataGrid<TempVendorModel> data={rows} hiddenFields={[]} />
-       </Box> */}
-      </div>
+       </Box>
+      </>
 
   );
 };

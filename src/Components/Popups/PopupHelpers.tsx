@@ -19,5 +19,7 @@ export const DisplayAlert = (type: AlertType, message: string, networkStatus?: n
 export const DisplayModal = (
   content: ReactElement,
   onCancel?: () => void,
-  onConfirm?: () => void
-) => usePopupStore.getState().displayModal(content, onCancel, onConfirm);
+  onConfirm?: () => void,
+  confirmText?: string,
+  cancelText?: string,
+) => usePopupStore.getState().displayModal(content, onCancel, onConfirm, confirmText, cancelText);

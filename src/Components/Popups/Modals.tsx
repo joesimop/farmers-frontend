@@ -1,9 +1,10 @@
 import { usePopupStore } from './PopupDefnitions';
 import { Dialog, DialogActions, DialogContent, Button, Backdrop } from '@mui/material';
 import React from 'react';
+import  ActionButton from '../Buttons/ActionButton';
 
 export const PopupModal: React.FC = () => {
-  const { modal, hideModal } = usePopupStore();
+  const { modal, hideModal, /*confirmIsDisabledCallback*/ } = usePopupStore();
 
   if (!modal) return null;
 
@@ -31,12 +32,14 @@ export const PopupModal: React.FC = () => {
       <Dialog open={!!modal} onClose={handleCancel} maxWidth="sm" fullWidth>
         <DialogContent>{modal.content}</DialogContent>
         <DialogActions>
-          <Button onClick={handleCancel} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirm} color="primary">
-            Confirm
-          </Button>
+          <ActionButton 
+          text={modal.cancelText ? modal.cancelText : "Cancel"} 
+          onClick={handleCancel}/>
+
+          <ActionButton 
+          text={modal.confirmText ? modal.confirmText : "Confirm"}  
+          onClick={handleConfirm}
+          isDisabled={false}/>
         </DialogActions>
       </Dialog>
     </>

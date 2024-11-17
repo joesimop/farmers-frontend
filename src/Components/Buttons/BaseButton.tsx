@@ -1,5 +1,5 @@
 // BaseButton.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import "../../index.css";
 import Button, { ButtonProps as MUIButtonProps } from '@mui/material/Button';
 
@@ -17,6 +17,7 @@ export interface BaseButtonProps extends ButtonStyleProps {
   size?: 'small' | 'medium' | 'large';
   variant?: 'contained' | 'outlined';
   sx?: MUIButtonProps['sx'];
+  isDisabled?: boolean;
 }
 
 const BaseButton: React.FC<BaseButtonProps> = ({
@@ -30,11 +31,15 @@ const BaseButton: React.FC<BaseButtonProps> = ({
   hoverColor,
   hoverOpacity = 1,
   sx,
+  isDisabled = false
 }) => {
+
+  const [disabled, setDisabled] = useState(isDisabled); 
+
   return (
     <Button
       variant={variant}
-      onClick={onClick}
+      onClick={disabled ? () => {} : onClick}
       size={size}
       sx={{
         backgroundColor,
@@ -47,6 +52,7 @@ const BaseButton: React.FC<BaseButtonProps> = ({
         fontFamily: 'var(--app-font)',
         ...sx,
       }}
+      // disabled={disabled}
     >
       {text}
     </Button>
