@@ -4,28 +4,12 @@ import SearchableDropdownSelector from "../../Components/Inputs/SearchableDropdo
 import DropdownSelector from "../../Components/Inputs/DropdownSelector";
 import TokenInput from "../../Components/Inputs/TokenInput";
 import {
-  MarketCheckoutDataModel,
-  MarketTokensModel,
-  CheckoutModel,
-  TokenSubmissionModel,
-  MarketFeeModel,
-  VendorModel,
+  MarketToken,
+  Vendor,
+  MarketFee,
 } from "../../lib/Constants/DataModels";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { DBResHandlers, 
-  DB_GetVendorTokensFeesForMarket, 
-  DB_SubmitCheckout, 
-  DB_GetCheckoutInfoForManager 
-} from "../../lib/API/APICalls";
-
-import {
-  processMarketsResponse,
-  processVendorsAndTokensResponse,
-  processSubmissionResponse,
-  TokenFieldModel, GrossProfitTokenModel
-} from "./CheckoutDataValidation";
-
 import '../../index.css';
 import DataLabel from "../../Components/DataLabel/DataLabel";
 import FlexGrid from "../../FlexGrid/FlexGrid";
@@ -33,25 +17,45 @@ import MSMForm from "../../Components/Form Flow/MSMForm";
 import FormSection from "../../Components/Form Flow/FormSection";
 import { resetMSMFormSections } from "../../Components/Form Flow/MSMFormStateFunctions";
 
-import { DisplaySuccessAlert, DisplayErrorAlert } from "../../Components/Popups/PopupHelpers";
+import { DisplaySuccessAlert, DisplayErrorAlert, DisplayAlert } from "../../Components/Popups/PopupHelpers";
 import { FeeType } from "../../lib/Constants/Types";
 import { capitalizeFirstLetter } from "../../Helpers";
 import DescribeText from "../../Components/DescribeText";
+import { callEndpoint } from "../../lib/API/APIDefinitions";
+import { GetCheckoutOptions, CheckoutOption, TokenSubmit, CheckoutSubmit } from "./CheckoutAPICalls";
+import { GetCheckoutData } from "./CheckoutAPICalls";
+import { SubmitCheckout } from "./CheckoutAPICalls";
+import { Button } from "@mui/material";
+import ActionButton from "../../Components/Buttons/ActionButton";
+
+//To keep track of Token Fields
+interface TokenFieldModel {
+  quantity: number;
+  token: MarketToken;
+}
+
+const createTokenFieldModel = (quantity: number, token: MarketToken): TokenFieldModel => ({ quantity, token });
+
+//To treat Gross Profit as a token
+const GrossProfitTokenModel: TokenFieldModel = {
+  quantity: 0,
+  token: { id: 1, type: "Gross Profit", per_dollar_value: 1 },
+}
 
 
 const Checkout = () => {
 
   // State Variables
-  const [Markets, setMarkets] = useState<MarketCheckoutDataModel[]>([]);
-  const [Vendors, setVendors] = useState<VendorModel[]>([]);
-  const [Fees, setFees] = useState<MarketFeeModel[]>([]);
+  const [Markets, setMarkets] = useState<CheckoutOption[]>([]);
+  const [Vendors, setVendors] = useState<Vendor[]>([]);
+  const [Fees, setFees] = useState<MarketFee[]>([]);
   const [Tokens, setTokens] = useState<TokenFieldModel[]>([GrossProfitTokenModel]);
-  const [selectedMarket, setSelectedMarket] = useState<MarketCheckoutDataModel>();
+  const [selectedMarket, setSelectedMarket] = useState<CheckoutOption>();
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-  const [selectedVendor, setSelectedVendor] = useState<VendorModel>();
+  const [selectedVendor, setSelectedVendor] = useState<Vendor>();
   const [netVendorProfit, setNetVendorProfit] = useState<number>(0);
   const [marketFee, setMarketFee] = useState<number>(0);
-  const [marketFeeModel, setMarketFeeModel] = useState<MarketFeeModel | null>(null);
+  const [marketFeeModel, setMarketFeeModel] = useState<MarketFee | null>(null);
 
 
 ////////////////////////////////
@@ -59,7 +63,7 @@ const Checkout = () => {
 //////////////////////////////// 
   const handleMarketChanged = (value: string) => {
 
-    let newMarket: MarketCheckoutDataModel | undefined = Markets.find((market: MarketCheckoutDataModel) => market.market_name === value);
+    let newMarket: CheckoutOption | undefined = Markets.find((market: CheckoutOption) => market.market_name === value);
     setSelectedMarket(newMarket);
     resetMSMFormSections();
     
@@ -69,7 +73,8 @@ const Checkout = () => {
 
   const handleVendorChanged = (value: string) => {
 
-    let selectedVendor: VendorModel | undefined = Vendors.find((vendor: VendorModel) => vendor.business_name === value);
+    console.log(Vendors)
+    let selectedVendor: Vendor | undefined = Vendors.find((vendor: Vendor) => vendor.business_name === value);
     if(selectedVendor !== undefined) {
       setSelectedVendor(selectedVendor);
     }
@@ -93,7 +98,6 @@ const Checkout = () => {
         case FeeType.GOV_FEE:               calculatedFee = marketFeeModel.flat
 
       }
-      
 
       setMarketFee(calculatedFee);
     }, [marketFeeModel, Tokens]); /* Fees, Tokens, selectedVendor */
@@ -140,7 +144,7 @@ const Checkout = () => {
 
     setNetVendorProfit((prev) => {
       
-      let PDV = Tokens[fieldIndex].Token.per_dollar_value
+      let PDV = Tokens[fieldIndex].token.per_dollar_value
       return fieldIndex > 0 ?
         prev + Tokens[fieldIndex].quantity * PDV - newValue * PDV :
         prev - Tokens[0].quantity + newValue;
@@ -154,8 +158,10 @@ const Checkout = () => {
 
     // Update the market fee model when the vendor changes
     useEffect(() => {
-      const fee = Fees.find((fee: MarketFeeModel) => fee.vendor_type === selectedVendor?.type);
-      setMarketFeeModel(fee || null);
+
+      const fee = Fees.find((fee: MarketFee) => fee.vendor_type === selectedVendor?.type) || null
+      setMarketFeeModel(fee);
+
     }, [selectedVendor, Fees]);
   
     // Recalculate the market fee when the model or tokens change
@@ -171,7 +177,7 @@ const Checkout = () => {
     }
 
     // Builds the data sent to the db
-    let Data: CheckoutModel = {
+    let Data: CheckoutSubmit = {
       market_vendor_id: selectedVendor?.market_vendor_id,
       market_date: selectedDate?.format("YYYY-MM-DD"),
       reported_gross: Tokens[0].quantity,
@@ -180,14 +186,14 @@ const Checkout = () => {
     };
 
     //Submit Checkout
-    DB_SubmitCheckout(1, Data, {
-      OnSuccess: (response: any) => {
-        const message = processSubmissionResponse(response);
-        DisplaySuccessAlert(message, response.status);
+    callEndpoint({
+      endpointCall: SubmitCheckout(1, Data),
+      onSuccess: (data, statusCode) => {
+        DisplayAlert('success', "Submitted Checkout", statusCode)
       },
-      OnError: (error: any) => {
-        DisplayErrorAlert("Failed To Send Data", error.status);
-      },
+      onError: (errorCode) => {
+        DisplayAlert('error', "Checkout failed", errorCode)
+      }
     });
   };
 
@@ -196,32 +202,33 @@ const Checkout = () => {
 //        USE EFFECTS         //
 ////////////////////////////////
 
-  // On First Load
+  // On Mount
   useEffect(() => {
-    DB_GetCheckoutInfoForManager(1, {
-      OnSuccess: (response: any) => {
-        const markets = processMarketsResponse(response);
-        setMarkets(markets);
-        setSelectedMarket(markets[0]);
+    callEndpoint({
+      endpointCall: GetCheckoutOptions(1),
+      onSuccess: (data) => {
+        setMarkets(data)
       },
-      OnError: (error: any) => {},
-    });
+      onError: (errorCode) => {
+        DisplayAlert('error', "Could not get checkout options.", errorCode)
+      }
+    })
   }, []);
 
   // On Market or Date Changed
   useEffect(() => {
     if (selectedMarket !== undefined && selectedDate !== null) {
-      DB_GetVendorTokensFeesForMarket(1, selectedMarket?.market_id, selectedDate?.format("YYYY-MM-DD"),
-        {
-          OnSuccess: (response: any) => {
-            const { vendors, tokens, fees } = processVendorsAndTokensResponse( response, selectedMarket?.market_name);
-            setVendors(vendors);
-            setTokens(tokens);
-            setFees(fees);
-          },
-          OnError: (error: any) => {},
+      callEndpoint({
+        endpointCall: GetCheckoutData(1, selectedMarket.market_id, selectedDate),
+        onSuccess: (data) => {
+          setVendors(data.vendors)
+          setTokens([GrossProfitTokenModel, ...data.market_tokens.map((token) => createTokenFieldModel(0, token))])
+          setFees(data.market_fees ?? [])
+        },
+        onError: (errorCode) => {
+          DisplayAlert('error', "Could not get checkout data.", errorCode)
         }
-      );
+      })
     }
   }, [selectedMarket, selectedDate]);
 
@@ -237,13 +244,13 @@ const Checkout = () => {
       (2) the quantity of the token
   */
       const GenerateTokensForSubmission: Function = (): any[] => {
-        let tokensToSubmit: TokenSubmissionModel[] = [];
+        let tokensToSubmit: TokenSubmit[] = [];
         Tokens.forEach((token: TokenFieldModel, index: number) => {
+
+          //Don't include gross profit
           if (index !== 0) {
-            tokensToSubmit.push({
-              market_token_id: token.Token.id,
-              count: token.quantity,
-            }); }});
+            tokensToSubmit.push({ market_token_id: token.token.id, count: token.quantity }); 
+          }});
 
         return tokensToSubmit;
       };
@@ -258,7 +265,7 @@ const Checkout = () => {
 
            {/* MARKET SELECTION */}
           <DropdownSelector
-            options={Markets.map((market: MarketCheckoutDataModel) => market.market_name)}
+            options={Markets.map((checkout_option: CheckoutOption) => checkout_option.market_name)}
             defaultValue={Markets[0] ? Markets[0].market_name : ""}
             onChanged={handleMarketChanged}
             formKey={"Market"}
@@ -277,10 +284,10 @@ const Checkout = () => {
 
           {/* VENDOR SELECTION */}
           <SearchableDropdownSelector
-            options={[...Vendors.map((vendor: VendorModel) => {return vendor.business_name})]}
+            options={[...Vendors.map((vendor: Vendor) => {return vendor.business_name})]}
             firstselected=""
             onSelect={handleVendorChanged}
-            formKey={"CheckoutVendor"}
+            formKey="CheckoutVendor"
           />
 
         </FormSection>
@@ -289,12 +296,12 @@ const Checkout = () => {
           <FlexGrid>
             {Tokens.map((token: TokenFieldModel, index: number) => (
               <TokenInput
-                key={selectedMarket?.market_name + token.Token.type}
-                name={token.Token.type}
-                type={token.Token.type}
-                perDollarValue={token.Token.per_dollar_value}
+                key={selectedMarket?.market_name + token.token.type}
+                name={token.token.type}
+                type={token.token.type}
+                perDollarValue={token.token.per_dollar_value}
                 listIndex={index}
-                formKey={token.Token.type + index}
+                formKey={token.token.type + index}
                 onChange={handleTokensChanged} />
             ))}
           </FlexGrid>
@@ -307,6 +314,7 @@ const Checkout = () => {
         </DescribeText>
         <DataLabel label="Profit" value={netVendorProfit} />
       </FlexGrid>
+      <ActionButton text="Submit" onClick={submitCheckoutToDatabase} />
     </div>
   );
 

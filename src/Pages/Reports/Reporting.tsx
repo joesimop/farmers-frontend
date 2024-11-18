@@ -1,9 +1,7 @@
 import './Reporting.css'; // External CSS for styling and animations
-import { DB_GetReportingOptions, DB_GetReports,  DBResHandlers} from '../../lib/API/APICalls';
 import DropdownSelector from '../../Components/Inputs/DropdownSelector';
 import {useState, useEffect, useCallback, useMemo} from 'react';
 import dayjs from 'dayjs';
-import { ReportModel } from '../../lib/Constants/DataModels';
 import { DisplayAlert } from '../../Components/Popups/PopupHelpers';
 import "../../index.css";
 import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
@@ -11,50 +9,23 @@ import Box from '@mui/material/Box';
 import PrimaryButton from '../../Components/Buttons/PrimaryButton';
 import MSMForm from '../../Components/Form Flow/MSMForm';
 import FormSection from '../../Components/Form Flow/FormSection';
+import { callEndpoint } from '../../lib/API/APIDefinitions';
+
+//API Calls and associated data types
+import { GetReportingOptions, ReportingOption} from './ReportingAPICalls';
+import { GetVendorReport, VendorReport } from './ReportingAPICalls';
 
 
-interface MarketSelectorModel {
-  market_name: string;
-  market_id: number;
-  market_dates: string[];
-}
 
 const Reporting = () => {
 
-  const [possibleMarketSelections, setPossibleMarketSelections] = useState<MarketSelectorModel[]>([]);
+  const [possibleMarketSelections, setPossibleMarketSelections] = useState<ReportingOption[]>([]);
   const [possibleMarkets, setPossibleMarkets] = useState<string[]>([]);
   const [possibleDates, setPossibleDates] = useState<string[]>([]);
-  const [reportData, setReportData] = useState<ReportModel[]>([]);
+  const [reportData, setReportData] = useState<VendorReport[]>([]);
   const [selectedMarket, setSelectedMarket] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
 
-  let getReportingOptionsHandlers: DBResHandlers = useMemo<DBResHandlers>(() => (
-  {
-      OnSuccess: (response: any, status: number) => {
-          DisplayAlert('success', "Successfully retrieved report options", status);
-          setPossibleMarketSelections(response.data);
-      },
-      OnError: (response: any, status: number) => {
-          DisplayAlert('success', "Error retrieving report options", status);
-      },
-      OnFinally: () => {
-          console.log("Finally");
-      }
-  }), []);
-
-  let getReportHandlers: DBResHandlers =
-  {
-      OnSuccess: (response: any, status: number) => {
-          DisplayAlert('success', "Successfully retrieved report options", status);
-          setReportData(response.data);
-      },
-      OnError: (response: any, status: number) => {
-          DisplayAlert('success', "Error retrieving report options", status);
-      },
-      OnFinally: () => {
-          console.log("Finally");
-      }
-  };
 
   const handleMarketSelectionChanged = (value: string) => {
     console.log("Market Selected: " + value); 
@@ -69,16 +40,23 @@ const Reporting = () => {
   const getReports = () => {
 
     let marketID = possibleMarketSelections.find(
-      (market: MarketSelectorModel) => market.market_name === selectedMarket)?.market_id;
+      (market: ReportingOption) => market.market_name === selectedMarket)?.market_id;
 
-    DB_GetReports(1, marketID === 0 ? undefined : marketID, selectedDate, getReportHandlers);
-
+    callEndpoint({
+      endpointCall: GetVendorReport(1, marketID === 0 ? undefined : marketID, selectedDate),
+      onSuccess: (data) => {
+        setReportData(data)
+      },
+      onError: (errorCode) => {
+        DisplayAlert('error', "Could not vendor report", errorCode)
+      },
+    });
   }
 
   const getMarketOptions = useCallback( () => {  
 
     if(possibleMarketSelections.length === 0) { return []; }
-    return possibleMarketSelections.map((market: MarketSelectorModel) => market.market_name);
+    return possibleMarketSelections.map((market: ReportingOption) => market.market_name);
 
   }, [possibleMarketSelections]);
 
@@ -86,19 +64,18 @@ const Reporting = () => {
     
     if(possibleMarketSelections.length === 0) { return []; }
 
-    let marketIndex: number = possibleMarketSelections.findIndex((market: MarketSelectorModel) => market.market_name === curMarket);
+    let marketIndex: number = possibleMarketSelections.findIndex((market: ReportingOption) => market.market_name === curMarket);
     if (marketIndex === -1) { return []; }
     
     let aggregatedDates: string[][] = [];
     if (marketIndex === 0) {
 
-      possibleMarketSelections.forEach((market: MarketSelectorModel, index: number) => {
+      possibleMarketSelections.forEach((market: ReportingOption, index: number) => {
         if(index === 0) { return; }
         aggregatedDates.push(market.market_dates);
       });
     }
     
-    console.log(possibleMarketSelections[marketIndex].market_dates);
     aggregatedDates.push(marketIndex > -1 ? possibleMarketSelections[marketIndex].market_dates : []);
 
     let flatDates: string[] = aggregatedDates.flat();
@@ -126,7 +103,19 @@ const Reporting = () => {
     
   },[possibleMarketSelections, getMarketOptions, getDateOptions]);
 
-  useEffect(() => { DB_GetReportingOptions(1, getReportingOptionsHandlers)}, [getReportingOptionsHandlers] ); 
+  useEffect(() => {
+    const MarketManagerId = 1; // Replace with the actual MarketManager ID
+
+    callEndpoint({
+      endpointCall: GetReportingOptions(MarketManagerId),
+      onSuccess: (data) => {
+        setPossibleMarketSelections(data)
+      },
+      onError: (errorCode) => {
+        DisplayAlert('error', "Could not complete get options", errorCode)
+      },
+    });
+  }, []);
 
   return (
     <div className='DefaultPageContainer' style={{display: "flex", flexDirection: "column"}}>
@@ -159,11 +148,9 @@ const Reporting = () => {
       </div>
       <PrimaryButton sx={{maxHeight: '3em', marginTop: '0.9em'}} text="Retrieve Reports" onClick={getReports}/>  
     </div>
-    
-  
       <Box sx={{ flexGrow: 1 }}>
         {reportData.length > 0 ? 
-        <TypedDataGrid<ReportModel> data={reportData} hiddenFields={["tokens"]}/> : 
+        <TypedDataGrid data={reportData} hiddenFields={["tokens"]}/> : 
         <h1>No data to display</h1>}
       </Box>
     </div>

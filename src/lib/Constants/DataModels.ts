@@ -1,32 +1,25 @@
 import { alerttype, VendorType, FeeType, fieldstatus } from "./Types";
 
-export interface MarketFeeModel {
-    vendor_type: VendorType,
-    fee_type: FeeType,
-    flat: number,
-    percent: number,
-}
-
-export interface VendorModel { 
-    vendor_id: number;
+export interface Vendor {
+    id: number;
     market_vendor_id: number;
-    business_name: string; 
-    cpc_expr: string;
+    business_name: string;
     current_cpc: string;
-    type: VendorType;
-  }
-
-export interface TokenSubmissionModel {
-    market_token_id: number,
-    count: number
+    cpc_expr: Date;
+    type: string;
 }
-
-export interface CheckoutModel {  
-    market_vendor_id: number | undefined,
-    market_date: string | undefined, /* YYYY-MM-DD */
-    reported_gross: number,
-    fees_paid: number,
-    tokens:TokenSubmissionModel[]
+  
+export interface MarketFee {
+    vendor_type: string;
+    fee_type: string;
+    flat: number;
+    percent: number;
+}
+  
+export interface MarketToken {
+    id: number;
+    type: string;
+    per_dollar_value: number;
 }
 
 export interface MarketTokensModel {
@@ -51,18 +44,4 @@ export interface AlertDataModel {
     message: string;
     type: alerttype;
     visible: boolean;
-}
-
-export interface ReportTokenModel {
-    type: string,
-    count: number
-}
-
-export type ReportModel  ={
-    id: number,
-    market_date: string,
-    business_name: string,
-    fees_paid: number,
-    gross: number,
-    tokens: ReportTokenModel[]
 }
