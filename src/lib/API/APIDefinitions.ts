@@ -1,8 +1,8 @@
 // api/axiosInstance.ts
 import axios, { HttpStatusCode } from 'axios';
 import { AxiosResponse } from 'axios';
-import { stat } from 'fs/promises';
 import { Dispatch, SetStateAction } from 'react';
+import { isEmptyList } from '../../Helpers';
 
 export const axiosInstance = axios.create({
   baseURL: 'http://127.0.0.1:8000', // Replace with your API's base URL
@@ -100,6 +100,7 @@ export const callEndpoint = async <T>({
     }
 };
 
+
 type StateSetter<T> = Dispatch<SetStateAction<T>>;
 
 type ReactStateCallEndpointArgs<T> = CallEndpointArgs<T> & {
@@ -121,15 +122,28 @@ export const callEndpointWithState = async <T>({
     
     await callEndpoint<T>({
         endpointCall,
-        onSuccess: (data, statusCode) => 
-        {setState({
-          data: data,
-          state: APIResultState.SUCCESS,
-          status: statusCode ?? HttpStatusCode.Ok
-        }); 
-        if (onSuccess){
-            onSuccess(data)
-        }
+        onSuccess: (data, statusCode) => {
+
+            //If we got not data back
+            if (isEmptyList(data)){
+                setState({
+                    data: data,
+                    state: APIResultState.NO_DATA,
+                    status: statusCode ?? HttpStatusCode.NoContent
+                }); 
+                
+            // Otherwise, we have valid data
+            } else {
+                setState({
+                    data: data,
+                    state: APIResultState.SUCCESS,
+                    status: statusCode ?? HttpStatusCode.Ok
+                  }); 
+          
+                  if (onSuccess){
+                      onSuccess(data)
+                  }
+            }
         },
         onError: (error) => {
           setState({
