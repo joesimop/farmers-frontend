@@ -15,6 +15,7 @@ import DataLabel from "../../Components/DataLabel/DataLabel";
 import FlexGrid from "../../FlexGrid/FlexGrid";
 import MSMForm from "../../Components/Form Flow/MSMForm";
 import FormSection from "../../Components/Form Flow/FormSection";
+import FormData from "../../Components/Form Flow/FormData";
 import { resetMSMFormSections } from "../../Components/Form Flow/MSMFormStateFunctions";
 
 import { DisplayErrorAlert, DisplayAlert } from "../../Components/Popups/PopupHelpers";
@@ -261,7 +262,7 @@ const Checkout = () => {
 
       <h1>Checkout</h1>
 
-      <MSMForm isAuto>
+      <MSMForm isAuto onSubmit={submitCheckoutToDatabase}>
         <FormSection sectionKey="CheckoutOptions">
 
            {/* MARKET SELECTION */}
@@ -274,11 +275,21 @@ const Checkout = () => {
           
           {/* DATE SELECTION */}
           <MSMDatePicker
-            initalDate={dayjs()}
+            defaultDate={dayjs()}
             onDateChanged={handleDateChanged}
             formKey={"Date"}
             sx={{ width: "100%" }}
+            validationFunction={(date) => {
+              if (!date) {
+                return "Date must have a value.";
+              }
+              if (date >= dayjs()) {
+                return "Date must be today or before.";
+              }
+              return null; // No error
+            }}
           />
+
 
         </FormSection>
 
@@ -308,15 +319,18 @@ const Checkout = () => {
             ))}
           </FlexGrid>
         </FormSection>
+
+
+        <FormData>
+          <FlexGrid>
+            <DescribeText text={getMarketFeeCalculationString()}>
+              <DataLabel label="Market Fee" value={marketFee} />
+            </DescribeText>
+            <DataLabel label="Profit" value={netVendorProfit} />
+          </FlexGrid>
+        </FormData>
       </MSMForm>
 
-      <FlexGrid>
-        <DescribeText text={getMarketFeeCalculationString()}>
-          <DataLabel label="Market Fee" value={marketFee} />
-        </DescribeText>
-        <DataLabel label="Profit" value={netVendorProfit} />
-      </FlexGrid>
-      <ActionButton text="Submit" onClick={submitCheckoutToDatabase} />
     </div>
   );
 

@@ -120,7 +120,7 @@ const Reporting = () => {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
       <div style={{minWidth: '30%'}}>
         <MSMForm>
-          <FormSection sectionKey='ReportInputs'>
+          <FormSection sectionKey='ReportInputs' isNested>
             <div style={{display: 'flex', gap: '1em', flexDirection: 'row'}}>
         <DropdownSelector
             options={possibleMarkets}
@@ -143,12 +143,12 @@ const Reporting = () => {
         
       
       <PrimaryButton sx={{maxHeight: '3em', marginTop: '0.9em'}} text="Retrieve Reports" onClick={getReports}/>  
-      <APIResultDisplay result={reportData}>
-        {(data) => (
-          <Box sx={{ flexGrow: 1 }}>
-              <TypedDataGrid data={data} hiddenFields={["tokens"]} />
-          </Box>
-        )}
+        <APIResultDisplay result={reportData}>
+          {(data) => (
+            <Box sx={{ flexGrow: 1 }}>
+                <TypedDataGrid data={data} hiddenFields={["tokens"]} />
+            </Box>
+          )}
       </APIResultDisplay>
       </div>
     </div>

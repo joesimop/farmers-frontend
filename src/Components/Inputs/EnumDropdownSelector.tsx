@@ -1,12 +1,13 @@
 import React from 'react';
 import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
 import { useFormControl } from '../Form Flow/useFormControl';
-import { nextMSMFormField } from '../Form Flow/MSMFormStateFunctions';
+import { nextMSMFormField, setFieldValidationState } from '../Form Flow/MSMFormStateFunctions';
+
 
 interface EnumDropdownSelectorProps<T extends Record<string, string>> {
-    enumObject: T; // Enum-like object where keys map to string values
+    enumObject: T; 
     formKey: string;
-    defaultValue: keyof T | T[keyof T]; // Can be a key or value from the enum
+    defaultValue: keyof T | T[keyof T]; 
     onChanged: (value: T[keyof T]) => void;
     includeNone?: boolean;
 }
@@ -18,7 +19,7 @@ const EnumDropdownSelector = <T extends Record<string, string>>({
     includeNone = false,
     onChanged,
 }: EnumDropdownSelectorProps<T>) => {
-    // Initialize selected value
+
     const [selectedValue, setSelectedValue] = React.useState<string>(defaultValue.toString());
 
     const inputRef = useFormControl(formKey);
@@ -28,7 +29,9 @@ const EnumDropdownSelector = <T extends Record<string, string>>({
         setSelectedValue(value);
         onChanged(enumObject[value as keyof T] as T[keyof T]);
         nextMSMFormField();
+        setFieldValidationState(formKey, true)  //Must be valid if changed
     };
+
 
     return (
         <div className="form-margin">
