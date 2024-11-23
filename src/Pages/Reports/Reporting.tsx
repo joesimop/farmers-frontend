@@ -100,7 +100,7 @@ const Reporting = () => {
     setPossibleDates( getDateOptions(possibleMarketSelections[0].market_name));
     setPossibleMarkets( getMarketOptions());
 
-    
+
   },[possibleMarketSelections, getMarketOptions, getDateOptions]);
 
   useEffect(() => {
@@ -119,32 +119,32 @@ const Reporting = () => {
 
   return (
     <div className='DefaultPageContainer' style={{display: "flex", flexDirection: "column"}}>
-    <h1 style={{textAlign: 'left'}}>Reporting</h1>
+        <h1 style={{textAlign: 'left'}}>Reporting</h1>
     {/* MARKET SELECTION */}
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
       <div style={{minWidth: '30%'}}>
         <MSMForm>
           <FormSection sectionKey='ReportInputs'>
             <div style={{display: 'flex', gap: '1em', flexDirection: 'row'}}>
-              <DropdownSelector
-                options={possibleMarkets}
+        <DropdownSelector
+            options={possibleMarkets}
                 defaultValue={possibleMarketSelections.length > 0 ? possibleMarketSelections[0].market_name : ""}
-                onChanged={handleMarketSelectionChanged}
-                includeNone={true}
+            onChanged={handleMarketSelectionChanged}
+            includeNone={true}
                 formKey='Markets'
-              />
+          />
 
-              <DropdownSelector
-                  options={possibleDates}
+        <DropdownSelector
+            options={possibleDates}
                   defaultValue={possibleDates[0]}
-                  onChanged={handleDateSelectionChanged}
-                  includeNone={true}
+            onChanged={handleDateSelectionChanged}
+            includeNone={true}
                   formKey='Dates'
-                />
-            </div>
+          />
+          </div>
           </FormSection>
         </MSMForm>
-        
+
       </div>
       <PrimaryButton sx={{maxHeight: '3em', marginTop: '0.9em'}} text="Retrieve Reports" onClick={getReports}/>  
     </div>
