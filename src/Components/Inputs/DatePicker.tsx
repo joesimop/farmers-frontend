@@ -6,6 +6,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useFormControl } from '../Form Flow/useFormControl';
 import { nextMSMFormField } from '../Form Flow/MSMFormStateFunctions';
+import {ButtonProps as MUIButtonProps} from '@mui/material/Button';
 
 import "../../index.css"
 
@@ -13,9 +14,10 @@ interface DatePickerProps{
   initalDate: Dayjs;
   formKey: string;
   onDateChanged: (value: Dayjs | null) => void;
+  sx?: MUIButtonProps['sx'];
 }
 
-const  MSMDatePicker: React.FC<DatePickerProps> = ({initalDate, formKey, onDateChanged}) => {
+const  MSMDatePicker: React.FC<DatePickerProps> = ({initalDate, formKey, onDateChanged, sx}) => {
  
   // Initialize the selected value
   const [Date, setDate] = React.useState<Dayjs | null>();
@@ -31,17 +33,18 @@ const  MSMDatePicker: React.FC<DatePickerProps> = ({initalDate, formKey, onDateC
 
 
   return (
-    <div className='form-margin' style={{}}>
+    <div className='form-margin'>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DemoContainer components={['DatePicker', 'DatePicker']}>
+        {/* <DemoContainer components={['DatePicker', 'DatePicker']}> */}
           <DatePicker
             label={formKey}
             value={Date}
             onChange={(newValue) => handleDateChange(newValue)}
             onClose={() => nextMSMFormField()}
             inputRef={inputRef}
+            sx={{...sx}}
           />
-        </DemoContainer>
+        {/* </DemoContainer> */}
       </LocalizationProvider>
     </div>
     );

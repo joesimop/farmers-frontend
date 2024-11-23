@@ -16,7 +16,7 @@ interface DataLabelProps {
  */
 const DataLabel: React.FC<DataLabelProps> = ({ label, value, style }) => {
   return (
-    <div style={{ display: 'flex', maxWidth: "11em", color: "black", ...style }}>
+    <div style={{ display: 'flex', maxWidth: "11em", color: "var(--black-color)", ...style }}>
       <span style={{ whiteSpace: 'nowrap' }}>
         {label}:
       </span>

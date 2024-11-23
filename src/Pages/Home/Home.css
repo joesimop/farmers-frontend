@@ -1,0 +1,16 @@
+.HomePageContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content:baseline;
+    height: 100vh;
+    margin-top: 10vh;
+    width: 90%;
+}
+
+.HomePageButtonContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: left;
+    height: 60%;
+}

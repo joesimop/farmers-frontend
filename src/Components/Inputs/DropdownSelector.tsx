@@ -2,7 +2,9 @@ import React, { useContext } from 'react';
 import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
 import { FieldControlModel } from '../../lib/Constants/DataModels';
 import { useFormControl } from '../Form Flow/useFormControl';
+import {ButtonProps as MUIButtonProps} from '@mui/material/Button';
 import { nextMSMFormField } from '../Form Flow/MSMFormStateFunctions';
+
 
 interface DropdownSelectorProps {
     options: string[];
@@ -10,9 +12,10 @@ interface DropdownSelectorProps {
     formKey: string;
     onChanged: (value: string) => void;
     includeNone?: boolean;
+    sx?: MUIButtonProps['sx'];
 }
 
-const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, formKey, defaultValue, includeNone = false, onChanged }) => {
+const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, formKey, defaultValue, includeNone = false, onChanged, sx }) => {
    
     // Initialize the selected value
     const [selectedValue, setSelectedValue] = React.useState<string>(defaultValue);
@@ -30,21 +33,18 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, formKey, d
 
     return (
         <div className="form-margin">
-            <FormControl style={{minWidth: 120}} >
+            <FormControl sx={{...sx}} fullWidth={true}>
                 <InputLabel id="dropdown-selector-label">{formKey}</InputLabel>
                 <Select
-                    sx={{ textAlign: "left" }}
+                    sx={{ textAlign: "left"}}
                     variant="standard"
                     labelId="dropdown-selector-label"
                     value={selectedValue}
                     onChange={handleChange}
                     inputRef={inputRef}
-                    fullWidth
                 >
-                    {includeNone &&
-                    <MenuItem value = "">
-                        <em>None</em>
-                    </MenuItem>}
+                    
+                    {includeNone && <MenuItem value = ""> <em>None</em> </MenuItem>}
 
                     {options.map((option, index) => (
                         <MenuItem key={index} value={option}>

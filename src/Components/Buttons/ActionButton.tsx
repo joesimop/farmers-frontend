@@ -7,9 +7,9 @@ const ActionButton: React.FC<BaseButtonProps> = (props) => {
     <BaseButton
       {...props}
       variant="contained"
-      backgroundColor="var(--accent-color)"
+      backgroundColor="var(--secondary-color)"
       color="var(--white-color)"
-      hoverBackgroundColor="var(--accent-color)"
+      hoverBackgroundColor="var(--secondary-color)"
       hoverOpacity={0.9}
     />
   );

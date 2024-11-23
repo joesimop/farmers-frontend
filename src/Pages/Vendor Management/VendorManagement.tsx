@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './VendorManagement.css'; // External CSS for styling and animations
 import Box from '@mui/material/Box';
+import '../../index.css';
 import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
 import PrimaryButton from '../../Components/Buttons/PrimaryButton';
 import CreateVendorForm from '../../Components/Forms/CreateVendorFrom';
@@ -39,6 +40,7 @@ const VendorManagement = () => {
     callEndpoint({
       endpointCall: GetMarketVendors(1),
       onSuccess: (data) => {
+        console.log("VM DATA: ", data)
         setRows(mapAndDeduplicateVendors(data))
       },
       onError: (errorCode) => {
@@ -46,22 +48,24 @@ const VendorManagement = () => {
       }
     });
   }
+
+  useEffect(() => {
+    getVendors();
+  }, []);
+
   return (
-      <>
-        <p>Vendor Management</p>
+      <div className = "DefaultPageContainer">
+        <h1>Vendor Management</h1>
 
-
-         <PrimaryButton text="Get Vendors" onClick={getVendors}/>
-         <PrimaryButton
-            text="Add Vendor"
-            onClick={ () => DisplayModal(<CreateVendorForm onSubmit={() => console.log("Submitted!")}/>
-            , ()=> {}, ()=> {}, "Submit")}
-             />
+        <PrimaryButton
+          text="Add Vendor"
+          onClick={ () => DisplayModal(<CreateVendorForm onSubmit={() => console.log("Submitted!")}/>
+          , ()=> {}, ()=> {}, "Submit")} />
 
       <Box sx={{ height: 400, width: '100%' }}>
         <TypedDataGrid data={rows} hiddenFields={[]} />
        </Box>
-      </>
+      </div>
 
   );
 };

@@ -1,30 +1,35 @@
 import './Home.css'; // External CSS for styling and animations
-import { DisplayAlert, DisplayModal } from '../../Components/Popups/PopupHelpers';
-import PrimaryButton from '../../Components/Buttons/PrimaryButton';
 import { useNavigate } from 'react-router-dom';
-import CreateVendorForm from '../../Components/Forms/CreateVendorFrom';
-
+import LandingButton from '../../Components/Buttons/LandingButton';
+import { IconSrcs } from '../../Components/Icon/Icon';
+import Icon from '../../Components/Icon/Icon';
 const Home = () => {
 
   const navigate = useNavigate();
 
   return (
-    <div>
-        <PrimaryButton
-            text="Go to Checkout"
+    <div className = "HomePageContainer" >
+
+        <h1>Main Street Market</h1>
+
+    <div className="HomePageButtonContainer">
+
+        <LandingButton 
+            imageSrc={IconSrcs.Checkout}
+            text="Checkout" 
             onClick={() => {navigate('checkout')}} />
 
-        <PrimaryButton
-            text="Vendor Management"
+        <LandingButton
+            imageSrc={IconSrcs.VendorManagement}
+            text="Vendors"
             onClick={() => {navigate("vendormanagement")}} />
 
-        <PrimaryButton
+        <LandingButton
+            imageSrc={IconSrcs.Reporting}
             text="Reporting"
             onClick={() => {navigate("reporting")}} />
 
-        <PrimaryButton
-            text="Test Alert"
-            onClick={ () => DisplayAlert('info', "This is a Warning.")} />
+      </div>
 
     </div>
 

@@ -113,7 +113,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ children, sectionKey, 
   }, [children]);
 
   return (
-    <div className={disabled ? "disabled" : ""}>{
+    <div style={{width: "80%", textAlign:"center"}}className={disabled ? "disabled" : ""}>{
         <FormSectionContext.Provider value={{ sectionKey: sectionKey, isAuto: isAuto }}>
            {children} 
         </FormSectionContext.Provider>

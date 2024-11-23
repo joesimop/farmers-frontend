@@ -25,8 +25,8 @@ import { callEndpoint } from "../../lib/API/APIDefinitions";
 import { GetCheckoutOptions, CheckoutOption, TokenSubmit, CheckoutSubmit } from "./CheckoutAPICalls";
 import { GetCheckoutData } from "./CheckoutAPICalls";
 import { SubmitCheckout } from "./CheckoutAPICalls";
-import { Button } from "@mui/material";
 import ActionButton from "../../Components/Buttons/ActionButton";
+import Icon, { IconSrcs } from "../../Components/Icon/Icon";
 
 //To keep track of Token Fields
 interface TokenFieldModel {
@@ -256,9 +256,9 @@ const Checkout = () => {
       };
 
   return (
-    <div className="DefaultPageContainer">
+    <div className="DefaultCenterPageContainer">
 
-      <h1 style={{textAlign:"left"}}>Checkout</h1>
+      <h1>Checkout</h1>
 
       <MSMForm isAuto>
         <FormSection sectionKey="CheckoutOptions">
@@ -276,6 +276,7 @@ const Checkout = () => {
             initalDate={dayjs()}
             onDateChanged={handleDateChanged}
             formKey={"Date"}
+            sx={{ width: "100%" }}
           />
 
         </FormSection>
