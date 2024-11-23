@@ -1,6 +1,6 @@
 import React from 'react';
 import BaseButton, { BaseButtonProps } from './BaseButton';
-import Icon from '../Icon/Icon';
+import Icon from '../MSMIcon/Icon';
 
 export interface LandingButtonProps extends BaseButtonProps {
   imageSrc?: string;

@@ -1,8 +1,8 @@
 import './Home.css'; // External CSS for styling and animations
 import { useNavigate } from 'react-router-dom';
 import LandingButton from '../../Components/Buttons/LandingButton';
-import { IconSrcs } from '../../Components/Icon/Icon';
-import Icon from '../../Components/Icon/Icon';
+import { IconSrcs } from '../../Components/MSMIcon/Icon';
+import Icon from '../../Components/MSMIcon/Icon';
 const Home = () => {
 
   const navigate = useNavigate();

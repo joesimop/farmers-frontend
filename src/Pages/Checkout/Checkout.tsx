@@ -27,7 +27,7 @@ import { GetCheckoutData } from "./CheckoutAPICalls";
 import { SubmitCheckout } from "./CheckoutAPICalls";
 import ActionButton from "../../Components/Buttons/ActionButton";
 import { DefaultApiResult, callEndpointWithState, APIResult } from "../../lib/API/APIDefinitions";
-import Icon, { IconSrcs } from "../../Components/Icon/Icon";
+import Icon, { IconSrcs } from "../../Components/MSMIcon/Icon";
 
 //To keep track of Token Fields
 interface TokenFieldModel {
