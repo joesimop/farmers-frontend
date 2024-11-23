@@ -9,11 +9,12 @@ import Box from '@mui/material/Box';
 import PrimaryButton from '../../Components/Buttons/PrimaryButton';
 import MSMForm from '../../Components/Form Flow/MSMForm';
 import FormSection from '../../Components/Form Flow/FormSection';
-import { callEndpoint } from '../../lib/API/APIDefinitions';
+import { APIResult, callEndpoint, callEndpointWithState, DefaultApiResult } from '../../lib/API/APIDefinitions';
 
 //API Calls and associated data types
 import { GetReportingOptions, ReportingOption} from './ReportingAPICalls';
 import { GetVendorReport, VendorReport } from './ReportingAPICalls';
+import APIResultDisplay from '../../Components/APIResultDisplay';
 
 
 
@@ -22,7 +23,7 @@ const Reporting = () => {
   const [possibleMarketSelections, setPossibleMarketSelections] = useState<ReportingOption[]>([]);
   const [possibleMarkets, setPossibleMarkets] = useState<string[]>([]);
   const [possibleDates, setPossibleDates] = useState<string[]>([]);
-  const [reportData, setReportData] = useState<VendorReport[]>([]);
+  const [reportData, setReportData] = useState<APIResult<VendorReport[]>>(DefaultApiResult);
   const [selectedMarket, setSelectedMarket] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
 
@@ -41,16 +42,11 @@ const Reporting = () => {
 
     let marketID = possibleMarketSelections.find(
       (market: ReportingOption) => market.market_name === selectedMarket)?.market_id;
-
-    callEndpoint({
+    
+    callEndpointWithState({
       endpointCall: GetVendorReport(1, marketID === 0 ? undefined : marketID, selectedDate),
-      onSuccess: (data) => {
-        setReportData(data)
-      },
-      onError: (errorCode) => {
-        DisplayAlert('error', "Could not vendor report", errorCode)
-      },
-    });
+      setState: setReportData
+    })
   }
 
   const getMarketOptions = useCallback( () => {  
@@ -144,16 +140,19 @@ const Reporting = () => {
           </div>
           </FormSection>
         </MSMForm>
-
-      </div>
+        
+      
       <PrimaryButton sx={{maxHeight: '3em', marginTop: '0.9em'}} text="Retrieve Reports" onClick={getReports}/>  
+      <APIResultDisplay result={reportData}>
+        {(data) => (
+          <Box sx={{ flexGrow: 1 }}>
+              <TypedDataGrid data={data} hiddenFields={["tokens"]} />
+          </Box>
+        )}
+      </APIResultDisplay>
+      </div>
     </div>
-      <Box sx={{ flexGrow: 1 }}>
-        {reportData.length > 0 ? 
-        <TypedDataGrid data={reportData} hiddenFields={["tokens"]}/> : 
-        <h1>No data to display</h1>}
-      </Box>
-    </div>
+      </div>
     
   );
 };

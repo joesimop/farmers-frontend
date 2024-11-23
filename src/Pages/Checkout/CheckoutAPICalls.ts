@@ -1,13 +1,13 @@
-import axios, { AxiosResponse } from "axios";
-import { axiosInstance, HTTPStatusCode } from "../../lib/API/APIDefinitions";
+import { AxiosResponse } from "axios";
+import { axiosInstance } from "../../lib/API/APIDefinitions";
 import { Vendor, MarketFee, MarketToken } from "../../lib/Constants/DataModels";
-import dayjs, { Dayjs } from "dayjs";
-import { data } from "@remix-run/router";
+import { Dayjs } from "dayjs";
+
 
 export interface CheckoutOption {
-    market_id: number; // UUID represented as a number
-    market_name: string; // Market name
-    market_dates: string[]; // Array of dates
+    market_id: number;
+    market_name: string;
+    market_dates: string[]; 
 }
 
 export interface CheckoutData {
