@@ -4,6 +4,7 @@ import FormSection from '../Form Flow/FormSection';
 import MSMDatePicker from "../../Components/Inputs/DatePicker";
 import SearchableDropdownSelector from "../../Components/Inputs/SearchableDropdownSelector";
 import TextInput from '../Inputs/TextInput';
+import FormData from '../Form Flow/FormData';
 import NumberInput from '../Inputs/NumberInput';
 import DropdownSelector from "../../Components/Inputs/DropdownSelector";
 import EnumDropdownSelector from '../Inputs/EnumDropdownSelector';
@@ -19,10 +20,10 @@ import FlexGrid from '../../FlexGrid/FlexGrid';
 
 // Define types for props and handlers
 interface CreateVendorFormProps {
-  onSubmit: () => void;
+
 }
 
-const CreateVendorForm: React.FC<CreateVendorFormProps> = ({ onSubmit }) => {
+const CreateVendorForm: React.FC<CreateVendorFormProps> = ({}) => {
 
     //const {  } = usePopupStore();
     
@@ -58,21 +59,9 @@ const CreateVendorForm: React.FC<CreateVendorFormProps> = ({ onSubmit }) => {
     // Update state or form context with vendor type
   };
 
-  const handleFirstNameChanged = (value: string) => {
-    // Update state or form context with producer's first name
-  };
-
-  const handleLastNameChanged = (value: string) => {
-    // Update state or form context with producer's last name
-  };
-
-  const handleEmailChanged = (value: string) => {
-    // Update state or form context with producer's email
-  };
-
   return (
     <div>
-        <MSMForm>
+        <MSMForm onSubmit={() => console.log("Fields filled out.")}>
             <FormSection sectionKey="VendorCreation" isNested>
                 <FlexGrid maxColumns={2}>
                         {/* BUSINESS NAME */}
@@ -81,6 +70,7 @@ const CreateVendorForm: React.FC<CreateVendorFormProps> = ({ onSubmit }) => {
                     defaultValue=""
                     onEnter={handleBusinessNameChanged}
                     formKey="BuisnessName"
+                    validateInput
                     />
 
                     {/* VENDOR TYPE */}
@@ -96,34 +86,35 @@ const CreateVendorForm: React.FC<CreateVendorFormProps> = ({ onSubmit }) => {
                     label="Current CPC"
                     onEnter={handleCurrentCpcChanged}
                     formKey="CPC"
+                    validateInput
                     />
 
                     {/* CPC EXPIRATION DATE */}
                     <MSMDatePicker
-                    initalDate={dayjs()}
+                    defaultDate={dayjs()}
                     onDateChanged={handleCpcExprChanged}
                     formKey="CPCExpiration"
+                    validateInput
                     />
                 </FlexGrid>
             </FormSection>
+            <FormData>
+                <hr></hr>
+            </FormData>
 
-            <FormSection sectionKey='ProducerContactAdd'>
-                    <h5 style={{marginBottom: 0}}>Add Producers</h5>
-                    <ProducerContactForm onAddProducer={addProducerContact}/>
-
-                    {/* Display added producer contacts */}
-                    {producerContacts.length > 0 && (
-                        <div>
-                            <TypedDataGrid data={producerContacts} hideFooter hideHeader/>
-                        </div>
-                    )}
-            </FormSection>
+            
+            <ProducerContactForm onAddProducer={addProducerContact}/>
+            
+            <FormData>
+            {/* Display added producer contacts */}
+            {producerContacts.length > 0 && (
+                <div>
+                    <TypedDataGrid data={producerContacts} hideFooter hideHeader/>
+                </div>
+            )}
+            </FormData>
+                   
         </MSMForm>
-
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-            <ActionButton text="Submit" onClick={onSubmit} />
-        </div>
     </div>
 
 

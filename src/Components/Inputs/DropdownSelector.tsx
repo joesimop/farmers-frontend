@@ -1,9 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
-import { FieldControlModel } from '../../lib/Constants/DataModels';
 import { useFormControl } from '../Form Flow/useFormControl';
 import {ButtonProps as MUIButtonProps} from '@mui/material/Button';
-import { nextMSMFormField } from '../Form Flow/MSMFormStateFunctions';
+import { nextMSMFormField, setFieldValidationState } from '../Form Flow/MSMFormStateFunctions';
 
 
 interface DropdownSelectorProps {
@@ -29,7 +28,20 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, formKey, d
         setSelectedValue(value);
         onChanged(value);
         nextMSMFormField();
+        setFieldValidationState(formKey, true)  //If change is called, must have value.
     };
+
+    // Automatically set value to first choice when options changes.
+    // Need the last conditional to ensure we are not incurring sets
+    // when setSelectedValue is called.
+    useEffect(() => {
+        
+        if (options && options.length > 0 && !options.includes(selectedValue)) {
+            setSelectedValue(options[0]);
+            setFieldValidationState(formKey, true)
+        }
+
+    }, [options]);
 
     return (
         <div className="form-margin">
@@ -43,8 +55,11 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({ options, formKey, d
                     onChange={handleChange}
                     inputRef={inputRef}
                 >
-                    
-                    {includeNone && <MenuItem value = ""> <em>None</em> </MenuItem>}
+                    {includeNone &&
+                        <MenuItem value = "">
+                            <em>None</em>
+                        </MenuItem>
+                    }
 
                     {options.map((option, index) => (
                         <MenuItem key={index} value={option}>

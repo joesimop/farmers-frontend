@@ -3,6 +3,7 @@ import TextInput from '../Inputs/TextInput';
 import ActionButton from '../Buttons/ActionButton';
 import { ProducerContact } from '../../lib/Constants/Types';
 import SplitView from '../Layout/SplitView';
+import FormSection from '../Form Flow/FormSection';
 
 // Props for ProducerContactForm
 interface ProducerContactFormProps {
@@ -17,7 +18,29 @@ const ProducerContactForm: React.FC<ProducerContactFormProps> = ({ onAddProducer
     email: '',
   });
 
+  const validateEmail = (value: string | null): string | null => {
+    // Regular expression for common email formats
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+    if (!value) {
+      return "Email is required.";
+    }
 
+    if(value == ""){
+        return "Email is required"
+    }
+  
+    if (!emailRegex.test(value)) {
+      return "Please enter a valid email address.";
+    }
+  
+    return null; // Passes validation
+  };
+  
+  const addProducer = (contact: ProducerContact) => {
+    
+    onAddProducer(contact)
+  }
 
   // Handlers for updating the contact state
   const handleFirstNameChanged = (value: string) => {
@@ -34,34 +57,37 @@ const ProducerContactForm: React.FC<ProducerContactFormProps> = ({ onAddProducer
 
   return (
 
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', justifyContent: 'space-between' }}>
-      {/* First Name */}
-      <TextInput
-        label="First Name"
-        defaultValue=""
-        onChange={handleFirstNameChanged}
-        formKey="ProducerFirstName"
-      />
+    <FormSection sectionKey="AddProducerContact" isNested>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', justifyContent: 'space-between' }}>
+        {/* First Name */}
+        <TextInput
+            label="First Name"
+            defaultValue=""
+            onChange={handleFirstNameChanged}
+            formKey="ProducerFirstName"
+        />
 
-      {/* Last Name */}
-      <TextInput
-        label="Last Name"
-        defaultValue=""
-        onChange={handleLastNameChanged}
-        formKey="ProducerLastName"
-      />
+        {/* Last Name */}
+        <TextInput
+            label="Last Name"
+            defaultValue=""
+            onChange={handleLastNameChanged}
+            formKey="ProducerLastName"
+        />
 
-      {/* Email */}
-      <TextInput
-        label="Email"
-        defaultValue=""
-        onChange={handleEmailChanged}
-        formKey="ProducerEmail"
-      />
+        {/* Email */}
+        <TextInput
+            label="Email"
+            defaultValue=""
+            onChange={handleEmailChanged}
+            formKey="ProducerEmail"
+            validationFunction={validateEmail}
+        />
 
-      {/* Add Producer Button */}
-      <ActionButton text="Add Producer" onClick={() => onAddProducer(contact)} />
-    </div>
+        {/* Add Producer Button */}
+        <ActionButton text="Add Producer" onClick={() => addProducer(contact)} />
+        </div>
+    </FormSection>
   );
 };
 

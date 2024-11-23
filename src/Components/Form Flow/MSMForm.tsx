@@ -1,8 +1,11 @@
 // FormGroup.tsx
 import React, { useContext, useEffect } from 'react';
 import { FormSection } from './FormSection';
-import { useMSMFormStore } from './MSMFormState';
-import { initSectionState, resetMSMForm } from './MSMFormStateFunctions';
+import FormData from './FormData';
+import { initSectionState, resetMSMForm, isFormValid, initFieldState, getValidationStates } from './MSMFormStateFunctions';
+import ActionButton from '../Buttons/ActionButton';
+import { DisplayAlert } from '../Popups/PopupHelpers';
+import { FieldState } from '../../lib/Constants/Types';
 
 interface MSMFormContext{
   isAuto: boolean
@@ -23,38 +26,93 @@ const MSMFormContext = React.createContext<MSMFormContext | undefined>(undefined
 interface MSMFormProps {
   children: React.ReactNode;
   isAuto?: boolean | false
+  onSubmit?: () => void;
+  ButtonText?: string;
 }
 
 //Assumes only one form group per page
-export const MSMForm: React.FC<MSMFormProps> = ({ children, isAuto }) => {
+export const MSMForm: React.FC<MSMFormProps> = ({ children, isAuto, onSubmit = undefined, ButtonText="Submit" }) => {
+
+  //Builds Section Keys for state when they are nested
+  const buildFieldKeysRecursive = (children: React.ReactNode): string[] => {
+
+    const fieldKeys: string[] = [];
+
+    React.Children.forEach(children, (child) => {
+      if (React.isValidElement(child)) {
+        if(child.props.formKey) {
+          fieldKeys.push(child.props.formKey);
+        } else {
+          fieldKeys.push(...buildFieldKeysRecursive(React.Children.toArray(child.props.children)));
+        }
+      }});
+
+    return fieldKeys;
+}
 
   // Collects section keys from children
   const buildSectionKeys = (children: React.ReactNode): string[] => {
 
     const sectionKeys: string[] = [];
     React.Children.forEach(children, (child) => {
-      if (React.isValidElement(child) && child.type == FormSection) {
-        sectionKeys.push(child.props.sectionKey);
-      } else {
-        throw new Error('All children of a MSMForm must be of type FormSection');
-    }});
+      if(React.isValidElement(child)) {
+        if (child.type == FormSection) {
+          sectionKeys.push(child.props.sectionKey);
+        } else if (child.type == FormData) {
+          return;
+        } else{
+          throw new Error('All children of a MSMForm must be of type FormSection or FormData');
+        }
+    }
+  });
+
     return sectionKeys;
   }
-  //Constructor for the form group
+
+  const onSubmitButtonClick = (): void => {
+
+    const fields = getValidationStates()
+
+    console.log(fields)
+
+    //If form isn't valid, according to our zustand state, display error.
+    if(!isFormValid()){
+      DisplayAlert('error', "Form is not valid. Please complete it to submit.")
+      return;
+    }
+    //Submit form
+    onSubmit?.()
+  }
+
+
+  //Constructs the form sections
   useEffect(() => {
+
+    //We build form-key sections progressively if its auto
     if(isAuto){
       const sectionKeys = buildSectionKeys(children);
       initSectionState(sectionKeys)
     }
+
     return () => {
       resetMSMForm()
     };
   }, []);
 
   return (
-    <MSMFormContext.Provider value={{ isAuto: isAuto??false }}>{
-      children 
-    }</MSMFormContext.Provider>
+    <>
+    <MSMFormContext.Provider value={{ isAuto: isAuto??false }}>
+      { children } 
+    </MSMFormContext.Provider>
+
+    {onSubmit &&
+      <div className='form-margin'>
+            <ActionButton text={ButtonText} onClick={onSubmitButtonClick} />
+      </div>
+    }
+   
+
+    </>
   );
 };
 

@@ -21,6 +21,38 @@ export interface ProducerContact {
     email: string
 }
 
+export enum FieldState {
+    PRISTINE,
+    VALID,
+    INVALILD,
+}
+
+//NOTE: T is a value, null is empty, and undefined is untouched
+export type FieldValue<T> = T | null | undefined
+
+// Check if the field value has been modified (not untouched)
+export const isModified = <T>(value: FieldValue<T>): value is T | null => {
+  return value !== undefined;
+};
+
+// Check if the field has a value (not empty or untouched)
+export const hasValue = <T>(value: FieldValue<T>): value is T => {
+  return value !== null && value !== undefined;
+};
+
+// Check if the field is empty (null, but not untouched)
+export const isEmpty = <T>(value: FieldValue<T>): value is null => {
+  return value === null;
+};
+
+export type ErrorState = string | null;
+
+export function isFieldValid(error: ErrorState): boolean{
+    return !error;
+}
+
+
+
 export type fieldstatus = "active" | "disabled" | "error"
 
 export type alerttype = OverridableStringUnion<AlertColor, AlertPropsColorOverrides>;

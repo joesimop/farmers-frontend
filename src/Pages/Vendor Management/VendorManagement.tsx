@@ -57,10 +57,12 @@ const VendorManagement = () => {
       <div className = "DefaultPageContainer">
         <h1>Vendor Management</h1>
 
-        <PrimaryButton
-          text="Add Vendor"
-          onClick={ () => DisplayModal(<CreateVendorForm onSubmit={() => console.log("Submitted!")}/>
-          , ()=> {}, ()=> {}, "Submit")} />
+         <PrimaryButton text="Get Vendors" onClick={getVendors}/>
+         <PrimaryButton
+            text="Add Vendor"
+            onClick={ () => DisplayModal(<CreateVendorForm />
+            , ()=> {}, ()=> {}, "Submit")}
+             />
 
       <Box sx={{ height: 400, width: '100%' }}>
         <TypedDataGrid data={rows} hiddenFields={[]} />

@@ -1,10 +1,9 @@
 // FormGroup.tsx
 import React, { useEffect, useContext, useState } from 'react';
 import { useMSMFormStore } from './MSMFormState';
-import { initFieldState } from './MSMFormStateFunctions';
+import { addToFieldValidationStates, getValidationStates, initFieldState } from './MSMFormStateFunctions';
 import { useFormContext } from './MSMForm';
 import "../../index.css";
-import { RestartAlt } from '@mui/icons-material';
 
 
 // Form Section Context
@@ -50,7 +49,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ children, sectionKey, 
             if(child.props.formKey) {
               fieldKeys.push(child.props.formKey);
             } else {
-              fieldKeys.push(...buildFieldKeysRecursive(React.Children.toArray(child.props.children)));
+              fieldKeys.push(...buildFieldKeysRecursive(child.props.children));
             }
           }});
     
@@ -59,19 +58,19 @@ export const FormSection: React.FC<FormSectionProps> = ({ children, sectionKey, 
 
     //Builds Keys for state
     const buildFieldKeys = (children: React.ReactNode): string[] => {
-    const fieldKeys: string[] = [];
+      const fieldKeys: string[] = [];
 
-    //If children are nested, recursively build the field keys
-    if(isNested) {
-        return buildFieldKeysRecursive(children);
-    } 
+      //If children are nested, recursively build the field keys
+      if(isNested) {
+          return buildFieldKeysRecursive(children);
+      } 
 
-    //Check if the children are valid and have a formkey prop
-    React.Children.forEach(children, (child) => {
-      if (React.isValidElement(child) && child.props.formKey) {
-        fieldKeys.push(child.props.formKey);
-      } else {
-        throw new Error('All children of a FormGroup must have a formkey prop');
+      //Check if the children are valid and have a formkey prop
+      React.Children.forEach(children, (child) => {
+        if (React.isValidElement(child) && child.props.formKey) {
+          fieldKeys.push(child.props.formKey);
+        } else {
+          throw new Error('All children of a FormGroup must have a formkey prop');
     }});
 
     return fieldKeys;
@@ -80,37 +79,49 @@ export const FormSection: React.FC<FormSectionProps> = ({ children, sectionKey, 
   
   //Subscribe to hear for section changes, need to resub if children change.
   useEffect(() => {
-    
+
     if (isAuto){
       // Subscribe to the Zustand Section Changes
-    const unsubscribe = useMSMFormStore.subscribe(
-      (state) => state.activeSectionIndex,
-      (activeSectionIndex) => {
-        
-        const activeSectionKey = useMSMFormStore.getState().sectionKeys[activeSectionIndex];
-        const isActiveSection =  activeSectionKey === sectionKey;
-        
+      const unsubscribe = useMSMFormStore.subscribe(
+        (state) => state.activeSectionIndex,
+        (activeSectionIndex) => {
+          
+          const activeSectionKey = useMSMFormStore.getState().sectionKeys[activeSectionIndex];
+          const isActiveSection =  activeSectionKey === sectionKey;
+          
 
-        // Activates section for filling out
-        if (isActiveSection) {
-          const fieldKeys = buildFieldKeys(children);
-          initFieldState(fieldKeys)
-          setDisabled(false);
-        } else {
+          // Activates section for filling out
+          if (isActiveSection) {
+            const fieldKeys = buildFieldKeys(children);
+            
+            // If we are on the first one, we need to initialize, if not, we need to
+            // build validation state values from previous section.
+            initFieldState(fieldKeys)
 
-          // If we are not the active section, and the index has been set back to 0,
-          // we have been reset. Disables the form if disableOnReset is set.
-          if(!disabled && activeSectionIndex == 0 && disableOnReset){
-              setDisabled(true);
+            
+            setDisabled(false);
+          } else {
+
+            // If we are not the active section, and the index has been set back to 0,
+            // we have been reset. Disables the form if disableOnReset is set.
+            if(!disabled && activeSectionIndex == 0 && disableOnReset){
+                setDisabled(true);
+            }
           }
-        }
-    });
-
+    }
+  );
     // Cleanup the Zustand subscription on component unmount
     return unsubscribe;
-    }
+  }
+
+  //If we are not auto, we still need to build validation state for the fields
+  if(!isAuto){
+    const fieldKeys = buildFieldKeys(children);
+    addToFieldValidationStates(fieldKeys)
+  }
     
-  }, [children]);
+  }, [isAuto ? children : null]);   // If it's auto, there is a chance the children change and we need a refresh
+                                    // otherwise, we just need to build keys on mount
 
   return (
     <div style={{width: "80%", textAlign:"center"}}className={disabled ? "disabled" : ""}>{

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import { useFormControl } from "../Form Flow/useFormControl";
-import { nextMSMFormField } from "../Form Flow/MSMFormStateFunctions";
+import { nextMSMFormField, setFieldValidationState } from '../Form Flow/MSMFormStateFunctions';
+import { isFieldValid, ErrorState, FieldValue, isModified } from '../../lib/Constants/Types';
+import { validate } from "uuid";
 
 
 interface TextInputProps {
@@ -10,31 +12,54 @@ interface TextInputProps {
   defaultValue?: string;
   onChange?: (value: string) => void;
   onEnter?: (value: string) => void;
+  validationFunction?: (value: string | null) => string | null; 
+  validateInput?: boolean;
 }
 
 const TextInput: React.FC<TextInputProps> = ({ 
     label, 
     formKey, 
     defaultValue = "", 
-    onChange = () => undefined,
-    onEnter = () => undefined}) => {
+    onChange = undefined,
+    onEnter = undefined,
+    validationFunction = undefined,
+    validateInput = false}) => {
   
-    const [value, setValue] = useState<string>(defaultValue);
+    
+    const [value, setValue] = useState<string>(defaultValue);   //Holds the currently entered value
+    const [error, setError] = useState<ErrorState>(null);       //Holds the error state if there is one
 
+    //HTML Reference for form control
     const inputRef = useFormControl(formKey);
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //Validation used if no function is provided
+    const defaultValidation = (value: string): ErrorState => {
+        
+        if (!value || value == "") {
+            return "Field requires text input";
+        }
+        return null;
+    }
 
+    //Chooses either provided funciton or uses default if not provided
+    const validateFieldValue = (value: string): ErrorState => {
+
+        if(validationFunction){
+            return validationFunction(value)
+        }
+        return defaultValidation(value)
+    }
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = event.target.value;
         setValue(newValue)
 
         if(onChange != undefined){
             onChange(newValue)
         }
-
     };
 
-    const keyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const onExit = (e: React.KeyboardEvent<HTMLDivElement>) => {
         if(e.key == 'Enter' || e.key == 'Tab'){
             if(onEnter != undefined){
                 onEnter(value);
@@ -43,21 +68,32 @@ const TextInput: React.FC<TextInputProps> = ({
         }
     }
 
+    // Validate only when the field loses focus
+    const handleBlur = () => {
+        const newErrorState = validateFieldValue(value);
+        setError(newErrorState);
+        setFieldValidationState(formKey, isFieldValid(newErrorState));
+        nextMSMFormField();
+      };
 
-  return (
-    <div className="form-margin" style= {{}}>
-      <TextField
-        key={label}
-        value={value}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleChange(event)}
-        onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => keyPress(event)}
-        onBlur={() => onEnter(value)}
-        label={label}
-        variant="standard"
-        inputRef={inputRef}
-        fullWidth // Optional: makes the TextField take up the full width of its container
-      />
-    </div>
+
+
+    return (
+        <div className="form-margin" style= {{}}>
+        <TextField
+            key={label}
+            value={value}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleChange(event)}
+            onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => onExit(event)}
+            label={label}
+            variant="standard"
+            inputRef={inputRef}
+            onBlur={handleBlur}
+            fullWidth
+            error={!isFieldValid(error)}
+            helperText={error}
+        />
+        </div>
   );
 };
 

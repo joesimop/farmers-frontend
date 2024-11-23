@@ -1,7 +1,7 @@
 import { useState } from "react";
-import TextField from "@mui/material/TextField";
 import { useFormControl } from "../Form Flow/useFormControl";
 import { nextMSMFormField } from "../Form Flow/MSMFormStateFunctions";
+import NumberInput from "./NumberInput";
 
 
 interface TokenInputProps {
@@ -19,35 +19,19 @@ const TokenInput: React.FC<TokenInputProps> = ({ name, type, perDollarValue, lis
 
     const inputRef = useFormControl(formKey);
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
-
-        const newQuantity = parseFloat(event.target.value);
-
-        onChange(isNaN(newQuantity) ? 0 : newQuantity * perDollarValue, index);
-        setQuantity(newQuantity);
+    const handleChange = (value: number) => {
+        onChange(isNaN(value) ? 0 : value * perDollarValue, listIndex);
+        setQuantity(value);
     };
 
-    const keyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        if(e.key == 'Enter'){
-            nextMSMFormField();
-        }
-    }
-
-
   return (
-    <div className="form-margin" style= {{}}>
-      <TextField
+      <NumberInput
         key={type}
-        type="number"
-        value={quantity}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleChange(event, listIndex)}
-        onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => keyPress(event)}
+        onChange={(newValue) => handleChange(newValue)}
         label={type}
-        variant="standard"
-        inputRef={inputRef}
-        fullWidth // Optional: makes the TextField take up the full width of its container
+        formKey={formKey}
+        useValidation
       />
-    </div>
   );
 };
 
