@@ -1,7 +1,7 @@
 // BaseButton.tsx
 import React, { useState } from 'react';
 import "../../index.css";
-import Button, { ButtonProps as MUIButtonProps } from '@mui/material/Button';
+import { Button } from '@ShadcnComponents/ui/button';
 
 interface ButtonStyleProps {
   backgroundColor?: string;
@@ -16,7 +16,6 @@ export interface BaseButtonProps extends ButtonStyleProps {
   onClick: () => void;
   size?: 'small' | 'medium' | 'large';
   variant?: 'contained' | 'outlined' | 'text';
-  sx?: MUIButtonProps['sx'];
   isDisabled?: boolean;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
@@ -33,7 +32,6 @@ const BaseButton: React.FC<BaseButtonProps> = ({
   hoverBackgroundColor,
   hoverColor,
   hoverOpacity = 1,
-  sx,
   isDisabled = false,
   startIcon = <></>,
   endIcon= <></>,
@@ -44,27 +42,7 @@ const BaseButton: React.FC<BaseButtonProps> = ({
 
   return (
     <Button
-      variant={variant}
       onClick={disabled ? () => {} : onClick}
-      size={size}
-      startIcon={startIcon}
-      endIcon={endIcon}
-      fullWidth={fullWidth}
-      sx={{
-        backgroundColor,
-        color,
-        borderRadius: '10px',
-        transform: 'scale(1.00)',
-        transitionDuration: '0.25s',
-        transitionProperty: 'transform',
-        '&:hover': {
-          backgroundColor: hoverBackgroundColor,
-          color: hoverColor,
-          opacity: hoverOpacity,
-          transform: 'scale(1.05)',
-          transitionDuration: '0.5s',
-          transitionProperty: 'transform',
-        },
         // root: {
           // '& label': {
           //   color: 'red',
@@ -87,10 +65,6 @@ const BaseButton: React.FC<BaseButtonProps> = ({
           //   },
           // },
         // },
-        fontFamily: 'var(--app-font)',
-        ...sx,
-      }}
-      disableElevation={true}
       disabled={disabled}
     >
       {text}

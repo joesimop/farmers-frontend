@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 import './VendorManagement.css'; // External CSS for styling and animations
 import Box from '@mui/material/Box';
 import '../../index.css';
-import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
-import PrimaryButton from '../../Components/Buttons/PrimaryButton';
-import CreateVendorForm from '../../Components/Forms/CreateVendorFrom';
-import { DisplayModal } from '../../Components/Popups/PopupHelpers';
+import TypedDataGrid from '@MSMComponents/TypedDataGrid/TypedDataGrid';
+import PrimaryButton from '@MSMComponents/Buttons/PrimaryButton';
+import CreateVendorForm from '@MSMComponents/Forms/CreateVendorFrom';
+import { DisplayModal } from '@MSMComponents/Popups/PopupHelpers';
 import { GetMarketVendors, MarketVendor } from './VendorManagmentAPICalls';
 import { callEndpoint } from '../../lib/API/APIDefinitions';
-import { DisplayAlert } from '../../Components/Popups/PopupHelpers';
+import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
 
 interface VendorTableRow {
   id: number;

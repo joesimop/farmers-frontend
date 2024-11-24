@@ -1,8 +1,8 @@
 import dayjs, { Dayjs } from "dayjs";
-import MSMDatePicker from "../../Components/Inputs/DatePicker";
-import SearchableDropdownSelector from "../../Components/Inputs/SearchableDropdownSelector";
-import DropdownSelector from "../../Components/Inputs/DropdownSelector";
-import TokenInput from "../../Components/Inputs/TokenInput";
+import MSMDatePicker from "@MSMComponents/Inputs/DatePicker";
+import SearchableDropdownSelector from "@MSMComponents/Inputs/SearchableDropdownSelector";
+import DropdownSelector from "@MSMComponents/Inputs/DropdownSelector";
+import TokenInput from "@MSMComponents/Inputs/TokenInput";
 import {
   MarketToken,
   Vendor,
@@ -11,24 +11,24 @@ import {
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import '../../index.css';
-import DataLabel from "../../Components/DataLabel/DataLabel";
+import DataLabel from "@MSMComponents/DataLabel/DataLabel";
 import FlexGrid from "../../FlexGrid/FlexGrid";
-import MSMForm from "../../Components/Form Flow/MSMForm";
-import FormSection from "../../Components/Form Flow/FormSection";
-import FormData from "../../Components/Form Flow/FormData";
-import { resetMSMFormSections } from "../../Components/Form Flow/MSMFormStateFunctions";
+import MSMForm from "@MSMComponents/Form Flow/MSMForm";
+import FormSection from "@MSMComponents/Form Flow/FormSection";
+import FormData from "@MSMComponents/Form Flow/FormData";
+import { resetMSMFormSections } from "@MSMComponents/Form Flow/MSMFormStateFunctions";
 
-import { DisplayErrorAlert, DisplayAlert } from "../../Components/Popups/PopupHelpers";
+import { DisplayErrorAlert, DisplayAlert } from "@MSMComponents/Popups/PopupHelpers";
 import { FeeType } from "../../lib/Constants/Types";
 import { capitalizeFirstLetter } from "../../Helpers";
-import DescribeText from "../../Components/DescribeText";
+import DescribeText from "@MSMComponents/DescribeText";
 import { callEndpoint } from "../../lib/API/APIDefinitions";
 import { GetCheckoutOptions, CheckoutOption, TokenSubmit, CheckoutSubmit } from "./CheckoutAPICalls";
 import { GetCheckoutData } from "./CheckoutAPICalls";
 import { SubmitCheckout } from "./CheckoutAPICalls";
-import ActionButton from "../../Components/Buttons/ActionButton";
+import ActionButton from "@MSMComponents/Buttons/ActionButton";
 import { DefaultApiResult, callEndpointWithState, APIResult } from "../../lib/API/APIDefinitions";
-import Icon, { IconSrcs } from "../../Components/MSMIcon/Icon";
+import Icon, { IconSrcs } from "@MSMComponents/MSMIcon/Icon";
 
 //To keep track of Token Fields
 interface TokenFieldModel {

@@ -1,20 +1,20 @@
 import './Reporting.css'; // External CSS for styling and animations
-import DropdownSelector from '../../Components/Inputs/DropdownSelector';
+import DropdownSelector from '@MSMComponents/Inputs/DropdownSelector';
 import {useState, useEffect, useCallback, useMemo} from 'react';
 import dayjs from 'dayjs';
-import { DisplayAlert } from '../../Components/Popups/PopupHelpers';
+import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
 import "../../index.css";
-import TypedDataGrid from '../../Components/TypedDataGrid/TypedDataGrid';
+import TypedDataGrid from '@MSMComponents/TypedDataGrid/TypedDataGrid';
 import Box from '@mui/material/Box';
-import PrimaryButton from '../../Components/Buttons/PrimaryButton';
-import MSMForm from '../../Components/Form Flow/MSMForm';
-import FormSection from '../../Components/Form Flow/FormSection';
+import PrimaryButton from '@MSMComponents/Buttons/PrimaryButton';
+import MSMForm from '@MSMComponents/Form Flow/MSMForm';
+import FormSection from '@MSMComponents/Form Flow/FormSection';
 import { APIResult, callEndpoint, callEndpointWithState, DefaultApiResult } from '../../lib/API/APIDefinitions';
 
 //API Calls and associated data types
 import { GetReportingOptions, ReportingOption} from './ReportingAPICalls';
 import { GetVendorReport, VendorReport } from './ReportingAPICalls';
-import APIResultDisplay from '../../Components/APIResultDisplay';
+import APIResultDisplay from '@MSMComponents/APIResultDisplay';
 
 
 
@@ -142,7 +142,7 @@ const Reporting = () => {
         </MSMForm>
         
       
-      <PrimaryButton sx={{maxHeight: '3em', marginTop: '0.9em'}} text="Retrieve Reports" onClick={getReports}/>  
+      <PrimaryButton text="Retrieve Reports" onClick={getReports}/>  
         <APIResultDisplay result={reportData}>
           {(data) => (
             <Box sx={{ flexGrow: 1 }}>
