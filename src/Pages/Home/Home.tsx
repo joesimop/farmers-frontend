@@ -1,8 +1,9 @@
 import './Home.css'; // External CSS for styling and animations
 import { useNavigate } from 'react-router-dom';
-import LandingButton from '../../Components/Buttons/LandingButton';
-import { IconSrcs } from '../../Components/MSMIcon/Icon';
-import Icon from '../../Components/MSMIcon/Icon';
+import LandingButton from '@MSMComponents/Buttons/LandingButton';
+import { IconSrcs } from '@MSMComponents/MSMIcon/Icon';
+import Icon from '@MSMComponents/MSMIcon/Icon';
+import {Button} from '@ShadcnComponents/ui/button'
 const Home = () => {
 
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Home = () => {
             onClick={() => {navigate("reporting")}} />
 
       </div>
-
+      <Button>Button</Button>
     </div>
 
   );

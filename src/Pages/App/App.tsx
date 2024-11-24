@@ -4,9 +4,9 @@ import Checkout from '../Checkout/Checkout'
 import Reporting from '../Reports/Reporting';
 import VendorManagement from '../Vendor Management/VendorManagement';
 import { BrowserRouter, Route, Routes, } from "react-router-dom";
-import { AlertBanner } from '../../Components/Popups/Alerts';
-import { PopupModal } from '../../Components/Popups/Modals';
-import { usePopupStore } from '../../Components/Popups/PopupDefnitions';
+import { AlertBanner } from '@MSMComponents/Popups/Alerts';
+import { PopupModal } from '@MSMComponents/Popups/Modals';
+import { usePopupStore } from '@MSMComponents/Popups/PopupDefnitions';
 
 function App() {
 
