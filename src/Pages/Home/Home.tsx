@@ -3,32 +3,32 @@ import { useNavigate } from 'react-router-dom';
 import LandingButton from '@MSMComponents/Buttons/LandingButton';
 import { IconSrcs } from '@MSMComponents/MSMIcon/Icon';
 import Icon from '@MSMComponents/MSMIcon/Icon';
-import {Button} from '@ShadcnComponents/ui/button'
+import { Button } from '@ShadcnComponents/ui/button'
 const Home = () => {
 
   const navigate = useNavigate();
 
   return (
-    <div className = "HomePageContainer" >
+    <div className="HomePageContainer" >
 
-        <h1>Main Street Market</h1>
+      <h1>Main Street Market</h1>
 
-    <div className="HomePageButtonContainer">
-
-        <LandingButton 
-            imageSrc={IconSrcs.Checkout}
-            text="Checkout" 
-            onClick={() => {navigate('checkout')}} />
+      <div className="HomePageButtonContainer">
 
         <LandingButton
-            imageSrc={IconSrcs.VendorManagement}
-            text="Vendors"
-            onClick={() => {navigate("vendormanagement")}} />
+          imageSrc={IconSrcs.Checkout}
+          text="Checkout"
+          onClick={() => { navigate('checkout_options') }} />
 
         <LandingButton
-            imageSrc={IconSrcs.Reporting}
-            text="Reporting"
-            onClick={() => {navigate("reporting")}} />
+          imageSrc={IconSrcs.VendorManagement}
+          text="Vendors"
+          onClick={() => { navigate("vendormanagement") }} />
+
+        <LandingButton
+          imageSrc={IconSrcs.Reporting}
+          text="Reporting"
+          onClick={() => { navigate("reporting") }} />
 
       </div>
       <Button>Button</Button>

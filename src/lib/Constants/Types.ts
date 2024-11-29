@@ -51,8 +51,6 @@ export function isFieldValid(error: ErrorState): boolean{
     return !error;
 }
 
-
-
 export type fieldstatus = "active" | "disabled" | "error"
 
 export type alerttype = OverridableStringUnion<AlertColor, AlertPropsColorOverrides>;

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import TextInput from '../Inputs/TextInput';
-import ActionButton from '../Buttons/ActionButton';
 import { ProducerContact } from '../../lib/Constants/Types';
-import SplitView from '../Layout/SplitView';
-import FormSection from '../Form Flow/FormSection';
+import MSMFormField from '@MSMComponents/Form Flow/MSMFormField';
+import MSMTextInput from '@MSMComponents/Inputs/MSMTextInput';
+import MSMForm from '@MSMComponents/Form Flow/MSMForm';
+import { z } from "zod";
+
 
 // Props for ProducerContactForm
 interface ProducerContactFormProps {
@@ -18,76 +19,68 @@ const ProducerContactForm: React.FC<ProducerContactFormProps> = ({ onAddProducer
     email: '',
   });
 
-  const validateEmail = (value: string | null): string | null => {
-    // Regular expression for common email formats
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
-    if (!value) {
-      return "Email is required.";
-    }
+  const addProducer = (data: any) => {
 
-    if(value == ""){
-        return "Email is required"
-    }
-  
-    if (!emailRegex.test(value)) {
-      return "Please enter a valid email address.";
-    }
-  
-    return null; // Passes validation
-  };
-  
-  const addProducer = (contact: ProducerContact) => {
-    
     onAddProducer(contact)
   }
 
-  // Handlers for updating the contact state
-  const handleFirstNameChanged = (value: string) => {
-    setContact((prev) => ({ ...prev, first_name: value }));
-  };
-
-  const handleLastNameChanged = (value: string) => {
-    setContact((prev) => ({ ...prev, last_name: value }));
-  };
-
-  const handleEmailChanged = (value: string) => {
-    setContact((prev) => ({ ...prev, email: value }));
-  };
+  const ProducerContactSchema = z.object({
+    "first-name": z
+      .string()
+      .min(1, "First Name is required.")
+      .max(50, "First Name must not exceed 50 characters."),
+    "last-name": z
+      .string()
+      .min(1, "Last Name is required.")
+      .max(50, "Last Name must not exceed 50 characters."),
+    "producer-email": z
+      .string()
+      .email("Must be a valid email address.")
+      .min(1, "Email is required."),
+  });
 
   return (
+    <MSMForm
+      schema={ProducerContactSchema}
+      submitButtonText="Add Producer"
+      onSubmit={(data) => console.log(data)}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', justifyContent: 'space-between' }}>
 
-    <FormSection sectionKey="AddProducerContact" isNested>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', justifyContent: 'space-between' }}>
         {/* First Name */}
-        <TextInput
-            label="First Name"
-            defaultValue=""
-            onChange={handleFirstNameChanged}
-            formKey="ProducerFirstName"
-        />
+        <MSMFormField name="first-name" label="First Name">
+          {({ field }) =>
+            <MSMTextInput
+              value={field.value}
+              onChange={field.onChange}
+              ref={field.ref}
+            />
+          }
+        </MSMFormField>
 
         {/* Last Name */}
-        <TextInput
-            label="Last Name"
-            defaultValue=""
-            onChange={handleLastNameChanged}
-            formKey="ProducerLastName"
-        />
+        <MSMFormField name="last-name" label="Last Name">
+          {({ field }) =>
+            <MSMTextInput
+              value={field.value}
+              onChange={field.onChange}
+              ref={field.ref}
+            />
+          }
+        </MSMFormField>
 
         {/* Email */}
-        <TextInput
-            label="Email"
-            defaultValue=""
-            onChange={handleEmailChanged}
-            formKey="ProducerEmail"
-            validationFunction={validateEmail}
-        />
-
-        {/* Add Producer Button */}
-        <ActionButton text="Add Producer" onClick={() => addProducer(contact)} />
-        </div>
-    </FormSection>
+        <MSMFormField name="producer-email" label="Email">
+          {({ field }) =>
+            <MSMTextInput
+              value={field.value}
+              onChange={field.onChange}
+              ref={field.ref}
+            />
+          }
+        </MSMFormField>
+      </div>
+    </MSMForm>
   );
 };
 

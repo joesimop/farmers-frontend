@@ -9,6 +9,7 @@ import { DisplayModal } from '@MSMComponents/Popups/PopupHelpers';
 import { GetMarketVendors, MarketVendor } from './VendorManagmentAPICalls';
 import { callEndpoint } from '../../lib/API/APIDefinitions';
 import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
+import MSMPage from '@MSMComponents/Layout/MSMPage';
 
 interface VendorTableRow {
   id: number;
@@ -18,7 +19,7 @@ interface VendorTableRow {
 // Function to map vendors to VendorTableRow and concatenate them while excluding duplicates
 const mapAndDeduplicateVendors = (marketVendors: MarketVendor[]): VendorTableRow[] => {
   const vendorTableRows: VendorTableRow[] = [];
-  
+
   marketVendors.forEach((marketVendor) => {
     marketVendor.vendors.forEach((vendor) => {
       // Check if the vendor is already in the list
@@ -27,7 +28,7 @@ const mapAndDeduplicateVendors = (marketVendors: MarketVendor[]): VendorTableRow
       }
     });
   });
-  
+
   return vendorTableRows;
 }
 
@@ -35,7 +36,7 @@ const VendorManagement = () => {
 
   const [rows, setRows] = React.useState<VendorTableRow[]>([]);
 
-  const getVendors= () => {
+  const getVendors = () => {
 
     callEndpoint({
       endpointCall: GetMarketVendors(1),
@@ -54,20 +55,20 @@ const VendorManagement = () => {
   }, []);
 
   return (
-      <div className = "DefaultPageContainer">
-        <h1>Vendor Management</h1>
+    <MSMPage title='Vendor Managment'>
 
-         <PrimaryButton text="Get Vendors" onClick={getVendors}/>
-         <PrimaryButton
-            text="Add Vendor"
-            onClick={ () => DisplayModal(<CreateVendorForm />
-            , ()=> {}, ()=> {}, "Submit")}
-             />
+
+      <PrimaryButton text="Get Vendors" onClick={getVendors} />
+      <PrimaryButton
+        text="Add Vendor"
+        onClick={() => DisplayModal(<CreateVendorForm />
+          , () => { }, () => { }, "Submit")}
+      />
 
       <Box sx={{ height: 400, width: '100%' }}>
         <TypedDataGrid data={rows} hiddenFields={[]} />
-       </Box>
-      </div>
+      </Box>
+    </MSMPage>
 
   );
 };

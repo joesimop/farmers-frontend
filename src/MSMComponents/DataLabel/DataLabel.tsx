@@ -1,26 +1,17 @@
 import React from 'react';
 
 interface DataLabelProps {
-  /** The label text to display */
   label: string;
-  /** The value associated with the label */
   value: React.ReactNode;
-  /** Optional styles for the container */
-  style?: React.CSSProperties;
 }
 
-/**
- * DataLabel Component
- * Displays a label followed by a colon and a value.
- * The space between the colon and the value adjusts based on the available space.
- */
-const DataLabel: React.FC<DataLabelProps> = ({ label, value, style }) => {
+const DataLabel: React.FC<DataLabelProps> = ({ label, value }) => {
   return (
-    <div style={{ display: 'flex', maxWidth: "11em", color: "var(--black-color)", ...style }}>
-      <span style={{ whiteSpace: 'nowrap' }}>
+    <div className={`w-full flex max-w-[11em] text-black`}>
+      <span className="whitespace-nowrap flex-grow">
         {label}:
       </span>
-      <span style={{ flexGrow: 1, textAlign: "right" }}>
+      <span className="text-right">
         {value}
       </span>
     </div>
