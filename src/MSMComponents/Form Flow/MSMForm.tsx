@@ -1,119 +1,115 @@
-// FormGroup.tsx
-import React, { useContext, useEffect } from 'react';
-import { FormSection } from './FormSection';
-import FormData from './FormData';
-import { initSectionState, resetMSMForm, isFormValid, initFieldState, getValidationStates } from './MSMFormStateFunctions';
-import ActionButton from '../Buttons/ActionButton';
-import { DisplayAlert } from '../Popups/PopupHelpers';
-import { FieldState } from '../../lib/Constants/Types';
-
-interface MSMFormContext{
-  isAuto: boolean
-}
-
-
-// Protects when using Form Context
-export const useFormContext = () => {
-  const context = useContext(MSMFormContext);
-  if (!context) {
-    throw new Error('useFormContext must be used within a MSMForm provider');
-  }
-  return context;
-};
-
-const MSMFormContext = React.createContext<MSMFormContext | undefined>(undefined);
+import React, { useEffect, useRef } from "react";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@ShadcnComponents/ui/button";
+import { z } from "zod";
 
 interface MSMFormProps {
-  children: React.ReactNode;
-  isAuto?: boolean | false
-  onSubmit?: () => void;
-  ButtonText?: string;
+    schema?: any;                     // Zod schema for validation
+    children: React.ReactNode;       // List of MSMFormField components
+    onSubmit?: (data: any) => void;   // Callback for form submission
+    autoFocusField?: string;         // Field to autofocus on mount
+    submitButtonText?: string;       // Overrides submit button text
+    hasClearButton?: boolean;        // Adds clear form button if true
+    centerSubmitButton?: boolean;    // Centers button and makes full width
+    isAuto?: boolean;                // Automatically set focus
+    row?: boolean;                   // Display form fields in a row layout
+    clearOnSubmit?: boolean          // Clears form on a successful submit
 }
 
-//Assumes only one form group per page
-export const MSMForm: React.FC<MSMFormProps> = ({ children, isAuto, onSubmit = undefined, ButtonText="Submit" }) => {
+const MSMForm: React.FC<MSMFormProps> = ({
+    schema = z.object({}),
+    children,
+    onSubmit,
+    autoFocusField,
+    submitButtonText = "Submit",
+    hasClearButton = false,
+    centerSubmitButton = false,
+    isAuto = false,
+    row = false,
+    clearOnSubmit = false
+}) => {
 
-  //Builds Section Keys for state when they are nested
-  const buildFieldKeysRecursive = (children: React.ReactNode): string[] => {
-
-    const fieldKeys: string[] = [];
-
-    React.Children.forEach(children, (child) => {
-      if (React.isValidElement(child)) {
-        if(child.props.formKey) {
-          fieldKeys.push(child.props.formKey);
-        } else {
-          fieldKeys.push(...buildFieldKeysRecursive(React.Children.toArray(child.props.children)));
-        }
-      }});
-
-    return fieldKeys;
-}
-
-  // Collects section keys from children
-  const buildSectionKeys = (children: React.ReactNode): string[] => {
-
-    const sectionKeys: string[] = [];
-    React.Children.forEach(children, (child) => {
-      if(React.isValidElement(child)) {
-        if (child.type == FormSection) {
-          sectionKeys.push(child.props.sectionKey);
-        } else if (child.type == FormData) {
-          return;
-        } else{
-          throw new Error('All children of a MSMForm must be of type FormSection or FormData');
-        }
-    }
-  });
-
-    return sectionKeys;
-  }
-
-  const onSubmitButtonClick = (): void => {
-
-    const fields = getValidationStates()
-
-    console.log(fields)
-
-    //If form isn't valid, according to our zustand state, display error.
-    if(!isFormValid()){
-      DisplayAlert('error', "Form is not valid. Please complete it to submit.")
-      return;
-    }
-    //Submit form
-    onSubmit?.()
-  }
-
-
-  //Constructs the form sections
-  useEffect(() => {
-
-    //We build form-key sections progressively if its auto
-    if(isAuto){
-      const sectionKeys = buildSectionKeys(children);
-      initSectionState(sectionKeys)
-    }
-
-    return () => {
-      resetMSMForm()
+    // Wrapper for `setFocus` with 100ms delay
+    const setFocusWithDelay = (name: string, options?: { shouldSelect: boolean }) => {
+        setTimeout(() => {
+            setFocus(name, options);
+        }, 100);
     };
-  }, []);
 
-  return (
-    <>
-    <MSMFormContext.Provider value={{ isAuto: isAuto??false }}>
-      { children } 
-    </MSMFormContext.Provider>
+    // Initialize form methods with schema resolver
+    const form = useForm({
+        resolver: zodResolver(schema),
+    });
 
-    {onSubmit &&
-      <div className='form-margin'>
-            <ActionButton text={ButtonText} onClick={onSubmitButtonClick} />
-      </div>
-    }
-   
+    const { setFocus, reset, formState } = form;
 
-    </>
-  );
+    // Store field order based on schema
+    const fieldOrder = useRef(Object.keys(schema.shape));
+
+    // Watch for changes in form values
+    const values = useWatch({ control: form.control });
+
+    // Determine if all fields have values
+    const areAllFieldsFilled = fieldOrder.current.every((field) => {
+        const fieldValue = values[field];
+        return fieldValue !== undefined && fieldValue !== null && fieldValue !== "";
+    });
+
+    // Sequential Autofocus Logic
+    useEffect(() => {
+        if (isAuto) {
+            for (const field of fieldOrder.current) {
+                if (!values[field]) {
+                    setFocusWithDelay(field);
+                    break;
+                }
+            }
+        }
+    }, [values, setFocus, isAuto]);
+
+    useEffect(() => {
+        fieldOrder.current = Object.keys(schema.shape);
+    }, [schema]);
+
+    // Handle form reset to restart focus order
+    const handleReset = () => {
+        reset();
+        if (autoFocusField) {
+            setFocusWithDelay(autoFocusField);
+        } else if (isAuto) {
+            setFocusWithDelay(fieldOrder.current[0]);
+        }
+    };
+
+    // Handle form submission
+    const handleSubmit = (data: any) => onSubmit?.(data);
+
+    return (
+        <FormProvider {...form}>
+            <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className={`${row ? "flex flex-row items-end gap-4" : ""}`}
+            >
+                <div className={row ? "flex flex-row gap-4 flex-grow" : ""}>{children}</div>
+                <div>
+                    {onSubmit && (
+                        <Button
+                            type="submit"
+                            disabled={!areAllFieldsFilled}
+                            className={`${centerSubmitButton ? "self-center w-full" : ""}`}>
+                            {submitButtonText}
+                        </Button>
+                    )}
+                    {hasClearButton && (
+                        <Button type="button" variant="outline" onClick={handleReset}>
+                            Clear
+                        </Button>
+                    )}
+                </div>
+            </form>
+        </FormProvider>
+    );
 };
 
 export default MSMForm;

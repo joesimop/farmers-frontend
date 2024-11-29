@@ -10,7 +10,7 @@ const DescribeText: React.FC<DescribeTextProps> = ({ text, children }) => {
   return (
     <div>
       {children}
-      <div className="describe-text">
+      <div className="text-xs italic text-gray-600">
         {text}
       </div>
     </div>

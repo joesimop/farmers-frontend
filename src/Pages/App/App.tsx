@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes, } from "react-router-dom";
 import { AlertBanner } from '@MSMComponents/Popups/Alerts';
 import { PopupModal } from '@MSMComponents/Popups/Modals';
 import { usePopupStore } from '@MSMComponents/Popups/PopupDefnitions';
+import CheckoutOptions from '@Pages/Checkout/CheckoutOptions';
 
 function App() {
 
@@ -14,16 +15,17 @@ function App() {
 
   return (
     <div className={`app-container ${modal ? 'blurred' : 'App'}`}>
-      <header className="App-header">
+      <header className="App-header m-8">
         <AlertBanner />
-          <BrowserRouter>
-            <PopupModal />
-            <Routes>
-              <Route path="/"  element={<Home />}/>
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/reporting" element={<Reporting/>} />
-              <Route path="/vendormanagement" element={<VendorManagement/>} />
-            </Routes>
+        <BrowserRouter>
+          <PopupModal />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path='/checkout_options' element={<CheckoutOptions />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/reporting" element={<Reporting />} />
+            <Route path="/vendormanagement" element={<VendorManagement />} />
+          </Routes>
         </BrowserRouter>
       </header>
     </div>

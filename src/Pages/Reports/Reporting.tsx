@@ -1,6 +1,5 @@
 import './Reporting.css'; // External CSS for styling and animations
-import DropdownSelector from '@MSMComponents/Inputs/DropdownSelector';
-import {useState, useEffect, useCallback, useMemo} from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
 import "../../index.css";
@@ -12,92 +11,62 @@ import FormSection from '@MSMComponents/Form Flow/FormSection';
 import { APIResult, callEndpoint, callEndpointWithState, DefaultApiResult } from '../../lib/API/APIDefinitions';
 
 //API Calls and associated data types
-import { GetReportingOptions, ReportingOption} from './ReportingAPICalls';
+import { GetReportingOptions, ReportingOption } from './ReportingAPICalls';
 import { GetVendorReport, VendorReport } from './ReportingAPICalls';
 import APIResultDisplay from '@MSMComponents/APIResultDisplay';
+import MSMDropdown, { convertToDropdownItems } from '@MSMComponents/Inputs/MSMDropdown';
+import MSMFormField from '@MSMComponents/Form Flow/MSMFormField';
+import { z } from 'zod';
+import MSMPage from '@MSMComponents/Layout/MSMPage';
 
-
+function aggregateAllDates(markets: ReportingOption[]): string[] {
+  const allDates = markets.flatMap((market) => market.market_dates);
+  const uniqueDates = Array.from(new Set(allDates));
+  return uniqueDates;
+}
 
 const Reporting = () => {
 
   const [possibleMarketSelections, setPossibleMarketSelections] = useState<ReportingOption[]>([]);
-  const [possibleMarkets, setPossibleMarkets] = useState<string[]>([]);
   const [possibleDates, setPossibleDates] = useState<string[]>([]);
   const [reportData, setReportData] = useState<APIResult<VendorReport[]>>(DefaultApiResult);
-  const [selectedMarket, setSelectedMarket] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<string>("");
 
 
-  const handleMarketSelectionChanged = (value: string) => {
-    console.log("Market Selected: " + value); 
-    setSelectedMarket(value);
-  }
-
-  const handleDateSelectionChanged = (value: string) => {
-    console.log("Date Selected: " + value);
-    setSelectedDate(value);
-  }
-
-  const getReports = () => {
-
-    let marketID = possibleMarketSelections.find(
-      (market: ReportingOption) => market.market_name === selectedMarket)?.market_id;
-    
+  const getReports = (marketId: number, date: string) => {
     callEndpointWithState({
-      endpointCall: GetVendorReport(1, marketID === 0 ? undefined : marketID, selectedDate),
+      endpointCall: GetVendorReport(1, marketId, date),
       setState: setReportData
     })
   }
 
-  const getMarketOptions = useCallback( () => {  
+  const getMarketOptions = useCallback(() => {
 
-    if(possibleMarketSelections.length === 0) { return []; }
+    if (possibleMarketSelections.length === 0) { return []; }
     return possibleMarketSelections.map((market: ReportingOption) => market.market_name);
 
   }, [possibleMarketSelections]);
 
-  const getDateOptions = useCallback((curMarket: string) => {  
-    
-    if(possibleMarketSelections.length === 0) { return []; }
+  const updateDateOptions = useCallback((marketId: number) => {
 
-    let marketIndex: number = possibleMarketSelections.findIndex((market: ReportingOption) => market.market_name === curMarket);
-    if (marketIndex === -1) { return []; }
-    
-    let aggregatedDates: string[][] = [];
-    if (marketIndex === 0) {
-
-      possibleMarketSelections.forEach((market: ReportingOption, index: number) => {
-        if(index === 0) { return; }
-        aggregatedDates.push(market.market_dates);
-      });
+    if (marketId == 0) {
+      setPossibleDates(aggregateAllDates(possibleMarketSelections))
+      return;
     }
-    
-    aggregatedDates.push(marketIndex > -1 ? possibleMarketSelections[marketIndex].market_dates : []);
 
-    let flatDates: string[] = aggregatedDates.flat();
-    flatDates.sort((a: string, b: string) => { return dayjs(a).isBefore(dayjs(b)) ? 1 : -1; });
-    
-    return flatDates;
+    let marketIndex: number = possibleMarketSelections.findIndex((market: ReportingOption) => market.market_id === marketId);
+    if (marketIndex) {
+      setPossibleDates(possibleMarketSelections[marketIndex].market_dates)
+    }
 
   }, [possibleMarketSelections]);
 
-  useEffect(() => {
-
-    if(possibleMarketSelections.length === 0) { return; }
-    setPossibleDates(getDateOptions(selectedMarket));
-
-  }, [selectedMarket, possibleMarketSelections, getDateOptions]);
 
   useEffect(() => {
 
-    if(possibleMarketSelections.length === 0) { return; }
+    if (possibleMarketSelections.length === 0) { return; }
+    updateDateOptions(possibleMarketSelections[0].market_id);
 
-    setSelectedMarket(possibleMarketSelections[0].market_name);
-    setPossibleDates( getDateOptions(possibleMarketSelections[0].market_name));
-    setPossibleMarkets( getMarketOptions());
-
-
-  },[possibleMarketSelections, getMarketOptions, getDateOptions]);
+  }, [possibleMarketSelections, getMarketOptions, updateDateOptions]);
 
   useEffect(() => {
     const MarketManagerId = 1; // Replace with the actual MarketManager ID
@@ -113,47 +82,52 @@ const Reporting = () => {
     });
   }, []);
 
-  return (
-    <div className='DefaultPageContainer' style={{display: "flex", flexDirection: "column"}}>
-        <h1 style={{textAlign: 'left'}}>Reporting</h1>
-    {/* MARKET SELECTION */}
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
-      <div style={{minWidth: '30%'}}>
-        <MSMForm>
-          <FormSection sectionKey='ReportInputs' isNested>
-            <div style={{display: 'flex', gap: '1em', flexDirection: 'row'}}>
-        <DropdownSelector
-            options={possibleMarkets}
-                defaultValue={possibleMarketSelections.length > 0 ? possibleMarketSelections[0].market_name : ""}
-            onChanged={handleMarketSelectionChanged}
-            includeNone={true}
-                formKey='Markets'
-          />
+  const ReportingSchema = z.object({
+    market: z.number(),
+    date: z.string().min(1, "Date selection is required."),
+  });
 
-        <DropdownSelector
-            options={possibleDates}
-                  defaultValue={possibleDates[0]}
-            onChanged={handleDateSelectionChanged}
-            includeNone={true}
-                  formKey='Dates'
-          />
-          </div>
-          </FormSection>
-        </MSMForm>
-        
-      
-      <PrimaryButton text="Retrieve Reports" onClick={getReports}/>  
-        <APIResultDisplay result={reportData}>
-          {(data) => (
-            <Box sx={{ flexGrow: 1 }}>
-                <TypedDataGrid data={data} hiddenFields={["tokens"]} />
-            </Box>
+  return (
+    <MSMPage title="Vendor Reports">
+      <MSMForm schema={ReportingSchema} onSubmit={(data) => getReports(data.market, data.date)} row>
+
+
+        {/* Market Selection */}
+        <MSMFormField name="market" label="Market">
+          {({ field }) => (
+            <MSMDropdown
+              items={convertToDropdownItems(possibleMarketSelections, "market_name", "market_id")}
+              value={field.value}
+              onChange={(marketId) => {
+                field.onChange(marketId as number)
+                updateDateOptions(marketId as number)
+              }}
+            />
           )}
+        </MSMFormField>
+
+        {/* Date Selection */}
+        <MSMFormField name="date" label="Date">
+          {({ field }) => (
+            <MSMDropdown
+              items={possibleDates}
+              value={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        </MSMFormField>
+
+      </MSMForm>
+      <hr className='my-8 w-full' />
+      <APIResultDisplay result={reportData}>
+        {(data) => (
+          <Box sx={{ flexGrow: 1 }}>
+            <TypedDataGrid data={data} hiddenFields={["tokens"]} />
+          </Box>
+        )}
       </APIResultDisplay>
-      </div>
-    </div>
-      </div>
-    
+    </MSMPage>
+
   );
 };
 

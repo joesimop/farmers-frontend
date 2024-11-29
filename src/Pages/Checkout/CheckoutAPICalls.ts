@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { axiosInstance } from "../../lib/API/APIDefinitions";
 import { Vendor, MarketFee, MarketToken } from "../../lib/Constants/DataModels";
-import { Dayjs } from "dayjs";
+import { format } from "date-fns"
 
 
 export interface CheckoutOption {
@@ -11,6 +11,7 @@ export interface CheckoutOption {
 }
 
 export interface CheckoutData {
+    market_name: string;
     vendors: Vendor[];
     market_fees: MarketFee[];
     market_tokens: MarketToken[];
@@ -35,10 +36,9 @@ export const GetCheckoutOptions = async (MarketManager: number): Promise<AxiosRe
 
 };
 
-export const GetCheckoutData = async (MarketManager: number, MarketID:number, MarketDate?:Dayjs): Promise<AxiosResponse<CheckoutData>> => {
+export const GetCheckoutData = async (MarketManager: number, MarketID: number, MarketDate: string): Promise<AxiosResponse<CheckoutData>> => {
 
-    const MarketDateParam = MarketDate === undefined ? "" : MarketDate.format("YYYY-MM-DD");
-    const urlString = `/market_manager/${MarketManager}/checkout/market_details/${MarketID}?market_date=${MarketDateParam}`;
+    const urlString = `/market_manager/${MarketManager}/checkout/market_details/${MarketID}?market_date=${MarketDate}`;
     return axiosInstance.get<CheckoutData>(urlString)
 
 };
