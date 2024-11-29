@@ -235,9 +235,9 @@ const Checkout = () => {
 
 
   return (
-    <MSMPage title="Checkout" 
-            titleDescription={`${marketName} on ${formatDate(date ?? Date(), "dd/MM/yyyy")}`}>
-      <MSMForm schema={dynamicSchema} onSubmit={() => console.log("HEH")} centerSubmitButton hasClearButton>
+    <MSMPage title="Checkout"
+      titleDescription={`${marketName} on ${formatDate(date ?? Date(), "dd/MM/yyyy")}`}>
+      <MSMForm schema={dynamicSchema} onSubmit={() => console.log("HEH")} centerSubmitButton>
         <MSMFormField name="vendor" label="Vendor">
           {({ field }) => (
             <MSMDropdown
@@ -257,6 +257,7 @@ const Checkout = () => {
             <MSMFormField key={token.token.type} name={token.token.type} label={token.token.type}>
               {({ field }) => (
                 <MSMNumericalInput
+                  min={0}
                   value={field.value}
                   onChange={(quantity) => {
                     handleTokensChanged(quantity * token.token.per_dollar_value, index);

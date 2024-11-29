@@ -42,7 +42,7 @@ const MSMPage: React.FC<MSMPageProps> = ({ title, titleDescription, children, fo
                 </div>
             </header>
 
-            <main className="flex flex-col mx-auto px-8 py-6">
+            <main className="flex flex-col mx-auto md:px-8 py-6">
                 {children}
             </main>
 

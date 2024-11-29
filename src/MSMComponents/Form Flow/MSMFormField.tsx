@@ -7,14 +7,14 @@ import {
   FormMessage,
   FormField
 } from "@ShadcnComponents/ui/form";
-import { useFormContext, Controller, RefCallBack } from "react-hook-form";
+import { useFormContext, ControllerRenderProps, FieldValues } from "react-hook-form";
 
 interface MSMFormFieldProps {
   name: string; // Field name
   label?: string; // Optional field label
   description?: string; // Optional field description
   children: (props: {
-    field: any; // Props to control the input
+    field: ControllerRenderProps<FieldValues, string>; // Props to control the input
   }) => React.ReactNode; // Input component
 }
 
