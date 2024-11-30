@@ -9,12 +9,13 @@ interface AlertData {
   networkStatus?: number;
 }
 
-interface ModalData {
-  content: ReactElement;
+export interface ModalData {
+  content?: ReactElement;
   onCancel?: () => void;
   onConfirm?: () => void;
   confirmText?: string;
   cancelText?: string;
+  title?: string;
 }
 
 interface PopupStore {
@@ -24,7 +25,7 @@ interface PopupStore {
   // setConfirmIsDisabledCallback: (callback: () => boolean) => void;
   displayAlert: (type: AlertType, message: string, networkStatus?: number) => void;
   hideAlert: () => void;
-  displayModal: (content: ReactElement, onCancel?: () => void, onConfirm?: () => void, confirmText?: string, cancelText?: string) => void;
+  displayModal: (content?: ReactElement, onCancel?: () => void, onConfirm?: () => void, confirmText?: string, cancelText?: string, title?: string) => void;
   hideModal: () => void;
 }
 
@@ -38,7 +39,7 @@ export const usePopupStore = create<PopupStore>((set) => ({
   displayAlert: (type, message, networkStatus) =>
     set({ alert: { type, message, networkStatus } }),
   hideAlert: () => set({ alert: null }),
-  displayModal: (content, onCancel, onConfirm, confirmText, cancelText) =>
-    set({ modal: { content, onCancel, onConfirm, confirmText, cancelText } }),
+  displayModal: (content, onCancel, onConfirm, confirmText, cancelText, title) =>
+    set({ modal: { content, onCancel, onConfirm, confirmText, cancelText, title } }),
   hideModal: () => set({ modal: null, /*confirmIsDisabledCallback: () => false*/ }),
 }));

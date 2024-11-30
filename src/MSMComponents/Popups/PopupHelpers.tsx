@@ -1,4 +1,4 @@
-import { usePopupStore, AlertType } from './PopupDefnitions';
+import { usePopupStore, AlertType, ModalData } from './PopupDefnitions';
 import { ReactElement } from 'react';
 
 export const DisplayErrorAlert = (message: string, networkStatus?: number) =>
@@ -16,10 +16,11 @@ export const DisplaySuccessAlert = (message: string, networkStatus?: number) =>
 export const DisplayAlert = (type: AlertType, message: string, networkStatus?: number) =>
     usePopupStore.getState().displayAlert(type, message, networkStatus);
 
-export const DisplayModal = (
-  content: ReactElement,
-  onCancel?: () => void,
-  onConfirm?: () => void,
-  confirmText?: string,
-  cancelText?: string,
-) => usePopupStore.getState().displayModal(content, onCancel, onConfirm, confirmText, cancelText);
+export const DisplayModal = ({
+  content = <></>,
+  onCancel = undefined,
+  onConfirm = undefined,
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
+  title= ''
+}: ModalData) => usePopupStore.getState().displayModal(content, onCancel, onConfirm, confirmText, cancelText, title);

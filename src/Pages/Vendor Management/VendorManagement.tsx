@@ -61,8 +61,7 @@ const VendorManagement = () => {
       <PrimaryButton text="Get Vendors" onClick={getVendors} />
       <PrimaryButton
         text="Add Vendor"
-        onClick={() => DisplayModal(<CreateVendorForm />
-          , () => { }, () => { }, "Submit")}
+        onClick={() => DisplayModal({content:<CreateVendorForm />, title: "Add Vendor"})}
       />
 
       <Box sx={{ height: 400, width: '100%' }}>

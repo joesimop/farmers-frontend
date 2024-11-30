@@ -10,6 +10,7 @@
     "@mui/material": "^6.1.8",
     "@mui/x-data-grid": "^7.22.3",
     "@mui/x-date-pickers": "^7.22.3",
+    "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-select": "^2.1.2",
