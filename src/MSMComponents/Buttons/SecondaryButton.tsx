@@ -6,7 +6,7 @@ const SecondaryButton: React.FC<BaseButtonProps> = (props) => {
   return (
     <BaseButton
       {...props}
-      variant="outlined"
+      variant="outline"
       color="var(--secondary-color)"
       hoverBackgroundColor="var(--secondary-color)"
       hoverColor="var(--white-color)"

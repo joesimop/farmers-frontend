@@ -13,13 +13,13 @@ const LandingButton: React.FC<LandingButtonProps> = (props) => {
     <div style={{display: "flex"}}>
         <BaseButton
         {...props}
-        variant="outlined"
+        size={"xxl"}
         backgroundColor="var(--primary-color)"
         color="var(--white-color)"
         hoverBackgroundColor="var(--primary-color)"
         hoverOpacity={0.9}
         fullWidth={true}
-        startIcon={props.imageSrc && <Icon iconSrc={props.imageSrc} color='accent' size="2em" />}
+        Icon={props.imageSrc && <Icon iconSrc={props.imageSrc} color='white' size="2em" />}
         />
     </div>
   );

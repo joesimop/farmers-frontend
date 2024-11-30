@@ -14,60 +14,38 @@ interface ButtonStyleProps {
 export interface BaseButtonProps extends ButtonStyleProps {
   text: string;
   onClick: () => void;
-  size?: 'small' | 'medium' | 'large';
-  variant?: 'contained' | 'outlined' | 'text';
+  size?: 'lg' | 'sm' | 'default' | 'icon' | 'xxl' | null | undefined;
+  variant?: 'default' | 'destructive' | 'ghost' | 'outline' | 'secondary' | 'link';
   isDisabled?: boolean;
-  startIcon?: React.ReactNode;
-  endIcon?: React.ReactNode;
+  Icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
   fullWidth?: boolean;
 }
 
 const BaseButton: React.FC<BaseButtonProps> = ({
   text,
   onClick,
-  size = 'medium',
-  variant = 'text',
-  backgroundColor,
-  color,
-  hoverBackgroundColor,
-  hoverColor,
-  hoverOpacity = 1,
+  size: btnSize = 'default',
+  variant: btnVariant = 'default',
   isDisabled = false,
-  startIcon = <></>,
-  endIcon= <></>,
+  Icon = null,
+  iconPosition = 'left',
   fullWidth = false
 }) => {
 
   const [disabled, setDisabled] = useState(isDisabled); 
-
+  
   return (
     <Button
+      className='m-2'
+      variant={btnVariant}
+      size={btnSize}
       onClick={disabled ? () => {} : onClick}
-        // root: {
-          // '& label': {
-          //   color: 'red',
-          // },
-          // '& label.Mui-focused': {
-          //   color: 'white',
-          // },
-          // '& .MuiButtonBase-root': {
-          //   border: '2px solid white',
-          // },
-          // '& .MuiOutlinedInput-root': {
-          //   '& fieldset': {
-          //     borderColor: 'white',
-          //   },
-          //   '&:hover fieldset': {
-          //     borderColor: 'white',
-          //   },
-          //   '&.Mui-focused fieldset': {
-          //     borderColor: 'yellow',
-          //   },
-          // },
-        // },
       disabled={disabled}
-    >
+      >
+      {Icon != null && iconPosition === 'left' && Icon}
       {text}
+      {Icon != null && iconPosition === 'right' && Icon}
     </Button>
   );
 };

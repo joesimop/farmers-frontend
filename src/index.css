@@ -1,27 +1,45 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/*
+dark green: 147, 45, 24
+primary green: 148, 45, 48
+light green: 146, 46, 84
+whtie: 55, 29%, 92%
+black: 80, 6, 30
+*/
+
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 210 40% 98%;
+
+    /* Color Palette */
+    --green60:  147, 45%, 24%;
+    --green30:  148, 45%, 48%;
+    --green10:  146, 46%, 84%;
+    --msmwhite: 55, 29%, 92%;
+    --msmblack: 80, 6%, 30%;
+    --danger:   0, 100%, 72%;
+
+    /* Site Color Specification */
+    --background:             var(--msmwhite);
+    --foreground:             var(--msmblack);
+    --muted:                  var(--green10);
+    --muted-foreground:       var(--green30);
+    --popover:                var(--green60);
+    --popover-foreground:     var(--msmwhite);
+    --border:                 var(--green60);
+    --input:                  var(--green30);
+    --card:                   var(--green60);
+    --card-foreground:        var(--msmwhite);
+    --primary:                var(--green30);
+    --primary-foreground:     var(--msmwhite);
+    --secondary:              var(--green10);
+    --secondary-foreground:   var(--msmwhite);
+    --accent:                 var(--green30);
+    --accent-foreground:      var(--msmwhite);
+    --destructive:            var(--danger);
+    --destructive-foreground: var(--msmwhite);
     --ring: 215 20.2% 65.1%;
     --radius: 0.5rem;
   }
@@ -49,11 +67,78 @@
   }
 }
 
+@layer components {
+  .popover {
+    @apply bg-popover text-popover-foreground;
+  }
+  .card {
+    @apply bg-card text-card-foreground;
+  }
+  .input {
+    @apply bg-input;
+  }
+
+  .button {
+    @apply bg-primary text-primary-foreground;
+  }
+  .button:hover {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .button-lg {
+    @apply button min-w-full text-lg;
+  }
+
+  .button.secondary {
+    @apply bg-secondary text-secondary-foreground;
+  }
+
+  .button.accent {
+    @apply bg-accent text-accent-foreground;
+  }
+
+  .button.destructive {
+    @apply bg-destructive text-destructive-foreground;
+  }
+
+  /* Page Containers */
+  .pc { height: 80vh; @apply flex flex-col w-full }
+
+  .pc-c { @apply pc content-center items-center; }
+
+  .pc-l { @apply pc items-start;  }
+
+  .pc-r { @apply pc items-end;    }
+
+  /* Content Wrappers */
+  .cw { @apply h-full w-7/12 rounded-2xl flex flex-col content-center items-center; }
+
+  .cw-secondary { @apply cw bg-secondary; }
+
+  .cw-accent { @apply cw bg-accent; }
+
+  .cw-primary { @apply cw bg-primary; }
+
+  .cw-black { @apply cw bg-foreground; }
+
+  .cw-s{
+    @apply ;
+  }
+
+}
+
 @layer base {
   * {
     @apply border-border;
+    font-family: 'Hevetica Neue', sans-serif;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply antialiased bg-background text-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+  h1 {
+    @apply text-5xl;
   }
 }

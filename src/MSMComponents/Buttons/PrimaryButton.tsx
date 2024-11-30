@@ -6,7 +6,7 @@ const PrimaryButton: React.FC<BaseButtonProps> = (props) => {
   return (
     <BaseButton
       {...props}
-      variant="contained"
+      variant="default"
       backgroundColor="var(--primary-color)"
       color="var(--white-color)"
       hoverBackgroundColor="var(--primary-color)"

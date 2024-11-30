@@ -1,4 +1,4 @@
-import { DataGrid } from '@mui/x-data-grid';
+// import { DataGrid } from '@mui/x-data-grid';
 
 interface TypedDataGridProps<T> {
   data: T[]; // Array of data items of type T
@@ -22,7 +22,7 @@ const TypedDataGrid = <T,>({ data, hiddenFields = [], hideFooter = false, hideHe
 
   return (
     <div style={{ height: '100%', width: '100%' }}>
-      <DataGrid
+      {/* <DataGrid
         rows={data.map((item, index) => ({ ...item, id: index }))} // Add unique 'id' field for each row
         columns={columns}
         initialState={{
@@ -36,7 +36,7 @@ const TypedDataGrid = <T,>({ data, hiddenFields = [], hideFooter = false, hideHe
         disableRowSelectionOnClick
         hideFooter={hideFooter}
         columnHeaderHeight={hideHeader ? 0 : 56}
-      />
+      /> */}
     </div>
   );
 };

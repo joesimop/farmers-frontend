@@ -6,7 +6,7 @@ const ActionButton: React.FC<BaseButtonProps> = (props) => {
   return (
     <BaseButton
       {...props}
-      variant="contained"
+      variant='outline'
       backgroundColor="var(--secondary-color)"
       color="var(--white-color)"
       hoverBackgroundColor="var(--secondary-color)"

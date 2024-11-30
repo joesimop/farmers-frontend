@@ -19,6 +19,7 @@
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "craco": "^0.0.3",
     "dayjs": "^1.11.13",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
@@ -36,7 +37,7 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
-    "test":  "craco test",
+    "test": "craco test",
     "eject": "craco eject"
   },
   "eslintConfig": {
