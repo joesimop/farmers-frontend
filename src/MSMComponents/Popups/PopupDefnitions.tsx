@@ -26,7 +26,9 @@ interface PopupStore {
   // setConfirmIsDisabledCallback: (callback: () => boolean) => void;
   displayAlert: (type: AlertType, message: string, networkStatus?: number) => void;
   hideAlert: () => void;
+
   displayModal: (content?: ReactElement, onCancel?: () => void, onConfirm?: () => Promise<boolean | undefined>, confirmText?: string, cancelText?: string, title?: string, isConfirmDisabled?: boolean) => void;
+
   hideModal: () => void;
 }
 
@@ -40,7 +42,9 @@ export const usePopupStore = create<PopupStore>((set) => ({
   displayAlert: (type, message, networkStatus) =>
     set({ alert: { type, message, networkStatus } }),
   hideAlert: () => set({ alert: null }),
+
   displayModal: (content, onCancel, onConfirm, confirmText, cancelText, title, isConfirmDisabled) =>
     set({ modal: { content, onCancel, onConfirm, confirmText, cancelText, title, isConfirmDisabled } }),
+
   hideModal: () => set({ modal: null, /*confirmIsDisabledCallback: () => false*/ }),
 }));

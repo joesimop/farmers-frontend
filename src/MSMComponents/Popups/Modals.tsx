@@ -41,6 +41,7 @@ export const PopupModal: React.FC = () => {
           </DialogHeader>
           <DialogFooter>
             {modal.onCancel && <Button onClick={handleCancel}>{modal.cancelText}</Button>}
+
             {modal.onConfirm && <Button onClick={handleConfirm} disabled={modal.isConfirmDisabled}>{modal.confirmText}</Button>}
           </DialogFooter>
         </DialogContent>

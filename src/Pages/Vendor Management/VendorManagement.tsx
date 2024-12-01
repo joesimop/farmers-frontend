@@ -82,8 +82,6 @@ const VendorManagement = () => {
 
   return (
 
-
-
     <MSMPage title='Vendor Managment'>
       <MSMRow justify='end' align='end' lastElementRight>
         <MSMForm
