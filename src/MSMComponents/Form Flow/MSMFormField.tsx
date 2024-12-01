@@ -7,7 +7,8 @@ import {
   FormMessage,
   FormField
 } from "@ShadcnComponents/ui/form";
-import { useFormContext, ControllerRenderProps, FieldValues } from "react-hook-form";
+import { useFormContext, ControllerRenderProps, FieldValues, UseFormSetFocus } from "react-hook-form";
+import { useMSMFormContext } from "./MSMForm";
 
 interface MSMFormFieldProps {
   name: string; // Field name
@@ -15,6 +16,7 @@ interface MSMFormFieldProps {
   description?: string; // Optional field description
   children: (props: {
     field: ControllerRenderProps<FieldValues, string>; // Props to control the input
+    focusNextField: () => void
   }) => React.ReactNode; // Input component
 }
 
@@ -25,7 +27,7 @@ const MSMFormField: React.FC<MSMFormFieldProps> = ({
   children,
 }) => {
   
-  const { control } = useFormContext();
+  const { control, focusNextField } = useMSMFormContext();
 
   return (
     <FormField
@@ -34,7 +36,7 @@ const MSMFormField: React.FC<MSMFormFieldProps> = ({
       render={({ field, fieldState }) => (
         <FormItem>
           {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>{children({ field })}</FormControl>
+          <FormControl>{children({ field, focusNextField })}</FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage>{fieldState.error?.message}</FormMessage>
         </FormItem>

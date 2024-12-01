@@ -1,7 +1,6 @@
 import { AxiosResponse } from "axios";
 import { axiosInstance } from "../../lib/API/APIDefinitions";
 import { Vendor, MarketFee, MarketToken } from "../../lib/Constants/DataModels";
-import { format } from "date-fns"
 
 
 export interface CheckoutOption {
@@ -23,7 +22,7 @@ export interface CheckoutData {
 }
   export interface CheckoutSubmit {  
     market_vendor_id: number,
-    market_date: string, /* YYYY-MM-DD */
+    market_date: string, 
     reported_gross: number,
     fees_paid: number,
     tokens: TokenSubmit[]

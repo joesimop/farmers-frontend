@@ -7,19 +7,19 @@ interface MSMTextInputProps {
   placeholder?: string;             // Placeholder
   type?: string;                    // Input type (text, password, etc.)
   name?: string;                    // Field name (used for focus management)
-  setFocusNext?: (currentField: string) => void; // Function to move focus
+  focusNext?: () => void;           // Function from form to change focus
 }
 
 const MSMTextInput = forwardRef<HTMLInputElement, MSMTextInputProps>(
-  ({ value, onChange, placeholder = "Enter text", type = "text", name, setFocusNext, ...props }, ref) => {
+  ({ value, onChange, placeholder = "Enter text", type = "text", name, focusNext, ...props }, ref) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange?.(e.target.value);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter" && name && setFocusNext) {
+      if (e.key === "Enter" && name && focusNext) {
         e.preventDefault(); // Prevent form submission on Enter
-        setFocusNext(name);
+        focusNext();
       }
     };
 

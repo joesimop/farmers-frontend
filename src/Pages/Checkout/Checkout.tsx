@@ -2,13 +2,14 @@ import {
   MarketToken,
   Vendor,
   MarketFee,
+  MarketVendor,
 } from "../../lib/Constants/DataModels";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 
-import { DisplayErrorAlert, DisplayAlert } from "@MSMComponents/Popups/PopupHelpers";
+import { DisplayErrorAlert, DisplayAlert, DisplaySuccessAlert } from "@MSMComponents/Popups/PopupHelpers";
 import { FeeType } from "../../lib/Constants/Types";
-import { capitalizeFirstLetter } from "../../Helpers";
+import { toReadableDate, toReadableString } from "../../Helpers";
 import DescribeText from "@MSMComponents/DescribeText";
 import { callEndpoint } from "../../lib/API/APIDefinitions";
 import { TokenSubmit, CheckoutSubmit } from "./CheckoutAPICalls";
@@ -24,6 +25,7 @@ import MSMNumericalInput from "@MSMComponents/Inputs/MSMNumericalInput";
 import MSMPage from "@MSMComponents/Layout/MSMPage";
 import MSMMoneyDisplay from "@MSMComponents/MSMMoneyDisplay";
 import { formatDate } from "date-fns";
+import MSMHorizontalDivideLine from "@MSMComponents/Layout/MSMHorizontalDivideLine";
 
 //To keep track of Token Fields
 interface TokenFieldModel {
@@ -31,19 +33,21 @@ interface TokenFieldModel {
   token: MarketToken;
 }
 
+
+
 const createTokenFieldModel = (quantity: number, token: MarketToken): TokenFieldModel => ({ quantity, token });
 
 //To treat Gross Profit as a token
 const GrossProfitTokenModel: TokenFieldModel = {
   quantity: 0,
-  token: { id: 1, type: "Gross Profit", per_dollar_value: 1 },
+  token: { id: 0, type: "GROSS_PROFIT", per_dollar_value: 1 },
 }
 
 
 const Checkout = () => {
 
   // State Variables
-  const [Vendors, setVendors] = useState<Vendor[]>([]);
+  const [Vendors, setVendors] = useState<MarketVendor[]>([]);
   const [Fees, setFees] = useState<MarketFee[]>([]);
   const [Tokens, setTokens] = useState<TokenFieldModel[]>([GrossProfitTokenModel]);
   const [selectedVendor, setSelectedVendor] = useState<Vendor>();
@@ -91,7 +95,7 @@ const Checkout = () => {
 
     if (!marketFeeModel) {
       if (selectedVendor) {
-        return `No fee found for ${capitalizeFirstLetter(selectedVendor.type)}`;
+        return `No fee found for ${toReadableString(selectedVendor.type)}`;
       }
       return "No fees applicable."
     }
@@ -152,26 +156,28 @@ const Checkout = () => {
     calculateMarketFee();
   }, [marketFeeModel, Tokens]);
 
-  const submitCheckoutToDatabase = () => {
+  const submitCheckoutToDatabase = (data: any) => {
 
-    if (date && selectedVendor) {
+    if (date) {
       // Builds the data sent to the db
       let Data: CheckoutSubmit = {
-        market_vendor_id: selectedVendor?.market_vendor_id,
+        market_vendor_id: data.vendor,
         market_date: date,
-        reported_gross: Tokens[0].quantity,
+        reported_gross: data.GROSS_PROFIT,
         fees_paid: netVendorProfit,
-        tokens: GenerateTokensForSubmission(),
+        tokens: GenerateTokensForSubmission(data),
       };
+
+      console.log("Data: ", Data)
 
       //Submit Checkout
       callEndpoint({
         endpointCall: SubmitCheckout(1, Data),
-        onSuccess: (data, statusCode) => {
-          DisplayAlert('success', "Submitted Checkout", statusCode)
+        onSuccess: () => {
+          DisplaySuccessAlert("Submitted Checkout")
         },
         onError: (errorCode) => {
-          DisplayAlert('error', "Checkout failed", errorCode)
+          DisplayErrorAlert("Checkout failed", errorCode)
         }
       });
     }
@@ -190,7 +196,6 @@ const Checkout = () => {
         onSuccess: (data) => {
           setVendors(data.vendors)
           setTokens([GrossProfitTokenModel, ...data.market_tokens.map((token) => createTokenFieldModel(0, token))])
-          console.log(data.market_fees)
           setFees(data.market_fees ?? [])
         },
         onError: (errorCode) => {
@@ -205,19 +210,24 @@ const Checkout = () => {
   //     HELPER FUNCTIONS       //
   //////////////////////////////// 
 
-  //Assembles tokens for transaction push
-  const GenerateTokensForSubmission: Function = (): any[] => {
-    let tokensToSubmit: TokenSubmit[] = [];
-    Tokens.forEach((token: TokenFieldModel, index: number) => {
+  // Assembles tokens for transaction push
+  const GenerateTokensForSubmission = (data: Record<string, any>): TokenSubmit[] => {
 
-      //Don't include gross profit
-      if (index !== 0) {
-        tokensToSubmit.push({ market_token_id: token.token.id, count: token.quantity });
-      }
-    });
+    const tokenEntries = Object.entries(data);
+
+    // Filter out "vendor" and "GROSS_PROFIT" keys
+    const filteredTokens = tokenEntries.filter(
+      ([key]) => key !== "vendor" && key !== "GROSS_PROFIT"
+    );
+
+    const tokensToSubmit: TokenSubmit[] = filteredTokens.map(([key, value]) => ({
+      market_token_id: Tokens.find((token) => token.token.type === key)?.token.id ?? 0,
+      count: value,
+    }));
 
     return tokensToSubmit;
   };
+
 
   // Update the schema dynamically based on tokens
   const dynamicSchema = useMemo(() => {
@@ -232,37 +242,48 @@ const Checkout = () => {
     });
   }, [Tokens]);
 
-
-
+  
   return (
     <MSMPage title="Checkout"
-      titleDescription={`${marketName} on ${formatDate(date ?? Date(), "dd/MM/yyyy")}`}>
-      <MSMForm schema={dynamicSchema} onSubmit={() => console.log("HEH")} centerSubmitButton>
+      titleDescription={`${marketName} on ${toReadableDate(date ?? Date())}`}>
+      <MSMForm
+        schema={dynamicSchema}
+        onSubmit={submitCheckoutToDatabase}
+        centerSubmitButton
+        isAuto>
+
         <MSMFormField name="vendor" label="Vendor">
-          {({ field }) => (
+          {({ field, focusNextField }) => (
             <MSMDropdown
-              items={convertToDropdownItems(Vendors, "business_name", "id")}
+              items={convertToDropdownItems(Vendors, "business_name", "market_vendor_id")}
               value={field.value}
               onChange={(value) => {
                 field.onChange(value);
                 setSelectedVendor(Vendors.find((v) => v.id === Number(value)));
               }}
+              focusNext={focusNextField}
               ref={field.ref}
             />
           )}
         </MSMFormField>
-        <hr className="w-full my-4" />
-        <MSMFlexGrid minColumns={2}>
+
+        <MSMHorizontalDivideLine />
+
+        <MSMFlexGrid minColumns={2} textAlign="left">
           {Tokens.map((token: TokenFieldModel, index: number) => (
-            <MSMFormField key={token.token.type} name={token.token.type} label={token.token.type}>
-              {({ field }) => (
+            <MSMFormField key={token.token.type}
+              name={token.token.type}
+              label={toReadableString(token.token.type)}>
+              {({ field, focusNextField }) => (
                 <MSMNumericalInput
                   min={0}
                   value={field.value}
                   onChange={(quantity) => {
-                    handleTokensChanged(quantity * token.token.per_dollar_value, index);
-                    field.onChange(quantity);
+                    const quantityValue = quantity === undefined ? 0 : quantity
+                    handleTokensChanged(quantityValue * token.token.per_dollar_value, index);
+                    field.onChange(quantity)
                   }}
+                  focusNext={focusNextField}
                   ref={field.ref}
                 />
               )}
@@ -288,8 +309,6 @@ const Checkout = () => {
               ${netVendorProfit < 0 ? "text-destructive" : "text-green-700"}`} />
           </div>
         </div>
-
-
 
       </MSMForm>
     </MSMPage>

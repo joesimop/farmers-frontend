@@ -7,45 +7,20 @@ import { Popover, PopoverContent, PopoverTrigger } from "@ShadcnComponents/ui/po
 
 interface MSMSDatePickerProps {
   value?: Date | undefined;                     // Current value of the date
-  onChange?: (date: Date | undefined) => void; // Callback when date changes
-  placeholder?: string;                        // Placeholder text
+  onChange?: (date: Date | undefined) => void;  // Callback when date changes
+  placeholder?: string;                         // Placeholder text
 }
 
 const MSMSDatePicker = forwardRef<HTMLDivElement, MSMSDatePickerProps>(
   ({ value, onChange, placeholder = "Pick a date", ...props }, ref) => {
 
     const [isOpen, setIsOpen] = useState(false);
-    const [autoFocused, setAutoFocused] = useState(false);
-
-    const handleAutoFocus = (e: React.FocusEvent<HTMLDivElement>) => {
-        if(!autoFocused){
-            setAutoFocused(true);
-            setIsOpen(true);
-        }
-    };
-
-    const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
-      // Check if the new focus target (relatedTarget) is outside the component
-      if (!autoFocused) {
-        setIsOpen(false);
-        setAutoFocused(false);
-      }
-    };
-
-    // useEffect(() => {
-    //     if(isOpen){
-            
-    //     }
-    // }, [isOpen])
-
 
     return (
       <div
         ref={ref}
         {...props}
-        tabIndex={0} // Make the wrapper focusable
-        onFocus={handleAutoFocus}
-        onBlur={handleBlur}
+        tabIndex={0}
       >
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
@@ -60,7 +35,6 @@ const MSMSDatePicker = forwardRef<HTMLDivElement, MSMSDatePickerProps>(
               selected={value}
               onSelect={(newDate) => {
                 if (onChange) onChange(newDate || undefined); // Handle undefined if no date selected
-                setIsOpen(false);                           // Close popover on date select
               }}
             />
           </PopoverContent>
