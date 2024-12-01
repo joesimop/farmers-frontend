@@ -15,7 +15,7 @@ function App() {
 
   return (
     <div className={`app-container ${modal ? 'blurred' : 'App'}`}>
-      <header className="App-header m-8">
+      <header className="App-header">
         <AlertBanner />
         <BrowserRouter>
           <PopupModal />

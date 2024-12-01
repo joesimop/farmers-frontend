@@ -26,6 +26,7 @@ import MSMPage from "@MSMComponents/Layout/MSMPage";
 import MSMMoneyDisplay from "@MSMComponents/MSMMoneyDisplay";
 import { formatDate } from "date-fns";
 import MSMHorizontalDivideLine from "@MSMComponents/Layout/MSMHorizontalDivideLine";
+import MSMSplitView from "@MSMComponents/Layout/MSMSplitView";
 
 //To keep track of Token Fields
 interface TokenFieldModel {
@@ -242,7 +243,7 @@ const Checkout = () => {
     });
   }, [Tokens]);
 
-  
+
   return (
     <MSMPage title="Checkout"
       titleDescription={`${marketName} on ${toReadableDate(date ?? Date())}`}>
@@ -259,7 +260,7 @@ const Checkout = () => {
               value={field.value}
               onChange={(value) => {
                 field.onChange(value);
-                setSelectedVendor(Vendors.find((v) => v.id === Number(value)));
+                setSelectedVendor(Vendors.find((v) => v.market_vendor_id === Number(value)));
               }}
               focusNext={focusNextField}
               ref={field.ref}
@@ -291,24 +292,25 @@ const Checkout = () => {
           ))}
         </MSMFlexGrid>
 
-        <div className="text-center">
-          <div className="py-4">
+        <MSMSplitView className="text-left py-8"
+          left={
+            <>
+              <span className="text-3xl font-bold">Net Profit</span><br />
+              <MSMMoneyDisplay
+                value={netVendorProfit}
+                className={`text-2xl font-bold
+              ${netVendorProfit < 0 ? "text-destructive" : "text-green-700"}`} />
+            </>
+          }
+          right={
             <DescribeText text={getMarketFeeCalculationString()}>
-              <span className="text-2xl font-bold">Market Fee</span><br />
+              <span className="text-3xl font-bold">Market Fee</span><br />
               <MSMMoneyDisplay
                 value={marketFee}
-                className="text-xl" />
+                className="text-2xl" />
             </DescribeText>
-          </div>
-
-          <div className="py-4">
-            <span className="text-2xl font-bold">Net Profit</span><br />
-            <MSMMoneyDisplay
-              value={netVendorProfit}
-              className={`text-xl 
-              ${netVendorProfit < 0 ? "text-destructive" : "text-green-700"}`} />
-          </div>
-        </div>
+          }
+        />
 
       </MSMForm>
     </MSMPage>
