@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { axiosInstance } from "../../lib/API/APIDefinitions";
-import { Vendor } from "../../lib/Constants/DataModels";
+import { MarketOption, Vendor } from "../../lib/Constants/DataModels";
 
 
 export interface MarketVendor {
@@ -8,9 +8,17 @@ export interface MarketVendor {
     vendors: Vendor[];
 }
 
-export const GetMarketVendors = async ( MarketManager: number): Promise<AxiosResponse<MarketVendor[]>> => {
+export const GetMarketVendors = async ( MarketManager: number, MarketId: number): Promise<AxiosResponse<MarketVendor[]>> => {
 
-    let urlString = `/market_manager/${MarketManager}/vendors_per_market`;
+    const MarketIdString = "market_id=" + MarketId 
+    let urlString = `/market_manager/${MarketManager}/vendors?${MarketIdString}`;
     return axiosInstance.get<MarketVendor[]>(urlString);
+
+}
+
+export const GetMarketsOptions = async ( MarketManager: number): Promise<AxiosResponse<MarketOption[]>> => {
+
+    let urlString = `/market_manager/${MarketManager}/market_options`;
+    return axiosInstance.get<MarketOption[]>(urlString);
 
 }

@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 
 import { DisplayErrorAlert, DisplayAlert } from "@MSMComponents/Popups/PopupHelpers";
 import { FeeType } from "../../lib/Constants/Types";
-import { capitalizeFirstLetter } from "../../Helpers";
+import { toReadableDate, toReadableString } from "../../Helpers";
 import DescribeText from "@MSMComponents/DescribeText";
 import { callEndpoint } from "../../lib/API/APIDefinitions";
 import { TokenSubmit, CheckoutSubmit } from "./CheckoutAPICalls";
@@ -91,7 +91,7 @@ const Checkout = () => {
 
     if (!marketFeeModel) {
       if (selectedVendor) {
-        return `No fee found for ${capitalizeFirstLetter(selectedVendor.type)}`;
+        return `No fee found for ${toReadableString(selectedVendor.type)}`;
       }
       return "No fees applicable."
     }
@@ -190,7 +190,6 @@ const Checkout = () => {
         onSuccess: (data) => {
           setVendors(data.vendors)
           setTokens([GrossProfitTokenModel, ...data.market_tokens.map((token) => createTokenFieldModel(0, token))])
-          console.log(data.market_fees)
           setFees(data.market_fees ?? [])
         },
         onError: (errorCode) => {
@@ -231,15 +230,17 @@ const Checkout = () => {
       ...tokenSchema,
     });
   }, [Tokens]);
-
-
-
   return (
     <MSMPage title="Checkout"
-      titleDescription={`${marketName} on ${formatDate(date ?? Date(), "dd/MM/yyyy")}`}>
-      <MSMForm schema={dynamicSchema} onSubmit={() => console.log("HEH")} centerSubmitButton>
+      titleDescription={`${marketName} on ${toReadableDate(date ?? Date())}`}>
+      <MSMForm
+        schema={dynamicSchema}
+        onSubmit={() => console.log("HEH")}
+        centerSubmitButton
+        isAuto>
+
         <MSMFormField name="vendor" label="Vendor">
-          {({ field }) => (
+          {({ field, focusNextField }) => (
             <MSMDropdown
               items={convertToDropdownItems(Vendors, "business_name", "id")}
               value={field.value}
@@ -247,22 +248,27 @@ const Checkout = () => {
                 field.onChange(value);
                 setSelectedVendor(Vendors.find((v) => v.id === Number(value)));
               }}
+              focusNext={focusNextField}
               ref={field.ref}
             />
           )}
         </MSMFormField>
+
         <hr className="w-full my-4" />
+
         <MSMFlexGrid minColumns={2}>
           {Tokens.map((token: TokenFieldModel, index: number) => (
             <MSMFormField key={token.token.type} name={token.token.type} label={token.token.type}>
-              {({ field }) => (
+              {({ field, focusNextField }) => (
                 <MSMNumericalInput
                   min={0}
                   value={field.value}
                   onChange={(quantity) => {
-                    handleTokensChanged(quantity * token.token.per_dollar_value, index);
-                    field.onChange(quantity);
+                    const quantityValue = quantity === undefined ? 0 : quantity
+                    handleTokensChanged(quantityValue * token.token.per_dollar_value, index);
+                    field.onChange(quantity)
                   }}
+                  focusNext={focusNextField}
                   ref={field.ref}
                 />
               )}
@@ -288,8 +294,6 @@ const Checkout = () => {
               ${netVendorProfit < 0 ? "text-destructive" : "text-green-700"}`} />
           </div>
         </div>
-
-
 
       </MSMForm>
     </MSMPage>

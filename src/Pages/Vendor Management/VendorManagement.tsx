@@ -6,10 +6,18 @@ import TypedDataGrid from '@MSMComponents/TypedDataGrid/TypedDataGrid';
 import PrimaryButton from '@MSMComponents/Buttons/PrimaryButton';
 import CreateVendorForm from '@MSMComponents/Forms/CreateVendorFrom';
 import { DisplayModal } from '@MSMComponents/Popups/PopupHelpers';
-import { GetMarketVendors, MarketVendor } from './VendorManagmentAPICalls';
+import { GetMarketsOptions, GetMarketVendors, MarketVendor } from './VendorManagmentAPICalls';
 import { callEndpoint } from '../../lib/API/APIDefinitions';
 import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
 import MSMPage from '@MSMComponents/Layout/MSMPage';
+import MSMEnumDropdown from '@MSMComponents/Inputs/MSMEnumDropdown';
+import { VendorType } from '@lib/Constants/Types';
+import MSMDropdown, { addNameForValuesForDropdown, convertToDropdownItems, MSMDropdownItem } from '@MSMComponents/Inputs/MSMDropdown';
+import MSMForm from '@MSMComponents/Form Flow/MSMForm';
+import MSMFormField from '@MSMComponents/Form Flow/MSMFormField';
+import { z } from 'zod';
+import MSMRow from '@MSMComponents/Layout/MSMRow';
+import MSMHorizontalDivideLine from '@MSMComponents/Layout/MSMHorizontalDivideLine';
 
 interface VendorTableRow {
   id: number;
@@ -35,13 +43,13 @@ const mapAndDeduplicateVendors = (marketVendors: MarketVendor[]): VendorTableRow
 const VendorManagement = () => {
 
   const [rows, setRows] = React.useState<VendorTableRow[]>([]);
+  const [marketOptions, setMarketOptions] = React.useState<MSMDropdownItem[]>([])
 
-  const getVendors = () => {
-
+  const getVendors = (market_id: number) => {
+    console.log(market_id)
     callEndpoint({
-      endpointCall: GetMarketVendors(1),
+      endpointCall: GetMarketVendors(1, market_id),
       onSuccess: (data) => {
-        console.log("VM DATA: ", data)
         setRows(mapAndDeduplicateVendors(data))
       },
       onError: (errorCode) => {
@@ -51,22 +59,55 @@ const VendorManagement = () => {
   }
 
   useEffect(() => {
-    getVendors();
-  }, []);
+    callEndpoint({
+      endpointCall: GetMarketsOptions(1),
+      onSuccess: (data) => {
+        setMarketOptions(convertToDropdownItems(data, "market", "market_id"))
+      },
+      onError: (errorCode) => {
+        DisplayAlert('error', "Could not retrieve market options", errorCode)
+      }
+    });
+  }, [])
+
+  const ManagmentSchema = z.object({
+    market: z.number()
+  });
 
   return (
+
+
+
     <MSMPage title='Vendor Managment'>
+      <MSMRow justify='end' align='end' lastElementRight>
+        <MSMForm
+          schema={ManagmentSchema}
+          onSubmit={(data) => getVendors(data.market)}
+          submitButtonText='Retrieve Vendors'
+          row>
+          {/* Market Selection */}
+          <MSMFormField name="market" label="Market">
+            {({ field }) => (
+              <MSMDropdown
+                items={marketOptions}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          </MSMFormField>
+        </MSMForm>
 
-
-      <PrimaryButton text="Get Vendors" onClick={getVendors} />
-      <PrimaryButton
-        text="Add Vendor"
-        onClick={() => DisplayModal({content:<CreateVendorForm />, title: "Add Vendor"})}
-      />
-
+        <PrimaryButton
+          text="Add Vendor"
+          onClick={() => DisplayModal(<CreateVendorForm />
+            , () => { }, () => { }, "Submit")}
+        />
+      </MSMRow>
+      <MSMHorizontalDivideLine />
       <Box sx={{ height: 400, width: '100%' }}>
         <TypedDataGrid data={rows} hiddenFields={[]} />
       </Box>
+
     </MSMPage>
 
   );

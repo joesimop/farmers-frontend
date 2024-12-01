@@ -1,4 +1,4 @@
-import { alerttype, VendorType, FeeType, fieldstatus } from "./Types";
+import { alerttype, fieldstatus } from "./Types";
 
 export interface Vendor {
     id: number;
@@ -7,6 +7,11 @@ export interface Vendor {
     current_cpc: string;
     cpc_expr: Date;
     type: string;
+}
+
+export interface MarketOption {
+    market: string;
+    market_id: number;
 }
   
 export interface MarketFee {

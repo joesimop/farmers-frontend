@@ -28,9 +28,9 @@ export const GetReportingOptions = async (MarketManager: number): Promise<AxiosR
 
   };
 
-export const GetVendorReport = async ( MarketManager: number, MarketID: number | undefined, MarketDate: string): Promise<AxiosResponse<VendorReport[]>> => {
+export const GetVendorReport = async ( MarketManager: number, MarketID: number, MarketDate: string): Promise<AxiosResponse<VendorReport[]>> => {
     
-    const MarketIDString = MarketID === undefined ? "" : "market_id=" + MarketID + "&";
+    const MarketIDString = "market_id=" + MarketID + "&";
     const MarketDateString = MarketDate === "" ? "" : "market_date=" + MarketDate + "&";
     const urlString = `market_manager/${MarketManager}/reporting/report?${MarketIDString}${MarketDateString}sort_by=MARKET_DATE&sort_direction=DESC`
 
