@@ -86,7 +86,7 @@ const MSMForm = forwardRef<MSMFormRef, MSMFormProps>(
         const focusNextField = () => {
             if (isAuto) {
                 for (const field of fieldOrder) {
-                    if (!values[field]) {
+                    if (values[field] === undefined) {
                         setFocusWithDelay(field);
                         break;
                     }
