@@ -9,6 +9,10 @@ export interface Vendor {
     type: string;
 }
 
+export interface MarketVendor extends Vendor {
+    market_vendor_id: number;
+}
+
 export interface MarketOption {
     market: string;
     market_id: number;

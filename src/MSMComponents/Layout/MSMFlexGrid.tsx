@@ -6,6 +6,7 @@ interface MSMFlexGridProps {
   maxColumns?: number;         // Maximum number of columns
   horizontalSpacing?: number;  // Horizontal gap (Tailwind spacing scale)
   verticalSpacing?: number;    // Vertical gap (Tailwind spacing scale)
+  textAlign?: string;
   className?: string;          // Additional classes
 }
 
@@ -15,6 +16,7 @@ const MSMFlexGrid: React.FC<MSMFlexGridProps> = ({
   maxColumns = 3, // Default to 3 columns
   horizontalSpacing = 4, // Default horizontal gap
   verticalSpacing = 4, // Default vertical gap
+  textAlign = "center",
   className = "",
 }) => {
   // Dynamically calculate the number of columns for each breakpoint
@@ -47,7 +49,7 @@ const MSMFlexGrid: React.FC<MSMFlexGridProps> = ({
       }}
     >
       {children.map((child, index) => (
-        <div key={index} className="text-center">
+        <div key={index} className={`text-${textAlign}`}>
           {child}
         </div>
       ))}

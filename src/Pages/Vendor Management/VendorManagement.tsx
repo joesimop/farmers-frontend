@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import './VendorManagement.css'; // External CSS for styling and animations
 import Box from '@mui/material/Box';
 import '../../index.css';
@@ -13,7 +13,7 @@ import MSMPage from '@MSMComponents/Layout/MSMPage';
 import MSMEnumDropdown from '@MSMComponents/Inputs/MSMEnumDropdown';
 import { VendorType } from '@lib/Constants/Types';
 import MSMDropdown, { addNameForValuesForDropdown, convertToDropdownItems, MSMDropdownItem } from '@MSMComponents/Inputs/MSMDropdown';
-import MSMForm from '@MSMComponents/Form Flow/MSMForm';
+import MSMForm, { MSMFormRef } from '@MSMComponents/Form Flow/MSMForm';
 import MSMFormField from '@MSMComponents/Form Flow/MSMFormField';
 import { z } from 'zod';
 import MSMRow from '@MSMComponents/Layout/MSMRow';
@@ -44,6 +44,12 @@ const VendorManagement = () => {
 
   const [rows, setRows] = React.useState<VendorTableRow[]>([]);
   const [marketOptions, setMarketOptions] = React.useState<MSMDropdownItem[]>([])
+
+  const formRef = useRef<MSMFormRef>(null);
+
+  const onModalConfirm = async () => {
+    return await formRef.current?.submit()
+  }
 
   const getVendors = (market_id: number) => {
     console.log(market_id)
@@ -99,8 +105,7 @@ const VendorManagement = () => {
 
         <PrimaryButton
           text="Add Vendor"
-          onClick={() => DisplayModal(<CreateVendorForm />
-            , () => { }, () => { }, "Submit")}
+          onClick={() => DisplayModal({ title: "Add Vendor", content: <CreateVendorForm ref={formRef} />, onConfirm: onModalConfirm })}
         />
       </MSMRow>
       <MSMHorizontalDivideLine />

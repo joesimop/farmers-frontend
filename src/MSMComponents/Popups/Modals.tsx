@@ -20,13 +20,15 @@ export const PopupModal: React.FC = () => {
   if (!modal) return null;
 
   const handleCancel = () => {
-    if (modal.onCancel) modal.onCancel();
+    modal.onCancel?.()
     hideModal();
   };
 
-  const handleConfirm = () => {
-    if (modal.onConfirm) modal.onConfirm();
-    hideModal();
+  const handleConfirm = async () => {
+    const isSuccessful = await modal.onConfirm?.()
+    if (isSuccessful) {
+      hideModal();
+    }
   };
 
   return (
@@ -39,10 +41,10 @@ export const PopupModal: React.FC = () => {
           </DialogHeader>
           <DialogFooter>
             {modal.onCancel && <Button onClick={handleCancel}>{modal.cancelText}</Button>}
-            {modal.onConfirm && <Button onClick={handleConfirm}>{modal.confirmText}</Button>}
+            {modal.onConfirm && <Button onClick={handleConfirm} disabled={modal.isConfirmDisabled}>{modal.confirmText}</Button>}
           </DialogFooter>
         </DialogContent>
-      </Dialog> 
+      </Dialog>
     </>
   );
 };
