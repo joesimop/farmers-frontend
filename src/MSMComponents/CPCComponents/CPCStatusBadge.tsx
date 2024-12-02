@@ -17,7 +17,7 @@ export const CPCStatusBadge: React.FC<CPCStatusBadgeProps> = ({ date }) => {
 
   const tooltipContent = (() => {
     if (status === "Past Due") {
-      return <span className="font-bold text-destructive">Past Due</span>;
+      return <span className="font-bold text-destructive">{Math.abs(daysLeft)} Days Past Due</span>;
     }
 
     const dueText = `CPC due in `;
