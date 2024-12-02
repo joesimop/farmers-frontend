@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { Table } from "@tanstack/react-table"
 import {
   ChevronLeft,
@@ -22,8 +23,16 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+
+  const [shouldRender, setShouldRender] = useState(false);
+
+    useEffect(() => {
+        setShouldRender(table.getFilteredRowModel().rows.length >= 10);
+    }, []);
+
   return (
-    <div className="flex items-center justify-between px-2">
+    <>
+    {shouldRender && <div className="flex items-center justify-between px-2">
       <div className="flex-1 text-sm text-muted-foreground">
         {table.getFilteredSelectedRowModel().rows.length} of{" "}
         {table.getFilteredRowModel().rows.length} row(s) selected.
@@ -92,6 +101,7 @@ export function DataTablePagination<TData>({
           </Button>
         </div>
       </div>
-    </div>
+    </div>}
+    </>
   )
 }

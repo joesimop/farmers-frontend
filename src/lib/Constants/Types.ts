@@ -53,4 +53,13 @@ export function isFieldValid(error: ErrorState): boolean{
 
 export type fieldstatus = "active" | "disabled" | "error"
 
+export type CPCStatus = "Past Due" | "Due Urgently" | "Due Soon" | "Up to Date"
+export const CPCStatusColors: Record<CPCStatus, string> = {
+  "Past Due": "text-destructive",
+  "Due Urgently": "text-destructive",
+  "Due Soon": "text-warning",
+  "Up to Date": "text-primary",
+};
+
+
 export type alerttype = OverridableStringUnion<AlertColor, AlertPropsColorOverrides>;
