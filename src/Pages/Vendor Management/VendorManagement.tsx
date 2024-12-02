@@ -10,6 +10,7 @@ import { GetMarketVendors, MarketVendor } from './VendorManagmentAPICalls';
 import { callEndpoint } from '../../lib/API/APIDefinitions';
 import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
 import MSMPage from '@MSMComponents/Layout/MSMPage';
+import { DataTable } from '@MSMComponents/DataTable/DataTable';
 
 interface VendorTableRow {
   id: number;
@@ -66,6 +67,7 @@ const VendorManagement = () => {
 
       <Box sx={{ height: 400, width: '100%' }}>
         <TypedDataGrid data={rows} hiddenFields={[]} />
+        <DataTable data={rows} columns={}/>
       </Box>
     </MSMPage>
 
