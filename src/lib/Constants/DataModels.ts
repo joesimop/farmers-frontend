@@ -1,4 +1,4 @@
-import { alerttype, fieldstatus } from "./Types";
+import { alerttype, fieldstatus, VendorType } from "./Types";
 
 export interface Vendor {
     id: number;
@@ -6,7 +6,7 @@ export interface Vendor {
     business_name: string;
     current_cpc: string;
     cpc_expr: Date;
-    type: string;
+    type: VendorType;
 }
 
 export interface MarketVendor extends Vendor {
