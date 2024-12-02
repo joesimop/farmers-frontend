@@ -44,7 +44,8 @@ export const CPCStatusBadge: React.FC<CPCStatusBadgeProps> = ({ date }) => {
   return (
     <div className="flex justify-between w-28">
       <span className={CPCStatusColors[status]}>{new Date(date).toLocaleDateString()}</span>
-      <AlertIcon color={CPCStatusColors[status]} tooltip={tooltipContent} />
+      {status !== 'Up to Date' && 
+      <AlertIcon color={CPCStatusColors[status]} tooltip={tooltipContent} /> }
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { DataTableColumnHeader } from "@MSMComponents/DataTable/DataTableColumnHeader"
 import { z } from "zod"
 import { CPCStatusBadge } from "@MSMComponents/CPCComponents/CPCStatusBadge";
+import { DataTableRowActions } from "@MSMComponents/DataTable/DataTableRowActions";
 
 const vendorSchema = z.object({
     id: z.number(),
@@ -55,5 +56,9 @@ export const VendorManagementColumns: ColumnDef<VendorData>[] = [
     cell: ({ row }) => {
       return (<div className="justify-between"><CPCStatusBadge date={row.getValue('cpc_expr')}/></div>)
     },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ]

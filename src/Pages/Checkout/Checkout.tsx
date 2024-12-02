@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 
 import { DisplayErrorAlert, DisplayAlert, DisplaySuccessAlert } from "@MSMComponents/Popups/PopupHelpers";
 import { FeeType, VendorType } from "../../lib/Constants/Types";
-import { toReadableDate, toReadableString } from "../../Helpers";
+import { calculateCPCStatus, toReadableDate, toReadableString } from "../../Helpers";
 import DescribeText from "@MSMComponents/DescribeText";
 import { callEndpoint } from "../../lib/API/APIDefinitions";
 import { TokenSubmit, CheckoutSubmit } from "./CheckoutAPICalls";
@@ -24,11 +24,13 @@ import { useSearchParams } from "react-router-dom";
 import MSMNumericalInput from "@MSMComponents/Inputs/MSMNumericalInput";
 import MSMPage from "@MSMComponents/Layout/MSMPage";
 import MSMMoneyDisplay from "@MSMComponents/MSMMoneyDisplay";
-import { formatDate } from "date-fns";
 import MSMHorizontalDivideLine from "@MSMComponents/Layout/MSMHorizontalDivideLine";
 import MSMSplitView from "@MSMComponents/Layout/MSMSplitView";
 import { MSMVendorBadge } from "@MSMComponents/DataDisplay/MSMVendorBadge";
 import MSMEnumDropdown from "@MSMComponents/Inputs/MSMEnumDropdown";
+import { BannerAlert } from "@MSMComponents/Popups/BannerAlert";
+import { CPCStatus } from "@MSMComponents/CPCComponents/CPCStatusBadge";
+import { DisplayModal } from "@MSMComponents/Popups/PopupHelpers";
 
 //To keep track of Token Fields
 interface TokenFieldModel {
@@ -59,6 +61,9 @@ const Checkout = () => {
   const [marketFeeModel, setMarketFeeModel] = useState<MarketFee | null>(null);
 
   const [searchParams] = useSearchParams();
+  const [CPCStatus, setCPCStatus] = useState<CPCStatus>("Up to Date");
+  const [CPCBannerText, setCPCBannerText] = useState<string>("");
+  const [CPCExprTitleText, setCPCTitleText] = useState<string>("CPC Alert");
   const marketId = searchParams.get('market')
   const marketName = searchParams.get("market_name")
   const date = searchParams.get('date')
@@ -147,11 +152,29 @@ const Checkout = () => {
     calculateMarketFee();
   };
 
+  const refreshCPCBanner = () => {
+    let cpc_expr = new Date(selectedVendor?.cpc_expr ?? "");
+    if(selectedVendor?.cpc_expr)
+    {
+      const { status , daysLeft } =  calculateCPCStatus(cpc_expr);
+      setCPCStatus(status);
+      setCPCTitleText(`CPC Alert!`);
+      setCPCBannerText(`Expr Date: ${cpc_expr.toLocaleDateString()}; due 
+        ${status !== 'Past Due' ?  "in" : ""}  
+        ${Math.abs(daysLeft)} days 
+        ${status === 'Past Due' ? "ago" : ""} `);
+
+    } else {
+      setCPCStatus("Up to Date");
+      setCPCBannerText("");
+    }
+  }
+
   // Update the market fee model when the vendor changes
   useEffect(() => {
     const fee = Fees.find((fee: MarketFee) => fee.vendor_type === selectedVendor?.type) || null
     setMarketFeeModel(fee);
-
+    refreshCPCBanner();
   }, [selectedVendor, Fees]);
 
   // Recalculate the market fee when the model or tokens change
@@ -159,8 +182,23 @@ const Checkout = () => {
     calculateMarketFee();
   }, [marketFeeModel, Tokens]);
 
-  const submitCheckoutToDatabase = (data: any) => {
+  const verifyCheckout = (data: any) => {
 
+    if(CPCStatus === "Past Due" || CPCStatus === "Due Urgently")
+    {
+      DisplayModal({
+        onConfirm() { submitCheckoutToDatabase(data); return Promise.resolve(true); },
+        onCancel() { return Promise.resolve(false); },
+        title: "CPC Alert", 
+        content: <div>Are You Sure You Want to submit with an invalid cpc?</div>,
+        confirmText: "Submit" 
+      })
+    submitCheckoutToDatabase(data);
+    }
+  }
+
+  const submitCheckoutToDatabase = (data: any) => {
+    
     if (date) {
       // Builds the data sent to the db
       let Data: CheckoutSubmit = {
@@ -183,8 +221,8 @@ const Checkout = () => {
           DisplayErrorAlert("Checkout failed", errorCode)
         }
       });
-    }
-  };
+  }
+}
 
 
   ////////////////////////////////
@@ -252,7 +290,7 @@ const Checkout = () => {
       titleDescription={`${marketName} on ${toReadableDate(date ?? Date())}`}>
       <MSMForm
         schema={dynamicSchema}
-        onSubmit={submitCheckoutToDatabase}
+        onSubmit={verifyCheckout}
         centerSubmitButton
         isAuto>
 
@@ -278,6 +316,11 @@ const Checkout = () => {
             <MSMVendorBadge vendorType={selectedVendor?.type} />
           </div>
         </div>
+
+        {(CPCStatus ==="Past Due" || CPCStatus==="Due Urgently") &&
+          <div className="mt-4">
+            <BannerAlert variant="destructive" title={CPCExprTitleText} text={CPCBannerText}/>
+          </div>}
 
         <MSMHorizontalDivideLine />
 
