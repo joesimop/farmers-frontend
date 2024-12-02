@@ -13,12 +13,12 @@ interface MSMMoneyDisplayProps {
 const MSMMoneyDisplay: React.FC<MSMMoneyDisplayProps> = ({ value, className = "" }) => {
   // Determine if the value is negative
   const isNegative = value < 0;
-  
+
   // Format the absolute value to two decimal places
   const formattedValue = Math.abs(value).toFixed(2);
 
   return (
-    <span className={`text-sm font-medium ${className}`}>
+    <span className={`${className}`}>
       {isNegative && "-"}${formattedValue}
     </span>
   );

@@ -33,7 +33,8 @@ const MSMPage: React.FC<MSMPageProps> = ({ title, titleDescription, children, fo
     };
 
     return (
-        <div className={`min-h-screen w-full`}>
+        // Offset for margin
+        <div className={`min-h-screen box-border p-8 w-full`}>
             <header className="top-0 z-10">
                 <div className="flex justify-between items-center">
                     <DescribeText text={titleDescription || ""}>

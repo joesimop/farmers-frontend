@@ -1,23 +1,21 @@
 import './Reporting.css'; // External CSS for styling and animations
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import dayjs from 'dayjs';
+import { useState, useEffect, useCallback } from 'react';
 import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
 import "../../index.css";
 import TypedDataGrid from '@MSMComponents/TypedDataGrid/TypedDataGrid';
 import Box from '@mui/material/Box';
-import PrimaryButton from '@MSMComponents/Buttons/PrimaryButton';
 import MSMForm from '@MSMComponents/Form Flow/MSMForm';
-import FormSection from '@MSMComponents/Form Flow/FormSection';
-import { APIResult, callEndpoint, callEndpointWithState, DefaultApiResult } from '../../lib/API/APIDefinitions';
-
-//API Calls and associated data types
-import { GetReportingOptions, ReportingOption } from './ReportingAPICalls';
-import { GetVendorReport, VendorReport } from './ReportingAPICalls';
-import APIResultDisplay from '@MSMComponents/APIResultDisplay';
-import MSMDropdown, { convertToDropdownItems } from '@MSMComponents/Inputs/MSMDropdown';
+import MSMDropdown, { addNameForValuesForDropdown, convertToDropdownItems } from '@MSMComponents/Inputs/MSMDropdown';
 import MSMFormField from '@MSMComponents/Form Flow/MSMFormField';
 import { z } from 'zod';
 import MSMPage from '@MSMComponents/Layout/MSMPage';
+import { APIResult, callEndpoint, callEndpointWithState, DefaultApiResult } from '../../lib/API/APIDefinitions';
+import { GetReportingOptions, ReportingOption } from './ReportingAPICalls';
+import { GetVendorReport, VendorReport } from './ReportingAPICalls';
+import APIResultDisplay from '@MSMComponents/APIResultDisplay';
+import { toReadableDate } from 'Helpers';
+import MSMHR from '@MSMComponents/Layout/MSMHorizontalDivideLine';
+import MSMHorizontalDivideLine from '@MSMComponents/Layout/MSMHorizontalDivideLine';
 
 function aggregateAllDates(markets: ReportingOption[]): string[] {
   const allDates = markets.flatMap((market) => market.market_dates);
@@ -32,66 +30,58 @@ const Reporting = () => {
   const [reportData, setReportData] = useState<APIResult<VendorReport[]>>(DefaultApiResult);
 
 
-  const getReports = (marketId: number, date: string) => {
-    callEndpointWithState({
-      endpointCall: GetVendorReport(1, marketId, date),
-      setState: setReportData
-    })
-  }
-
-  const getMarketOptions = useCallback(() => {
-
-    if (possibleMarketSelections.length === 0) { return []; }
-    return possibleMarketSelections.map((market: ReportingOption) => market.market_name);
-
-  }, [possibleMarketSelections]);
-
-  const updateDateOptions = useCallback((marketId: number) => {
-
-    if (marketId == 0) {
-      setPossibleDates(aggregateAllDates(possibleMarketSelections))
-      return;
-    }
-
-    let marketIndex: number = possibleMarketSelections.findIndex((market: ReportingOption) => market.market_id === marketId);
-    if (marketIndex) {
-      setPossibleDates(possibleMarketSelections[marketIndex].market_dates)
-    }
-
-  }, [possibleMarketSelections]);
-
-
-  useEffect(() => {
-
-    if (possibleMarketSelections.length === 0) { return; }
-    updateDateOptions(possibleMarketSelections[0].market_id);
-
-  }, [possibleMarketSelections, getMarketOptions, updateDateOptions]);
-
+  // Function to fetch reporting options
   useEffect(() => {
     const MarketManagerId = 1; // Replace with the actual MarketManager ID
-
     callEndpoint({
       endpointCall: GetReportingOptions(MarketManagerId),
-      onSuccess: (data) => {
-        setPossibleMarketSelections(data)
-      },
-      onError: (errorCode) => {
-        DisplayAlert('error', "Could not complete get options", errorCode)
-      },
+      onSuccess: (data) => setPossibleMarketSelections(data),
+      onError: (errorCode) => DisplayAlert('error', "Could not complete get options", errorCode),
     });
   }, []);
+
+  // Update date options when market changes
+  const updateDateOptions = useCallback(
+    (marketId: number) => {
+      if (marketId === 0) {
+        // Aggregate all dates for "All Markets"
+        setPossibleDates(aggregateAllDates(possibleMarketSelections));
+      } else {
+        // Find dates for the selected market
+        const selectedMarket = possibleMarketSelections.find((market) => market.market_id === marketId);
+        setPossibleDates(selectedMarket?.market_dates || []);
+      }
+    },
+    [possibleMarketSelections]
+  );
+
+  // Automatically set the default date options when markets load
+  useEffect(() => {
+    if (possibleMarketSelections.length > 0) {
+      updateDateOptions(possibleMarketSelections[0].market_id);
+    }
+  }, [possibleMarketSelections, updateDateOptions]);
 
   const ReportingSchema = z.object({
     market: z.number(),
     date: z.string().min(1, "Date selection is required."),
   });
 
+  const getReports = (marketId: number, date: string) => {
+    const passedDate = date === "All Dates" ? "" : date
+    callEndpointWithState({
+      endpointCall: GetVendorReport(1, marketId, passedDate),
+      setState: setReportData,
+    });
+  };
+
   return (
     <MSMPage title="Vendor Reports">
-      <MSMForm schema={ReportingSchema} onSubmit={(data) => getReports(data.market, data.date)} row>
-
-
+      <MSMForm
+        schema={ReportingSchema}
+        onSubmit={(data) => getReports(data.market, data.date)}
+        submitButtonText='Retrieve Report'
+        row>
         {/* Market Selection */}
         <MSMFormField name="market" label="Market">
           {({ field }) => (
@@ -99,8 +89,8 @@ const Reporting = () => {
               items={convertToDropdownItems(possibleMarketSelections, "market_name", "market_id")}
               value={field.value}
               onChange={(marketId) => {
-                field.onChange(marketId as number)
-                updateDateOptions(marketId as number)
+                field.onChange(marketId as number);
+                updateDateOptions(marketId as number);
               }}
             />
           )}
@@ -110,15 +100,18 @@ const Reporting = () => {
         <MSMFormField name="date" label="Date">
           {({ field }) => (
             <MSMDropdown
-              items={possibleDates}
+              items={
+                [{ displayName: "All Dates", value: "All Dates" },
+                ...addNameForValuesForDropdown(possibleDates, toReadableDate as (value: string | number) => string)
+                ]}
               value={field.value}
               onChange={field.onChange}
+              placeholder="Pick a date..."
             />
           )}
         </MSMFormField>
-
       </MSMForm>
-      <hr className='my-8 w-full' />
+      <MSMHorizontalDivideLine />
       <APIResultDisplay result={reportData}>
         {(data) => (
           <Box sx={{ flexGrow: 1 }}>
@@ -127,7 +120,6 @@ const Reporting = () => {
         )}
       </APIResultDisplay>
     </MSMPage>
-
   );
 };
 

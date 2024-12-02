@@ -1,4 +1,5 @@
 import { DataGrid } from '@mui/x-data-grid';
+import { toReadableDate, toReadableString } from 'Helpers';
 
 interface TypedDataGridProps<T> {
   data: T[]; // Array of data items of type T
@@ -14,7 +15,7 @@ const TypedDataGrid = <T,>({ data, hiddenFields = [], hideFooter = false, hideHe
         .filter((field) => !hiddenFields.includes(field.toString())) // Exclude fields in hiddenFields
         .map((field) => ({
           field: field as string,
-          headerName: field.toString().charAt(0).toUpperCase() + field.toString().slice(1), // Format header name
+          headerName: toReadableString(field.toString()), // Format header name
           width: 150, // Default width
           flex: 1
         }))

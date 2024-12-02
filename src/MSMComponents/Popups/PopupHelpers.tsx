@@ -14,13 +14,14 @@ export const DisplaySuccessAlert = (message: string, networkStatus?: number) =>
   usePopupStore.getState().displayAlert('success', message, networkStatus);
 
 export const DisplayAlert = (type: AlertType, message: string, networkStatus?: number) =>
-    usePopupStore.getState().displayAlert(type, message, networkStatus);
+  usePopupStore.getState().displayAlert(type, message, networkStatus);
 
 export const DisplayModal = ({
   content = <></>,
   onCancel = undefined,
-  onConfirm = undefined,
+  onConfirm = async () => true,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
-  title= ''
-}: ModalData) => usePopupStore.getState().displayModal(content, onCancel, onConfirm, confirmText, cancelText, title);
+  title = '',
+  isConfirmDisabled = false
+}: ModalData) => usePopupStore.getState().displayModal(content, onCancel, onConfirm, confirmText, cancelText, title, isConfirmDisabled);
