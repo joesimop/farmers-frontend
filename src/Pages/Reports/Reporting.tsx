@@ -16,6 +16,8 @@ import APIResultDisplay from '@MSMComponents/APIResultDisplay';
 import { toReadableDate } from 'Helpers';
 import MSMHR from '@MSMComponents/Layout/MSMHorizontalDivideLine';
 import MSMHorizontalDivideLine from '@MSMComponents/Layout/MSMHorizontalDivideLine';
+import { DataTable } from '@MSMComponents/DataTable/DataTable';
+import { ReportingColumns } from './ReportingColumns';
 
 function aggregateAllDates(markets: ReportingOption[]): string[] {
   const allDates = markets.flatMap((market) => market.market_dates);
@@ -115,7 +117,7 @@ const Reporting = () => {
       <APIResultDisplay result={reportData}>
         {(data) => (
           <Box sx={{ flexGrow: 1 }}>
-            <TypedDataGrid data={data} hiddenFields={["tokens"]} />
+            <DataTable data={data} columns={ReportingColumns}/>
           </Box>
         )}
       </APIResultDisplay>

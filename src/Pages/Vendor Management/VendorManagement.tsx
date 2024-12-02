@@ -19,6 +19,9 @@ import { z } from 'zod';
 import MSMRow from '@MSMComponents/Layout/MSMRow';
 import MSMHorizontalDivideLine from '@MSMComponents/Layout/MSMHorizontalDivideLine';
 import { DataTable } from '@MSMComponents/DataTable/DataTable';
+import { Vendor } from '@lib/Constants/DataModels';
+import { VendorManagementColumns } from './VendorManagementColumns';
+import { VendorData } from './VendorManagementColumns';
 
 interface VendorTableRow {
   id: number;
@@ -26,14 +29,14 @@ interface VendorTableRow {
 }
 
 // Function to map vendors to VendorTableRow and concatenate them while excluding duplicates
-const mapAndDeduplicateVendors = (marketVendors: MarketVendor[]): VendorTableRow[] => {
-  const vendorTableRows: VendorTableRow[] = [];
+const mapAndDeduplicateVendors = (marketVendors: MarketVendor[]): Vendor[] => {
+  const vendorTableRows: any[] = [];
 
   marketVendors.forEach((marketVendor) => {
     marketVendor.vendors.forEach((vendor) => {
       // Check if the vendor is already in the list
       if (!vendorTableRows.some((row) => row.id === vendor.id)) {
-        vendorTableRows.push({ id: vendor.id, business_name: vendor.business_name });
+        vendorTableRows.push(vendor);
       }
     });
   });
@@ -43,7 +46,7 @@ const mapAndDeduplicateVendors = (marketVendors: MarketVendor[]): VendorTableRow
 
 const VendorManagement = () => {
 
-  const [rows, setRows] = React.useState<VendorTableRow[]>([]);
+  const [rows, setRows] = React.useState<any[]>([]);
   const [marketOptions, setMarketOptions] = React.useState<MSMDropdownItem[]>([])
 
   const formRef = useRef<MSMFormRef>(null);
@@ -109,8 +112,7 @@ const VendorManagement = () => {
       </MSMRow>
       <MSMHorizontalDivideLine />
       <Box sx={{ height: 400, width: '100%' }}>
-        <TypedDataGrid data={rows} hiddenFields={[]} />
-        <DataTable data={rows} columns={}/>
+        <DataTable data={rows} columns={VendorManagementColumns}/>
       </Box>
 
     </MSMPage>
