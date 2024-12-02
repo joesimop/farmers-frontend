@@ -8,14 +8,12 @@ import {
 } from "@ShadcnComponents/ui/select";
 import { toReadableString } from "Helpers";
 
-
-
 export interface MSMEnumDropdownItem<T> {
   displayName: string;
   value: T;
 }
 
-//Generates a displayName, Value pair for each key and sorts alphabetically
+// Generates a displayName, Value pair for each key and sorts alphabetically
 export function convertToEnumDropdownItems<T extends Record<string, string>>(
   enumObject: T
 ): MSMEnumDropdownItem<T[keyof T]>[] {
@@ -28,21 +26,29 @@ export function convertToEnumDropdownItems<T extends Record<string, string>>(
     .sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
 
-
 interface MSMEnumDropdownProps<T extends Record<string, string>> {
-  enumObject: T;                           // The Enum object to generate options
-  value?: T[keyof T];                      // Current selected value
-  onChange?: (value: T[keyof T]) => void;  // Change handler
-  placeholder?: string;                    // Placeholder text
+  enumObject: T; // The Enum object to generate options
+  value?: T[keyof T]; // Current selected value
+  onChange?: (value: T[keyof T]) => void; // Change handler
+  placeholder?: string; // Placeholder text
+  renderOption?: (value: T[keyof T]) => React.ReactNode; // Custom render function
 }
 
 const MSMEnumDropdown = forwardRef<HTMLDivElement, MSMEnumDropdownProps<any>>(
   <T extends Record<string, string>>(
-    { enumObject, value, onChange, placeholder = "Select an option...", ...props }: MSMEnumDropdownProps<T>,
+    {
+      enumObject,
+      value,
+      onChange,
+      placeholder = "Select an option...",
+      renderOption,
+      ...props
+    }: MSMEnumDropdownProps<T>,
     ref: React.Ref<HTMLDivElement>
   ) => {
-
-    const [internalValue, setInternalValue] = useState<MSMEnumDropdownItem<T[keyof T]> | undefined>()
+    const [internalValue, setInternalValue] = useState<
+      MSMEnumDropdownItem<T[keyof T]> | undefined
+    >();
     const enumValues = convertToEnumDropdownItems(enumObject);
 
     return (
@@ -61,13 +67,17 @@ const MSMEnumDropdown = forwardRef<HTMLDivElement, MSMEnumDropdownProps<any>>(
         >
           <SelectTrigger>
             <SelectValue placeholder={placeholder}>
-              {internalValue?.displayName || placeholder}
+              {renderOption
+                ? internalValue?.value ? renderOption(internalValue.value) : placeholder
+                : internalValue?.displayName || placeholder}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {enumValues.map((enumValue) => (
               <SelectItem key={enumValue.value} value={enumValue.value.toString()}>
-                {enumValue.displayName}
+                {renderOption
+                  ? renderOption(enumValue.value)
+                  : enumValue.displayName}
               </SelectItem>
             ))}
           </SelectContent>

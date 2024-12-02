@@ -8,7 +8,7 @@ import {
 import { useState, useEffect, useMemo, useCallback } from "react";
 
 import { DisplayErrorAlert, DisplayAlert, DisplaySuccessAlert } from "@MSMComponents/Popups/PopupHelpers";
-import { FeeType } from "../../lib/Constants/Types";
+import { FeeType, VendorType } from "../../lib/Constants/Types";
 import { toReadableDate, toReadableString } from "../../Helpers";
 import DescribeText from "@MSMComponents/DescribeText";
 import { callEndpoint } from "../../lib/API/APIDefinitions";
@@ -27,6 +27,8 @@ import MSMMoneyDisplay from "@MSMComponents/MSMMoneyDisplay";
 import { formatDate } from "date-fns";
 import MSMHorizontalDivideLine from "@MSMComponents/Layout/MSMHorizontalDivideLine";
 import MSMSplitView from "@MSMComponents/Layout/MSMSplitView";
+import { MSMVendorBadge } from "@MSMComponents/DataDisplay/MSMVendorBadge";
+import MSMEnumDropdown from "@MSMComponents/Inputs/MSMEnumDropdown";
 
 //To keep track of Token Fields
 interface TokenFieldModel {
@@ -239,6 +241,7 @@ const Checkout = () => {
 
     return z.object({
       vendor: z.number().min(1, "Vendor is required."),
+      vendor_type: z.enum([VendorType.PRODUCER, VendorType.NON_PRODUCER, VendorType.ANCILLARY]),
       ...tokenSchema,
     });
   }, [Tokens]);
@@ -253,20 +256,28 @@ const Checkout = () => {
         centerSubmitButton
         isAuto>
 
-        <MSMFormField name="vendor" label="Vendor">
-          {({ field, focusNextField }) => (
-            <MSMDropdown
-              items={convertToDropdownItems(Vendors, "business_name", "market_vendor_id")}
-              value={field.value}
-              onChange={(value) => {
-                field.onChange(value);
-                setSelectedVendor(Vendors.find((v) => v.market_vendor_id === Number(value)));
-              }}
-              focusNext={focusNextField}
-              ref={field.ref}
-            />
-          )}
-        </MSMFormField>
+        <div className="flex flex-row gap-x-1 space-x-4 items-end">
+
+          <div className="flex-grow">
+            <MSMFormField name="vendor" label="Vendor" >
+              {({ field, focusNextField }) => (
+                <MSMDropdown
+                  items={convertToDropdownItems(Vendors, "business_name", "market_vendor_id")}
+                  value={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    setSelectedVendor(Vendors.find((v) => v.market_vendor_id === Number(value)));
+                  }}
+                  focusNext={focusNextField}
+                  ref={field.ref}
+                />
+              )}
+            </MSMFormField>
+          </div>
+          <div className="mb-2 min-w-6">
+            <MSMVendorBadge vendorType={selectedVendor?.type} />
+          </div>
+        </div>
 
         <MSMHorizontalDivideLine />
 
