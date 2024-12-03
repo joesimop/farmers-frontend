@@ -15,6 +15,12 @@ export enum FeeType {
     GOV_FEE = "GOV_FEE"
 }
 
+export enum TokenType {
+  EBT = "EBT",
+  MARKET_MATCH = "MARKET_MATCH",
+  ATM = "ATM"
+}
+
 export interface ProducerContact {
     first_name: string,
     last_name: string,

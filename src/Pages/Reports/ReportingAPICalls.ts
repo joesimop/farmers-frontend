@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import { axiosInstance } from "../../lib/API/APIDefinitions";
+import { TokenType, VendorType } from "@lib/Constants/Types";
 
 export interface ReportingOption {
     market_id: number; // UUID represented as a number
@@ -8,13 +9,15 @@ export interface ReportingOption {
 }
 
 export interface TokenReport {
-    type: string,
+    type: TokenType,
     count: number
+    per_dollar_value: number
 }
 
 export interface VendorReport {
     id: string; // UUID as a string
     vendor_name: string; // Name of the vendor
+    vendor_type: VendorType;
     reported_gross: number; // Decimal value, represented as a number
     fees_paid: number; // Decimal value, represented as a number
     market_date: Date; // Date object

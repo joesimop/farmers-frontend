@@ -112,24 +112,25 @@ const Checkout = () => {
 
     switch (marketFeeModel.fee_type) {
       case FeeType.PERCENT_GROSS:
-        return `Percent Gross: ${marketFeeModel.percent * 100}% of Gross Profit (${GP} * ${marketFeeModel.percent} = ${marketFee})`;
+        return `${marketFeeModel.percent * 100}% Percent of Gross`;
 
       case FeeType.FLAT_FEE:
         return `Flat Fee: $${marketFee}`;
 
       case FeeType.FLAT_PERCENT_COMBO:
-        return `Flat + Percent: $${marketFeeModel.flat} + (${GP} * ${marketFeeModel.percent} = ${marketFeeModel.percent * GP})`;
+        return `Flat + Percent: $${marketFeeModel.flat} + (${GP} * ${marketFeeModel.percent})`;
 
       case FeeType.MAX_OF_EITHER:
         const percentFee = marketFeeModel.percent * GP;
-        return `Max of Either: $${marketFeeModel.flat} or (${GP} * ${marketFeeModel.percent} = ${percentFee})`;
+        return `Max: $${marketFeeModel.flat} or ${percentFee}`;
 
       case FeeType.GOV_FEE:
-        return `Government Fee: $${marketFee}`;
+        return `Gov Fee: $${marketFee}`;
 
       default:
         return "Unknown fee type";
     }
+
   };
 
   const handleTokensChanged = (newQuantity: number, fieldIndex: number) => {
@@ -154,13 +155,12 @@ const Checkout = () => {
 
   const refreshCPCBanner = () => {
     let cpc_expr = new Date(selectedVendor?.cpc_expr ?? "");
-    if(selectedVendor?.cpc_expr)
-    {
-      const { status , daysLeft } =  calculateCPCStatus(cpc_expr);
+    if (selectedVendor?.cpc_expr) {
+      const { status, daysLeft } = calculateCPCStatus(cpc_expr);
       setCPCStatus(status);
       setCPCTitleText(`CPC Alert!`);
       setCPCBannerText(`Expr Date: ${cpc_expr.toLocaleDateString()}; due 
-        ${status !== 'Past Due' ?  "in" : ""}  
+        ${status !== 'Past Due' ? "in" : ""}  
         ${Math.abs(daysLeft)} days 
         ${status === 'Past Due' ? "ago" : ""} `);
 
@@ -184,21 +184,22 @@ const Checkout = () => {
 
   const verifyCheckout = (data: any) => {
 
-    if(CPCStatus === "Past Due" || CPCStatus === "Due Urgently")
-    {
+    if (CPCStatus === "Past Due" || CPCStatus === "Due Urgently") {
       DisplayModal({
         onConfirm() { submitCheckoutToDatabase(data); return Promise.resolve(true); },
         onCancel() { return Promise.resolve(false); },
-        title: "CPC Alert", 
+        title: "CPC Alert",
         content: <div>Are You Sure You Want to submit with an invalid cpc?</div>,
-        confirmText: "Submit" 
+        confirmText: "Submit"
       })
-    submitCheckoutToDatabase(data);
+    } else {
+      submitCheckoutToDatabase(data)
     }
   }
 
   const submitCheckoutToDatabase = (data: any) => {
-    
+
+    console.log("fweakkinngg")
     if (date) {
       // Builds the data sent to the db
       let Data: CheckoutSubmit = {
@@ -215,14 +216,16 @@ const Checkout = () => {
       callEndpoint({
         endpointCall: SubmitCheckout(1, Data),
         onSuccess: () => {
+          console.log("here")
           DisplaySuccessAlert("Submitted Checkout")
         },
         onError: (errorCode) => {
+          console.log("not here")
           DisplayErrorAlert("Checkout failed", errorCode)
         }
       });
+    }
   }
-}
 
 
   ////////////////////////////////
@@ -279,7 +282,6 @@ const Checkout = () => {
 
     return z.object({
       vendor: z.number().min(1, "Vendor is required."),
-      vendor_type: z.enum([VendorType.PRODUCER, VendorType.NON_PRODUCER, VendorType.ANCILLARY]),
       ...tokenSchema,
     });
   }, [Tokens]);
@@ -291,6 +293,9 @@ const Checkout = () => {
       <MSMForm
         schema={dynamicSchema}
         onSubmit={verifyCheckout}
+        persistOnReset={['vendor']}
+        autoFocusField="GROSS_PROFIT"
+        clearOnSubmit
         centerSubmitButton
         isAuto>
 
@@ -317,14 +322,14 @@ const Checkout = () => {
           </div>
         </div>
 
-        {(CPCStatus ==="Past Due" || CPCStatus==="Due Urgently") &&
+        {(CPCStatus === "Past Due" || CPCStatus === "Due Urgently") &&
           <div className="mt-4">
-            <BannerAlert variant="destructive" title={CPCExprTitleText} text={CPCBannerText}/>
+            <BannerAlert variant="destructive" title={CPCExprTitleText} text={CPCBannerText} />
           </div>}
 
         <MSMHorizontalDivideLine />
 
-        <MSMFlexGrid minColumns={2} textAlign="left">
+        <MSMFlexGrid minColumns={2}>
           {Tokens.map((token: TokenFieldModel, index: number) => (
             <MSMFormField key={token.token.type}
               name={token.token.type}
