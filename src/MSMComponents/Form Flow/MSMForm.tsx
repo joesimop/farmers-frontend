@@ -3,6 +3,7 @@ import { FormProvider, useForm, useWatch, useFormContext, UseFormReturn, FieldVa
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ShadcnComponents/ui/button";
 import { z } from "zod";
+import { FileDiffIcon } from "lucide-react";
 
 // Extend the UseFormReturn type to include the custom function
 interface MSMUseFormReturn<T> extends UseFormReturn<FieldValues> {
@@ -25,6 +26,8 @@ interface MSMFormProps {
     schema?: any;                     // Zod schema for validation
     children: React.ReactNode;        // List of MSMFormField components
     onSubmit?: (data: any) => void;   // Callback for form submission
+    onReset?: () => void;             // Callback for form Reset
+    persistOnReset?: string[];        // Fields to persist during reset
     autoFocusField?: string;          // Field to autofocus on mount
     submitButtonText?: string;        // Overrides submit button text
     hasClearButton?: boolean;         // Adds clear form button if true
@@ -48,6 +51,8 @@ const MSMForm = forwardRef<MSMFormRef, MSMFormProps>(
             schema = z.object({}),
             children,
             onSubmit,
+            onReset,
+            persistOnReset,
             autoFocusField,
             submitButtonText = "Submit",
             hasClearButton = false,
@@ -86,7 +91,9 @@ const MSMForm = forwardRef<MSMFormRef, MSMFormProps>(
         const focusNextField = () => {
             if (isAuto) {
                 for (const field of fieldOrder) {
+                    console.log(values[field])
                     if (values[field] === undefined) {
+                        console.log("focusing:", field)
                         setFocusWithDelay(field);
                         break;
                     }
@@ -95,16 +102,31 @@ const MSMForm = forwardRef<MSMFormRef, MSMFormProps>(
         };
 
         const handleReset = () => {
-            reset();
+
+            const resetData: Record<string, any> = { ...persistOnReset };
+
+            // Retain values for fields specified in persistOnReset
+            fieldOrder.forEach((field) => {
+                if (persistOnReset?.includes(field)) {
+                    resetData[field] = values[field]; // Keep the current value
+                } else if (!(field in resetData)) {
+                    resetData[field] = undefined; // Reset to undefined if not in resetValues
+                }
+            });
+
+            reset(resetData);
+
+            console.log("auto boking")
             if (autoFocusField) {
+                console.log("focusing:", autoFocusField)
                 setFocusWithDelay(autoFocusField);
             } else if (isAuto) {
                 setFocusWithDelay(fieldOrder[0]);
             }
+            onReset?.()
         };
 
         const onFormSubmit = (data: any) => {
-            console.log("fweakya")
             onSubmit?.(data);
             if (clearOnSubmit) {
                 handleReset();
@@ -143,6 +165,11 @@ const MSMForm = forwardRef<MSMFormRef, MSMFormProps>(
             isSubmitDisabled: !areAllFieldsFilled,
         }));
 
+        useEffect(() => {
+            if (autoFocusField) {
+                setFocus(autoFocusField)
+            }
+        }, [])
         return (
             <FormProvider {...MSMFormContext}>
                 <form

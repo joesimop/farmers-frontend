@@ -1,9 +1,14 @@
 import React from "react";
 
-const MSMHorizontalDivideLine: React.FC = () => {
-    return (
-        <hr className="my-8 w-full" />
-    );
+interface MSMHorizontalDivideLineProps {
+    verticalSpacing?: number;
+}
+
+const MSMHorizontalDivideLine: React.FC<MSMHorizontalDivideLineProps> = ({ verticalSpacing = 4 }) => {
+    const spacingClass = `my-${verticalSpacing}`;
+    return <hr className={`w-full ${spacingClass}`} />;
 };
+
+
 
 export default MSMHorizontalDivideLine;

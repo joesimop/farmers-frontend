@@ -32,20 +32,23 @@ export const PopupModal: React.FC = () => {
   };
 
   return (
-    <>
-      <Dialog open={!!modal} onOpenChange={handleCancel}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{modal.title}</DialogTitle>
-            {modal.content}
-          </DialogHeader>
-          <DialogFooter>
-            {modal.onCancel && <Button onClick={handleCancel}>{modal.cancelText}</Button>}
+    <Dialog open={!!modal} onOpenChange={handleCancel}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{modal.title}</DialogTitle>
+          {modal.content}
+        </DialogHeader>
+        <DialogFooter>
+          {modal.onCancel && <Button variant={"outline"} onClick={handleCancel}>{modal.cancelText}</Button>}
 
-            {modal.onConfirm && <Button onClick={handleConfirm} disabled={modal.isConfirmDisabled}>{modal.confirmText}</Button>}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          {modal.onConfirm &&
+            <>
+              <div className='xs: mt-3 sm: mt-3' />
+              <Button onClick={handleConfirm} disabled={modal.isConfirmDisabled}>{modal.confirmText}</Button>
+            </>
+          }
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
