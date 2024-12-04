@@ -33,6 +33,15 @@ export enum FieldState {
     INVALILD,
 }
 
+// Interface for CreateVendor
+export interface CreateVendor {
+  business_name: string;
+  current_cpc: string;
+  cpc_expr: Date; // Using Date for DateTime
+  type: VendorType;
+  producer_contacts?: ProducerContact[];
+}
+
 //NOTE: T is a value, null is empty, and undefined is untouched
 export type FieldValue<T> = T | null | undefined
 

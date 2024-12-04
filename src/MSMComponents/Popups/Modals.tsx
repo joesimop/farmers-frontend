@@ -1,6 +1,4 @@
 import { usePopupStore } from './PopupDefnitions';
-// import { Dialog, DialogActions, DialogContent, Button, Backdrop } from '@mui/material';
-import * as DialogPrimitive from "@radix-ui/react-dialog"
 import {
   Dialog,
   DialogContent,
@@ -12,13 +10,19 @@ import {
 } from "@ShadcnComponents/ui/dialog"
 import { Button } from '@ShadcnComponents/ui/button'
 import React from 'react';
-import ActionButton from '../Buttons/ActionButton';
+
+// Expose a function to close the modal
+export const closeModal = () => {
+  usePopupStore.getState().hideModal()
+}
 
 export const PopupModal: React.FC = () => {
-  const { modal, hideModal, /*confirmIsDisabledCallback*/ } = usePopupStore();
+
+  const { modal, hideModal } = usePopupStore();
 
   if (!modal) return null;
 
+  console.log(modal.onConfirm)
   const handleCancel = () => {
     modal.onCancel?.()
     hideModal();
@@ -43,7 +47,7 @@ export const PopupModal: React.FC = () => {
 
           {modal.onConfirm &&
             <>
-              <div className='xs: mt-3 sm: mt-3' />
+              <div className='sm:mt-3' />
               <Button onClick={handleConfirm} disabled={modal.isConfirmDisabled}>{modal.confirmText}</Button>
             </>
           }
