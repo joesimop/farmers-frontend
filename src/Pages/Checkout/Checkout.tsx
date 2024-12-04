@@ -199,7 +199,6 @@ const Checkout = () => {
 
   const submitCheckoutToDatabase = (data: any) => {
 
-    console.log("fweakkinngg")
     if (date) {
       // Builds the data sent to the db
       let Data: CheckoutSubmit = {
@@ -216,11 +215,9 @@ const Checkout = () => {
       callEndpoint({
         endpointCall: SubmitCheckout(1, Data),
         onSuccess: () => {
-          console.log("here")
           DisplaySuccessAlert("Submitted Checkout")
         },
         onError: (errorCode) => {
-          console.log("not here")
           DisplayErrorAlert("Checkout failed", errorCode)
         }
       });
@@ -329,7 +326,7 @@ const Checkout = () => {
 
         <MSMHorizontalDivideLine />
 
-        <MSMFlexGrid minColumns={2}>
+        <MSMFlexGrid minColumns={1}>
           {Tokens.map((token: TokenFieldModel, index: number) => (
             <MSMFormField key={token.token.type}
               name={token.token.type}
@@ -338,7 +335,7 @@ const Checkout = () => {
                 <MSMNumericalInput
                   min={0}
                   value={field.value}
-                  onChange={(quantity) => {
+                  onChange={(quantity) =>  {
                     const quantityValue = quantity === undefined ? 0 : quantity
                     handleTokensChanged(quantityValue * token.token.per_dollar_value, index);
                     field.onChange(quantity)

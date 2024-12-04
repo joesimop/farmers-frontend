@@ -1,7 +1,7 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import MSMForm, { MSMFormRef } from '../Form Flow/MSMForm';
 import MSMDatePicker from "@MSMComponents/Inputs/MSMDatePicker";
-import { VendorType, ProducerContact } from '../../lib/Constants/Types';
+import { VendorType, ProducerContact, CreateVendor } from '../../lib/Constants/Types';
 import ProducerContactForm from './ProducerContactForm';
 import TypedDataGrid from '../TypedDataGrid/TypedDataGrid';
 import FlexGrid from '../../FlexGrid/FlexGrid';
@@ -12,30 +12,33 @@ import MSMNumericalInput from '@MSMComponents/Inputs/MSMNumericalInput';
 
 import { z } from "zod";
 import MSMHorizontalDivideLine from '@MSMComponents/Layout/MSMHorizontalDivideLine';
-import { DisplayErrorAlert, DisplaySuccessAlert } from '@MSMComponents/Popups/PopupHelpers';
+import { DisplayErrorAlert, DisplayModal, DisplaySuccessAlert } from '@MSMComponents/Popups/PopupHelpers';
 import { Vendor } from '@lib/Constants/DataModels';
 import { MarketVendor } from '@Pages/Vendor Management/VendorManagmentAPICalls';
 import { axiosInstance, callEndpoint } from '@lib/API/APIDefinitions';
 import { AxiosResponse } from 'axios';
 
-// Interface for CreateVendor
-interface CreateVendor {
-  business_name: string;
-  current_cpc: string;
-  cpc_expr: Date; // Using Date for DateTime
-  type: VendorType;
-  producer_contacts?: ProducerContact[];
+
+
+interface CreateVendorResponse {
+  id: number;
+  detail: string;
 }
+
+interface CreateVendorFormProps {
+  onVendorCreated?: (vendorId: number, newVendor: CreateVendor) => void; // Callback when a vendor is created
+}
+
 
 const createVendorEndpoint = async (MarketManagerId: number, NewVendor: CreateVendor): Promise<AxiosResponse> => {
 
   let urlString = `/vendor/create`;
-  return axiosInstance.post(urlString, NewVendor);
+  return axiosInstance.post<CreateVendorResponse>(urlString, NewVendor);
 
 }
 
-const CreateVendorForm = forwardRef<MSMFormRef>(
-  ({ }, ref) => {
+const CreateVendorForm = forwardRef<MSMFormRef, CreateVendorFormProps>(
+  ({ onVendorCreated }, ref) => {
 
     const [producerContacts, setProducerContacts] = useState<ProducerContact[]>([]);
     const formRef = useRef<MSMFormRef>(null);
@@ -44,9 +47,9 @@ const CreateVendorForm = forwardRef<MSMFormRef>(
     useImperativeHandle(ref, () => ({
       submit: async () => {
         if (formRef.current?.submit) {
-          return await formRef.current.submit(); // Properly return the promise
+          return await formRef.current.submit();
         }
-        return false; // Default fallback if submit is not available
+        return false;
       },
       resetForm: () => {
         formRef.current?.resetForm?.(); // Call resetForm if available
@@ -80,10 +83,15 @@ const CreateVendorForm = forwardRef<MSMFormRef>(
 
       callEndpoint({
         endpointCall: createVendorEndpoint(1, newVendor),
-        onSuccess: () => DisplaySuccessAlert("Vendor Created"),
-        onError: (error) => DisplayErrorAlert("Could not create vendor", error)
-      })
+        onSuccess: (data) => {
+          DisplaySuccessAlert("Vendor Created");
+          onVendorCreated?.(data.id, newVendor);
+          
+        },
+        onError: (error) => DisplayErrorAlert("Could not create vendor", error),
+      });
     }
+      
 
     // Define the zod schema for the form
     const CreateVendorFormSchema = z.object({

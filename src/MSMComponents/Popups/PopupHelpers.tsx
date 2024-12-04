@@ -19,7 +19,7 @@ export const DisplayAlert = (type: AlertType, message: string, networkStatus?: n
 export const DisplayModal = ({
   content = <></>,
   onCancel = undefined,
-  onConfirm = async () => true,
+  onConfirm,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
   title = '',

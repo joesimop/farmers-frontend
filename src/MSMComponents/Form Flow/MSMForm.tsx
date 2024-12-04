@@ -108,17 +108,15 @@ const MSMForm = forwardRef<MSMFormRef, MSMFormProps>(
             // Retain values for fields specified in persistOnReset
             fieldOrder.forEach((field) => {
                 if (persistOnReset?.includes(field)) {
-                    resetData[field] = values[field]; // Keep the current value
+                    resetData[field] = values[field];
                 } else if (!(field in resetData)) {
-                    resetData[field] = undefined; // Reset to undefined if not in resetValues
+                    resetData[field] = undefined;
                 }
             });
 
             reset(resetData);
 
-            console.log("auto boking")
             if (autoFocusField) {
-                console.log("focusing:", autoFocusField)
                 setFocusWithDelay(autoFocusField);
             } else if (isAuto) {
                 setFocusWithDelay(fieldOrder[0]);
@@ -184,7 +182,7 @@ const MSMForm = forwardRef<MSMFormRef, MSMFormProps>(
                             <Button
                                 type="submit"
                                 disabled={!areAllFieldsFilled}
-                                className={`${centerSubmitButton ? "self-center w-full" : ""}`}>
+                                className={`break-words whitespace-normal p-4 ${centerSubmitButton ? "self-center w-full h-auto" : ""}`}>
                                 {submitButtonText}
                             </Button>
                         )}

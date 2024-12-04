@@ -11,7 +11,7 @@ import { callEndpoint } from '../../lib/API/APIDefinitions';
 import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
 import MSMPage from '@MSMComponents/Layout/MSMPage';
 import MSMEnumDropdown from '@MSMComponents/Inputs/MSMEnumDropdown';
-import { VendorType } from '@lib/Constants/Types';
+import { CreateVendor, VendorType } from '@lib/Constants/Types';
 import MSMDropdown, { addNameForValuesForDropdown, convertToDropdownItems, MSMDropdownItem } from '@MSMComponents/Inputs/MSMDropdown';
 import MSMForm, { MSMFormRef } from '@MSMComponents/Form Flow/MSMForm';
 import MSMFormField from '@MSMComponents/Form Flow/MSMFormField';
@@ -22,6 +22,8 @@ import { DataTable } from '@MSMComponents/DataTable/DataTable';
 import { Vendor } from '@lib/Constants/DataModels';
 import { VendorManagementColumns } from './VendorManagementColumns';
 import { VendorData } from './VendorManagementColumns';
+import AddVendorToMarketsForm from '@MSMComponents/Forms/AddVendorToMarketsForm';
+import { closeModal } from '@MSMComponents/Popups/Modals';
 
 interface VendorTableRow {
   id: number;
@@ -55,8 +57,23 @@ const VendorManagement = () => {
     return await formRef.current?.submit()
   }
 
+  const onVendorCreated = (vendorId: number, newVendor: CreateVendor) => {
+    console.log("Here with:", vendorId)
+    DisplayModal(
+      {
+        title: `${newVendor.business_name} was created!`,
+
+        content: <AddVendorToMarketsForm
+          vendorId={vendorId}
+          vendorName={newVendor.business_name}
+          markets={marketOptions.slice(1)}
+          onSubmit={closeModal}
+        />,
+      }
+    )
+  }
+
   const getVendors = (market_id: number) => {
-    console.log(market_id)
     callEndpoint({
       endpointCall: GetMarketVendors(1, market_id),
       onSuccess: (data) => {
@@ -107,12 +124,20 @@ const VendorManagement = () => {
 
         <PrimaryButton
           text="Add Vendor"
-          onClick={() => DisplayModal({ title: "Add Vendor", content: <CreateVendorForm ref={formRef} />, onConfirm: onModalConfirm })}
+          onClick={() =>
+            DisplayModal(
+              {
+                title: "Add Vendor",
+                content: <CreateVendorForm ref={formRef} onVendorCreated={onVendorCreated} />,
+                onConfirm: onModalConfirm
+              }
+            )
+          }
         />
       </MSMRow>
       <MSMHorizontalDivideLine />
       <Box sx={{ height: 400, width: '100%' }}>
-        <DataTable data={rows} columns={VendorManagementColumns}/>
+        <DataTable data={rows} columns={VendorManagementColumns} />
       </Box>
 
     </MSMPage>
