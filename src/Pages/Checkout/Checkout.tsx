@@ -10,7 +10,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { DisplayErrorAlert, DisplayAlert, DisplaySuccessAlert } from "@MSMComponents/Popups/PopupHelpers";
 import { FeeType, VendorType } from "../../lib/Constants/Types";
 import { calculateCPCStatus, toReadableDate, toReadableString } from "../../Helpers";
-import DescribeText from "@MSMComponents/DescribeText";
+import DescribeText from "@MSMComponents/DataDisplay/DescribeText";
 import { callEndpoint } from "../../lib/API/APIDefinitions";
 import { TokenSubmit, CheckoutSubmit } from "./CheckoutAPICalls";
 import { GetCheckoutData } from "./CheckoutAPICalls";
@@ -23,22 +23,21 @@ import MSMFlexGrid from "@MSMComponents/Layout/MSMFlexGrid";
 import { useSearchParams } from "react-router-dom";
 import MSMNumericalInput from "@MSMComponents/Inputs/MSMNumericalInput";
 import MSMPage from "@MSMComponents/Layout/MSMPage";
-import MSMMoneyDisplay from "@MSMComponents/MSMMoneyDisplay";
+import MSMMoneyDisplay from "@MSMComponents/DataDisplay/MSMMoneyDisplay";
 import MSMHorizontalDivideLine from "@MSMComponents/Layout/MSMHorizontalDivideLine";
 import MSMSplitView from "@MSMComponents/Layout/MSMSplitView";
 import { MSMVendorBadge } from "@MSMComponents/DataDisplay/MSMVendorBadge";
-import MSMEnumDropdown from "@MSMComponents/Inputs/MSMEnumDropdown";
 import { BannerAlert } from "@MSMComponents/Popups/BannerAlert";
-import { CPCStatus } from "@MSMComponents/CPCComponents/CPCStatusBadge";
 import { DisplayModal } from "@MSMComponents/Popups/PopupHelpers";
+import { CPCStatus } from "../../lib/Constants/Types";
+import APIResultDisplay from "@MSMComponents/APIResultDisplay";
+
 
 //To keep track of Token Fields
 interface TokenFieldModel {
   quantity: number;
   token: MarketToken;
 }
-
-
 
 const createTokenFieldModel = (quantity: number, token: MarketToken): TokenFieldModel => ({ quantity, token });
 
@@ -61,9 +60,8 @@ const Checkout = () => {
   const [marketFeeModel, setMarketFeeModel] = useState<MarketFee | null>(null);
 
   const [searchParams] = useSearchParams();
-  const [CPCStatus, setCPCStatus] = useState<CPCStatus>("Up to Date");
+  const [vendorCPCStatus, setCPCStatus] = useState<CPCStatus>(CPCStatus.UP_TO_DATE);
   const [CPCBannerText, setCPCBannerText] = useState<string>("");
-  const [CPCExprTitleText, setCPCTitleText] = useState<string>("CPC Alert");
   const marketId = searchParams.get('market')
   const marketName = searchParams.get("market_name")
   const date = searchParams.get('date')
@@ -158,14 +156,13 @@ const Checkout = () => {
     if (selectedVendor?.cpc_expr) {
       const { status, daysLeft } = calculateCPCStatus(cpc_expr);
       setCPCStatus(status);
-      setCPCTitleText(`CPC Alert!`);
       setCPCBannerText(`Expr Date: ${cpc_expr.toLocaleDateString()}; due 
         ${status !== 'Past Due' ? "in" : ""}  
         ${Math.abs(daysLeft)} days 
         ${status === 'Past Due' ? "ago" : ""} `);
 
     } else {
-      setCPCStatus("Up to Date");
+      setCPCStatus(CPCStatus.PAST_DUE);
       setCPCBannerText("");
     }
   }
@@ -184,7 +181,7 @@ const Checkout = () => {
 
   const verifyCheckout = (data: any) => {
 
-    if (CPCStatus === "Past Due" || CPCStatus === "Due Urgently") {
+    if (vendorCPCStatus === "Past Due" || vendorCPCStatus === "Due Urgently") {
       DisplayModal({
         onConfirm() { submitCheckoutToDatabase(data); return Promise.resolve(true); },
         onCancel() { return Promise.resolve(false); },
@@ -319,14 +316,15 @@ const Checkout = () => {
           </div>
         </div>
 
-        {(CPCStatus === "Past Due" || CPCStatus === "Due Urgently") &&
+        {(vendorCPCStatus === CPCStatus.PAST_DUE || vendorCPCStatus === CPCStatus.URGENT) &&
           <div className="mt-4">
-            <BannerAlert variant="destructive" title={CPCExprTitleText} text={CPCBannerText} />
-          </div>}
+            <BannerAlert variant="destructive" title={"CPC Alert"} text={CPCBannerText} />
+          </div>
+        }
 
         <MSMHorizontalDivideLine />
 
-        <MSMFlexGrid minColumns={1}>
+        <MSMFlexGrid minColumns={2}>
           {Tokens.map((token: TokenFieldModel, index: number) => (
             <MSMFormField key={token.token.type}
               name={token.token.type}
@@ -335,7 +333,7 @@ const Checkout = () => {
                 <MSMNumericalInput
                   min={0}
                   value={field.value}
-                  onChange={(quantity) =>  {
+                  onChange={(quantity) => {
                     const quantityValue = quantity === undefined ? 0 : quantity
                     handleTokensChanged(quantityValue * token.token.per_dollar_value, index);
                     field.onChange(quantity)

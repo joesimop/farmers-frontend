@@ -1,4 +1,4 @@
-import { alerttype, fieldstatus, VendorType } from "./Types";
+import { alerttype, VendorType } from "./Types";
 
 export interface Vendor {
     id: number;
@@ -41,11 +41,6 @@ export interface MarketCheckoutDataModel {
     market_id: number,
     market_name: string,
     market_dates: string,
-}
-
-export interface FieldControlModel {
-    fieldStatus: fieldstatus,
-    input_label: string
 }
 
 

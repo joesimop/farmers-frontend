@@ -22,8 +22,8 @@ export const calculateCPCStatus = (givenDate: Date): { status: CPCStatus; daysLe
   const targetDate = new Date(givenDate);
   const daysLeft = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-  if (daysLeft < 0) return { status: "Past Due", daysLeft };
-  if (daysLeft <= 14) return { status: "Due Urgently", daysLeft };
-  if (daysLeft <= 30) return { status: "Due Soon", daysLeft };
-  return { status: "Up to Date", daysLeft };
+  if (daysLeft < 0) return { status: CPCStatus.PAST_DUE, daysLeft };
+  if (daysLeft <= 14) return { status: CPCStatus.URGENT, daysLeft };
+  if (daysLeft <= 30) return { status: CPCStatus.WARNING, daysLeft };
+  return { status: CPCStatus.UP_TO_DATE, daysLeft };
 };

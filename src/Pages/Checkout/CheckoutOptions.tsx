@@ -23,7 +23,6 @@ const CheckoutOptionsSchema = z.object({
     }),
   date: z
     .date()
-    .nullable()
     .refine((val) => val !== null, { message: "Date is required" })
     .refine((val) => val && val < new Date(), { message: "Date must be before today" }),
 });

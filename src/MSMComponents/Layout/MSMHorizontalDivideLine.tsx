@@ -5,8 +5,7 @@ interface MSMHorizontalDivideLineProps {
 }
 
 const MSMHorizontalDivideLine: React.FC<MSMHorizontalDivideLineProps> = ({ verticalSpacing = 4 }) => {
-    const spacingClass = `my-${verticalSpacing}`;
-    return <hr className={`w-full ${spacingClass}`} />;
+    return <hr className={`w-full my-4`} />;
 };
 
 
