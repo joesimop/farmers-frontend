@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import DescribeText from "@MSMComponents/DescribeText";
+import DescribeText from "@MSMComponents/DataDisplay/DescribeText";
 import { Moon, Sun, ArrowUp } from 'lucide-react';
 
 interface MSMPageProps {

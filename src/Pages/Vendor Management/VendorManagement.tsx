@@ -1,8 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import './VendorManagement.css'; // External CSS for styling and animations
 import Box from '@mui/material/Box';
-import '../../index.css';
-import TypedDataGrid from '@MSMComponents/TypedDataGrid/TypedDataGrid';
 import PrimaryButton from '@MSMComponents/Buttons/PrimaryButton';
 import CreateVendorForm from '@MSMComponents/Forms/CreateVendorFrom';
 import { DisplayModal } from '@MSMComponents/Popups/PopupHelpers';
@@ -10,7 +7,6 @@ import { GetMarketsOptions, GetMarketVendors, MarketVendor } from './VendorManag
 import { callEndpoint } from '../../lib/API/APIDefinitions';
 import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
 import MSMPage from '@MSMComponents/Layout/MSMPage';
-import MSMEnumDropdown from '@MSMComponents/Inputs/MSMEnumDropdown';
 import { CreateVendor, VendorType } from '@lib/Constants/Types';
 import MSMDropdown, { addNameForValuesForDropdown, convertToDropdownItems, MSMDropdownItem } from '@MSMComponents/Inputs/MSMDropdown';
 import MSMForm, { MSMFormRef } from '@MSMComponents/Form Flow/MSMForm';
@@ -21,7 +17,6 @@ import MSMHorizontalDivideLine from '@MSMComponents/Layout/MSMHorizontalDivideLi
 import { DataTable } from '@MSMComponents/DataTable/DataTable';
 import { Vendor } from '@lib/Constants/DataModels';
 import { VendorManagementColumns } from './VendorManagementColumns';
-import { VendorData } from './VendorManagementColumns';
 import AddVendorToMarketsForm from '@MSMComponents/Forms/AddVendorToMarketsForm';
 import { closeModal } from '@MSMComponents/Popups/Modals';
 

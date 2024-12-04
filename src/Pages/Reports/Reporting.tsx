@@ -1,8 +1,5 @@
-import './Reporting.css'; // External CSS for styling and animations
 import { useState, useEffect, useCallback } from 'react';
 import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
-import "../../index.css";
-import TypedDataGrid from '@MSMComponents/TypedDataGrid/TypedDataGrid';
 import Box from '@mui/material/Box';
 import MSMForm from '@MSMComponents/Form Flow/MSMForm';
 import MSMDropdown, { addNameForValuesForDropdown, convertToDropdownItems } from '@MSMComponents/Inputs/MSMDropdown';
@@ -14,7 +11,6 @@ import { GetReportingOptions, ReportingOption } from './ReportingAPICalls';
 import { GetVendorReport, VendorReport } from './ReportingAPICalls';
 import APIResultDisplay from '@MSMComponents/APIResultDisplay';
 import { toReadableDate } from 'Helpers';
-import MSMHR from '@MSMComponents/Layout/MSMHorizontalDivideLine';
 import MSMHorizontalDivideLine from '@MSMComponents/Layout/MSMHorizontalDivideLine';
 import { DataTable } from '@MSMComponents/DataTable/DataTable';
 import { ReportingColumns } from './ReportingColumns';
@@ -117,7 +113,7 @@ const Reporting = () => {
       <APIResultDisplay result={reportData}>
         {(data) => (
           <Box sx={{ flexGrow: 1 }}>
-            <DataTable data={data} columns={ReportingColumns}/>
+            <DataTable data={data} columns={ReportingColumns} />
           </Box>
         )}
       </APIResultDisplay>

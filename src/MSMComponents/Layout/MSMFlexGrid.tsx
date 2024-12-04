@@ -21,7 +21,7 @@ const MSMFlexGrid: React.FC<MSMFlexGridProps> = ({
     <div
       className={`
         grid 
-        sm:grid-cols-${minColumns} md:grid-cols-2 lg:grid-cols-${maxColumns}
+        sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3
         gap-x-${horizontalSpacing} gap-y-${verticalSpacing}
         ${className}`}
       style={{

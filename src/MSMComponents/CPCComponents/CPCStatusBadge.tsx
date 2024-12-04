@@ -2,10 +2,8 @@ import React from "react";
 import { AlertIcon } from "./AlertIcon";
 import { cn } from "@lib/utils";
 import { calculateCPCStatus } from "Helpers";
-import { CPCStatusColors } from "@lib/Constants/Types";
+import { CPCStatus, CPCStatusColors } from "@lib/Constants/Types";
 
-
-export type CPCStatus = "Past Due" | "Due Urgently" | "Due Soon" | "Up to Date";
 
 interface CPCStatusBadgeProps {
   date: string; // ISO string or date format compatible with `Date`
@@ -14,18 +12,19 @@ interface CPCStatusBadgeProps {
 export const CPCStatusBadge: React.FC<CPCStatusBadgeProps> = ({ date }) => {
 
   const { status, daysLeft } = calculateCPCStatus(new Date(date));
+  const dueText = `CPC due in `;
 
   const tooltipContent = (() => {
-    if (status === "Past Due") {
+    if (status === CPCStatus.PAST_DUE) {
       return <span className="font-bold text-destructive">{Math.abs(daysLeft)} Days Past Due</span>;
     }
 
-    const dueText = `CPC due in `;
+    
     const dayCount = (
       <span
         className={cn(
-          status === "Due Urgently" ? "font-bold text-destructive" : "",
-          status === "Due Soon" ? "font-bold text-warning" : ""
+          status === CPCStatus.URGENT ? "font-bold text-destructive" : "",
+          status === CPCStatus.WARNING ? "font-bold text-warning" : ""
         )}
       >
         {daysLeft}
@@ -36,7 +35,7 @@ export const CPCStatusBadge: React.FC<CPCStatusBadgeProps> = ({ date }) => {
       <>
         {dueText}
         {dayCount}
-        {status === "Up to Date" ? "." : "!"}
+        {status === CPCStatus.UP_TO_DATE ? "." : "!"}
       </>
     );
   })();

@@ -6,7 +6,7 @@ import MSMCardSelect from "@MSMComponents/Inputs/MSMCardSelect";
 import MSMPage from "@MSMComponents/Layout/MSMPage";
 import MSMMultiCardSelect from "@MSMComponents/Inputs/MSMMultiCardSelect";
 import { MSMDropdownItem } from "@MSMComponents/Inputs/MSMDropdown";
-import DescribeText from "@MSMComponents/DescribeText";
+import DescribeText from "@MSMComponents/DataDisplay/DescribeText";
 import { AxiosResponse } from "axios";
 import { axiosInstance, callEndpoint } from "@lib/API/APIDefinitions";
 import { DisplayErrorAlert, DisplaySuccessAlert } from "@MSMComponents/Popups/PopupHelpers";
