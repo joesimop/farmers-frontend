@@ -288,7 +288,7 @@ const Checkout = () => {
 
             <MSMHorizontalDivideLine />
 
-            <MSMFlexGrid minColumns={2}>
+            <MSMFlexGrid maxColumns={1}>
 
               {/* Gross Profit field */}
               <MSMFormField key={"GROSS_PROFIT"}
@@ -329,15 +329,16 @@ const Checkout = () => {
                 </MSMFormField>
               ))}
             </MSMFlexGrid>
-
-            <MSMSplitView className="text-left py-8"
-              right={
-                <DescribeText text="Owed = Fee - Token Total">
-                  <span className="text-3xl font-bold">Money Owed</span><br />
+            <DescribeText justifyCenter={true} text="Owed = Fee - Token Total">
+                  <span className="text-3xl font-bold self-center">Money Owed</span>
                   <MSMMoneyDisplay
                     value={moneyOwed}
                     className={`text-2xl font-bold ${moneyOwed < 0 ? "text-destructive" : "text-green-700"}`} />
-                </ DescribeText>
+            </ DescribeText>
+
+            {/* <MSMSplitView className="text-left py-8"
+              right={
+
               }
               left={
                 <DescribeText text={getMarketFeeCalculationString(selectedMarketFee, data.fees, selectedVendor, grossProfit)}>
@@ -347,7 +348,7 @@ const Checkout = () => {
                     className="text-2xl" />
                 </DescribeText>
               }
-            />
+            /> */}
 
 
           </MSMForm>

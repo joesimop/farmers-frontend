@@ -51,6 +51,7 @@ const MSMNumericalInput = forwardRef<HTMLInputElement, MSMNumericalInputProps>(
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         type="number"
+        className="w-full"
         {...props}
       />
     );

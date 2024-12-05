@@ -19,12 +19,11 @@ const MSMFlexGrid: React.FC<MSMFlexGridProps> = ({
 }) => {
   // Normalize children into an array
   const childArray = React.Children.toArray(children);
-
   return (
     <div
       className={`
         grid 
-        grid-cols-${minColumns} sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-${maxColumns}
+        sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-${maxColumns} grid-cols-${minColumns} 
         gap-x-${horizontalSpacing} gap-y-${verticalSpacing}
         ${className}`}
       style={{
@@ -33,7 +32,7 @@ const MSMFlexGrid: React.FC<MSMFlexGridProps> = ({
       }}
     >
       {childArray.map((child, index) => (
-        <div key={index} className="flex">
+        <div key={index}>
           {child}
         </div>
       ))}
