@@ -1,8 +1,8 @@
 import React from "react";
 
 interface MSMFlexGridProps {
-  children: React.ReactNode[];
-  minColumns?: number           //Minimum number of columns
+  children: React.ReactNode; // Allow any valid React nodes
+  minColumns?: number; // Minimum number of columns
   maxColumns?: number; // Maximum number of columns
   horizontalSpacing?: number; // Horizontal gap (Tailwind spacing scale)
   verticalSpacing?: number; // Vertical gap (Tailwind spacing scale)
@@ -17,19 +17,22 @@ const MSMFlexGrid: React.FC<MSMFlexGridProps> = ({
   verticalSpacing = 4, // Default vertical gap
   className = "",
 }) => {
+  // Normalize children into an array
+  const childArray = React.Children.toArray(children);
+
   return (
     <div
       className={`
         grid 
-        sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+        grid-cols-${minColumns} sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-${maxColumns}
         gap-x-${horizontalSpacing} gap-y-${verticalSpacing}
         ${className}`}
       style={{
         columnGap: `${horizontalSpacing * 0.25}rem`, // Ensure minimum horizontal spacing
-        rowGap: `${verticalSpacing * 0.25}rem`,     // Ensure minimum vertical spacing
+        rowGap: `${verticalSpacing * 0.25}rem`, // Ensure minimum vertical spacing
       }}
     >
-      {children.map((child, index) => (
+      {childArray.map((child, index) => (
         <div key={index} className="flex">
           {child}
         </div>

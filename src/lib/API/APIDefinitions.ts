@@ -104,7 +104,7 @@ export const callEndpoint = async <T>({
 type StateSetter<T> = Dispatch<SetStateAction<T>>;
 
 type ReactStateCallEndpointArgs<T> = CallEndpointArgs<T> & {
-  setState: StateSetter<APIResult<T>>;
+  setState?: StateSetter<APIResult<T>>;
 };
 
 export const callEndpointWithState = async <T>({
@@ -114,8 +114,7 @@ export const callEndpointWithState = async <T>({
   onError,
 }: ReactStateCallEndpointArgs<T>) => {
     // Set the state to a loading state before making the API call
-    console.log("Loading")
-    setState((prevState) => ({
+    setState?.((prevState) => ({
         ...prevState,
         state: APIResultState.LOADING,
     }));
@@ -126,7 +125,7 @@ export const callEndpointWithState = async <T>({
 
             //If we got not data back
             if (isEmptyList(data)){
-                setState({
+                setState?.({
                     data: data,
                     state: APIResultState.NO_DATA,
                     status: statusCode ?? HttpStatusCode.NoContent
@@ -134,7 +133,7 @@ export const callEndpointWithState = async <T>({
                 
             // Otherwise, we have valid data
             } else {
-                setState({
+                setState?.({
                     data: data,
                     state: APIResultState.SUCCESS,
                     status: statusCode ?? HttpStatusCode.Ok
@@ -146,7 +145,7 @@ export const callEndpointWithState = async <T>({
             }
         },
         onError: (error) => {
-          setState({
+          setState?.({
             data: null,
             state: APIResultState.FAILED,
             status: error

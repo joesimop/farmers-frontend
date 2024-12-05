@@ -4,7 +4,6 @@ import MSMDatePicker from "@MSMComponents/Inputs/MSMDatePicker";
 import { VendorType, ProducerContact, CreateVendor } from '../../lib/Constants/Types';
 import ProducerContactForm from './ProducerContactForm';
 import TypedDataGrid from '../TypedDataGrid/TypedDataGrid';
-import FlexGrid from '../../FlexGrid/FlexGrid';
 import MSMTextInput from '@MSMComponents/Inputs/MSMTextInput';
 import MSMFormField from '@MSMComponents/Form Flow/MSMFormField';
 import MSMEnumDropdown from '@MSMComponents/Inputs/MSMEnumDropdown';
@@ -17,6 +16,7 @@ import { Vendor } from '@lib/Constants/DataModels';
 import { MarketVendor } from '@Pages/Vendor Management/VendorManagmentAPICalls';
 import { axiosInstance, callEndpoint } from '@lib/API/APIDefinitions';
 import { AxiosResponse } from 'axios';
+import MSMFlexGrid from '@MSMComponents/Layout/MSMFlexGrid';
 
 
 
@@ -112,7 +112,7 @@ const CreateVendorForm = forwardRef<MSMFormRef, CreateVendorFormProps>(
     return (
       <>
         <MSMForm schema={CreateVendorFormSchema} onSubmit={createVendor} ref={formRef} hideSubmit>
-          <FlexGrid maxColumns={2}>
+          <MSMFlexGrid maxColumns={2}>
 
             {/* BUSINESS NAME */}
             <MSMFormField name="business_name" label="Business Name">
@@ -160,7 +160,7 @@ const CreateVendorForm = forwardRef<MSMFormRef, CreateVendorFormProps>(
                 </div>
               )}
             </MSMFormField>
-          </FlexGrid>
+          </MSMFlexGrid>
         </MSMForm>
 
         <ProducerContactForm onAddProducer={addProducerContact} />
