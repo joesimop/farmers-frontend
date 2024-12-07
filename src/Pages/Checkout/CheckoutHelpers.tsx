@@ -1,5 +1,5 @@
 import { MarketToken, MarketFee, Vendor } from "../../lib/Constants/DataModels";
-import { CPCStatus } from "../../lib/Constants/Types";
+import { CPCStatus, TokenType } from "../../lib/Constants/Types";
 import { calculateCPCStatus, toReadableString } from "../../Helpers";
 import { TokenFieldModel } from "./Checkout";
 
@@ -76,7 +76,7 @@ export const GenerateTokensForSubmission = (Tokens: TokenFieldModel[]) => {
 
 // Helper to get token label
 export const getTokenLabel = (token: MarketToken): string => {
-    const readableType = toReadableString(token.type);
+    const readableType = TokenType.toString(token.type);
     const valueSuffix =
         token.per_dollar_value !== 1 ? ` - $${token.per_dollar_value}` : "";
     return `${readableType}${valueSuffix}`;

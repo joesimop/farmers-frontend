@@ -9,10 +9,10 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 
 import { DisplayErrorAlert, DisplayAlert, DisplaySuccessAlert } from "@MSMComponents/Popups/PopupHelpers";
 import { FeeType, VendorType } from "../../lib/Constants/Types";
-import { calculateCPCStatus, toReadableDate, toReadableString } from "../../Helpers";
+import { calculateCPCStatus, toISOStringForSending, toReadableDate } from "../../Helpers";
 import DescribeText from "@MSMComponents/DataDisplay/DescribeText";
 import { APIResult, APIResultState, callEndpoint, callEndpointWithState, DefaultApiResult } from "../../lib/API/APIDefinitions";
-import { TokenSubmit, CheckoutSubmit } from "./CheckoutAPICalls";
+import { CheckoutSubmit } from "./CheckoutAPICalls";
 import { GetCheckoutData } from "./CheckoutAPICalls";
 import { SubmitCheckout } from "./CheckoutAPICalls";
 import MSMDropdown, { convertToDropdownItems } from "@MSMComponents/Inputs/MSMDropdown";
@@ -25,7 +25,6 @@ import MSMNumericalInput from "@MSMComponents/Inputs/MSMNumericalInput";
 import MSMPage from "@MSMComponents/Layout/MSMPage";
 import MSMMoneyDisplay from "@MSMComponents/DataDisplay/MSMMoneyDisplay";
 import MSMHorizontalDivideLine from "@MSMComponents/Layout/MSMHorizontalDivideLine";
-import MSMSplitView from "@MSMComponents/Layout/MSMSplitView";
 import { MSMVendorBadge } from "@MSMComponents/DataDisplay/MSMVendorBadge";
 import { BannerAlert } from "@MSMComponents/Popups/BannerAlert";
 import { DisplayModal } from "@MSMComponents/Popups/PopupHelpers";
@@ -65,7 +64,9 @@ const Checkout = () => {
   const [searchParams] = useSearchParams();
   const marketId = searchParams.get('market')
   const marketName = searchParams.get("market_name")
-  const date = searchParams.get('date')
+  const date = new Date(searchParams.get(decodeURIComponent('date')) as string)
+  console.log(date)
+
 
   ////////////////////////////////
   //       STATE HANDLERS       //
@@ -144,7 +145,7 @@ const Checkout = () => {
       // Builds the data sent to the db
       let Data: CheckoutSubmit = {
         market_vendor_id: data.vendor,
-        market_date: date,
+        market_date: toISOStringForSending(date),
         reported_gross: data.gross_profit,
         fees_paid: marketFee,
         tokens: GenerateTokensForSubmission(Tokens),
@@ -181,7 +182,7 @@ const Checkout = () => {
       }));
 
       callEndpointWithState({
-        endpointCall: GetCheckoutData(1, parseInt(marketId), date),
+        endpointCall: GetCheckoutData(1, parseInt(marketId), toISOStringForSending(date)),
         onSuccess: (data, statusCode) => {
 
           //Set the nonchanging data

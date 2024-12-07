@@ -1,5 +1,5 @@
 import { CPCStatus } from "@lib/Constants/Types";
-import { formatDate } from "date-fns";
+import { format, formatDate } from "date-fns";
 
 // Utility type to check if T is an array type
 export function isEmptyList<T>(data: T): boolean {
@@ -13,8 +13,17 @@ export const toReadableString = (str: string): string =>
     .replace(/\b\w/g, (c) => c.toUpperCase()); // Capitalize the first letter of each word
 
 
+
 export const toReadableDate = (date: Date | string): string => {
-  return formatDate(date, "MM-dd-yyy")
+  const dateObject = date instanceof Date ? date : new Date(date);
+  const dateOnly = new Date(dateObject.valueOf() + dateObject.getTimezoneOffset() * 60 * 1000);
+  return formatDate(dateOnly, "MM-dd-yyyy");
+};
+
+
+export const toISOStringForSending = (date: Date | string): string =>{
+  const dateString = date instanceof Date ? date.toISOString() : date
+  return dateString.split('T')[0];
 }
 
 export const calculateCPCStatus = (givenDate: Date): { status: CPCStatus; daysLeft: number } => {

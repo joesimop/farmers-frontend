@@ -1,19 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DisplayAlert } from '@MSMComponents/Popups/PopupHelpers';
-import Box from '@mui/material/Box';
 import MSMForm from '@MSMComponents/Form Flow/MSMForm';
 import MSMDropdown, { addNameForValuesForDropdown, convertToDropdownItems } from '@MSMComponents/Inputs/MSMDropdown';
 import MSMFormField from '@MSMComponents/Form Flow/MSMFormField';
 import { z } from 'zod';
 import MSMPage from '@MSMComponents/Layout/MSMPage';
 import { APIResult, callEndpoint, callEndpointWithState, DefaultApiResult } from '../../lib/API/APIDefinitions';
-import { GetReportingOptions, ReportingOption } from './ReportingAPICalls';
+import { CompleteVendorReport, GetReportingOptions, ReportingOption } from './ReportingAPICalls';
 import { GetVendorReport, VendorReport } from './ReportingAPICalls';
 import APIResultDisplay from '@MSMComponents/APIResultDisplay';
-import { toReadableDate } from 'Helpers';
+import { toISOStringForSending, toReadableDate } from 'Helpers';
 import MSMHorizontalDivideLine from '@MSMComponents/Layout/MSMHorizontalDivideLine';
 import { DataTable } from '@MSMComponents/DataTable/DataTable';
 import { ReportingColumns } from './ReportingColumns';
+import MSMRow from '@MSMComponents/Layout/MSMRow';
+import DataLabel from '@MSMComponents/DataDisplay/DataLabel';
+import MSMMoneyDisplay from '@MSMComponents/DataDisplay/MSMMoneyDisplay';
+import { TokenType } from '@lib/Constants/Types';
 
 function aggregateAllDates(markets: ReportingOption[]): string[] {
   const allDates = markets.flatMap((market) => market.market_dates);
@@ -25,7 +28,7 @@ const Reporting = () => {
 
   const [possibleMarketSelections, setPossibleMarketSelections] = useState<ReportingOption[]>([]);
   const [possibleDates, setPossibleDates] = useState<string[]>([]);
-  const [reportData, setReportData] = useState<APIResult<VendorReport[]>>(DefaultApiResult);
+  const [reportData, setReportData] = useState<APIResult<CompleteVendorReport>>(DefaultApiResult);
 
 
   // Function to fetch reporting options
@@ -66,7 +69,8 @@ const Reporting = () => {
   });
 
   const getReports = (marketId: number, date: string) => {
-    const passedDate = date === "All Dates" ? "" : date
+    console.log(date)
+    const passedDate = date === "All Dates" ? "" : toISOStringForSending(date)
     callEndpointWithState({
       endpointCall: GetVendorReport(1, marketId, passedDate),
       setState: setReportData,
@@ -112,11 +116,44 @@ const Reporting = () => {
       <MSMHorizontalDivideLine />
       <APIResultDisplay result={reportData}>
         {(data) => (
-          <Box sx={{ flexGrow: 1 }}>
-            <DataTable data={data} columns={ReportingColumns} />
-          </Box>
+          <>
+            <MSMRow className="text-lg mb-4">
+              <span className="font-bold">Totals:</span>
+
+              {/* Token Labels */}
+              {data.totals.tokens?.map((token) => (
+                <DataLabel
+                  key={token.type}
+                  label={TokenType.toString(token.type)}
+                  value={token.count}
+                />
+              ))}
+
+              {/* Money Owed */}
+              <DataLabel
+                label="Money Owed"
+                value={
+                  (() => {
+                    const moneyOwed =
+                      data.totals.fees_paid -
+                      data.totals.tokens?.reduce((acc, token) => {
+                        return acc + token.count * token.per_dollar_value;
+                      }, 0);
+
+                    return <MSMMoneyDisplay
+                      className={moneyOwed > 0 ? "text-green-600" : moneyOwed < 0 ? "text-red-600" : ""}
+                      value={moneyOwed} />;
+                  })()
+                }
+              />
+            </MSMRow>
+
+            {/* Data Table */}
+            <DataTable data={data.reports} columns={ReportingColumns(data.totals.tokens)} />
+          </>
         )}
       </APIResultDisplay>
+
     </MSMPage>
   );
 };
