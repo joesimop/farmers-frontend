@@ -7,7 +7,6 @@ import MSMCalendarPicker from "@MSMComponents/Inputs/MSMCalendarPicker";
 import { callEndpoint } from "@lib/API/APIDefinitions";
 import { DisplayAlert } from "@MSMComponents/Popups/PopupHelpers";
 import { CheckoutOption, GetCheckoutOptions } from "./CheckoutAPICalls";
-import { format, formatDate } from "date-fns"
 import { useNavigate } from "react-router-dom";
 import MSMPage from "@MSMComponents/Layout/MSMPage";
 
