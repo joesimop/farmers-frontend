@@ -9,16 +9,16 @@ import { MSMVendorBadge } from "@MSMComponents/DataDisplay/MSMVendorBadge"
 import { TokenReport } from "./ReportingAPICalls"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@ShadcnComponents/ui/hover-card"
 import DataLabel from "@MSMComponents/DataDisplay/DataLabel"
-import { toReadableDate, toReadableString } from "Helpers"
+import { isEmptyList, toReadableDate, toReadableString } from "Helpers"
 import MSMHorizontalDivideLine from "@MSMComponents/Layout/MSMHorizontalDivideLine"
+import { parseISO } from "date-fns"
 
-export const calculateNetProfit = (grossProfit: number, tokens: TokenReport[]): number => {
-  if (tokens == undefined) { return 0; }
+export const calculateNetProfit = (fees_paid: number, tokens: TokenReport[]): number => {
+  if (tokens == undefined) { return fees_paid; }
   const totalTokenValue = tokens.reduce((total, token) => {
     return total + token.count * token.per_dollar_value;
   }, 0);
-  const netProfit = grossProfit - totalTokenValue;
-  return netProfit;
+  return fees_paid - totalTokenValue;
 };
 
 const tokensSchema = z.object({
@@ -39,7 +39,7 @@ const reportsSchema = z.object({
 
 export type ReportsColumnsType = z.infer<typeof reportsSchema>
 
-export const ReportingColumns: ColumnDef<ReportsColumnsType>[] = [
+const BaseStartReportingColumns: ColumnDef<ReportsColumnsType>[] = [
   {
     accessorKey: "business_name",
     header: ({ column }) => (
@@ -53,7 +53,8 @@ export const ReportingColumns: ColumnDef<ReportsColumnsType>[] = [
     },
     enableSorting: false,
     enableHiding: false,
-  }, {
+  },
+  {
     accessorKey: "vendor_type",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Type" />
@@ -67,38 +68,68 @@ export const ReportingColumns: ColumnDef<ReportsColumnsType>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+
   {
-    accessorKey: "gross",
+    accessorKey: "market_date",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Reported Gross" />
+      <DataTableColumnHeader column={column} title="Market Date" />
     ),
-    cell: ({ row }) => {
-      let gross: number = row.getValue("gross")
-      return (<MSMMoneyDisplay className="tbl-col" value={gross} />);
-    },
-    enableSorting: false,
-    enableHiding: false,
+    cell: ({ row }) =>
+      <div className="tbl-col">
+        {toReadableDate(row.getValue("market_date"))}
+      </div>,
   },
   {
     accessorKey: "tokens",
     header: undefined, // Not displayed, but ensures tokens are accessible
     cell: undefined, // No visible content for this column
   },
+]
+
+const tokenColumns = (tokens: TokenReport[]): ColumnDef<ReportsColumnsType>[] => {
+  //If there are no tokens...
+  if (tokens === null) { return [];}
+
+  return tokens.map(token => ({
+    accessorKey: `${token.type}`, // This is a virtual accessor. We'll handle the cell manually.
+    header: ({ column }) => <DataTableColumnHeader column={column} title={TokenType.toString(token.type)} />,
+    cell: ({ row }) => {
+      let rowTokens: TokenReport[] = row.getValue("tokens");
+      let rowToken: TokenReport | undefined = rowTokens.find((t) => t.type == token.type)
+      return (<span>{rowToken ? rowToken.count : "N/A"}</span>);
+    },
+    enableSorting: false,
+  }))
+};
+
+const BaseEndReportingColumns: ColumnDef<ReportsColumnsType>[] = [
   {
-    accessorKey: "net",
+    accessorKey: "fees_paid",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Net Profit" />
+      <DataTableColumnHeader column={column} title="Fee Charged" />
     ),
     cell: ({ row }) => {
-      let gross: number = row.getValue("gross")
+      let fee: number = row.getValue("fees_paid")
+      return (<MSMMoneyDisplay value={fee} />)
+    },
+
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: "money_owed",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Money Owed" />
+    ),
+    cell: ({ row }) => {
       let tokens: TokenReport[] = row.getValue("tokens")
       let marketFee: number = row.getValue("fees_paid")
-      let net = marketFee + calculateNetProfit(gross, tokens)
-      let textColor = net > 0 ? "text-green-600" : net < 0 ? "text-red-600" : "text-muted"
+      let moneyOwed = calculateNetProfit(marketFee, tokens)
+      let textColor = moneyOwed > 0 ? "text-green-600" : moneyOwed < 0 ? "text-red-600" : ""
       return (
         <HoverCard>
           <HoverCardTrigger>
-            <MSMMoneyDisplay className={textColor} value={net} />
+            <MSMMoneyDisplay className={textColor} value={moneyOwed} />
 
           </HoverCardTrigger>
 
@@ -107,10 +138,8 @@ export const ReportingColumns: ColumnDef<ReportsColumnsType>[] = [
             <span className="font-bold text-sm">Tokens Used</span>
             <MSMHorizontalDivideLine verticalSpacing={1} />
             {tokens.map((token) => {
-              const label = token.type == TokenType.MARKET_MATCH ?
-                toReadableString(token.type) : token.type
               return (
-                <DataLabel label={label} value={token.count} />);
+                <DataLabel label={TokenType.toString(token.type)} value={token.count} />);
             })}
 
 
@@ -122,28 +151,12 @@ export const ReportingColumns: ColumnDef<ReportsColumnsType>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "fees_paid",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Fee Charged" />
-    ),
-    cell: ({ row }) => {
-      let fee: number = row.getValue("fees_paid")
-
-      return (<MSMMoneyDisplay value={fee} />)
-    },
-
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "market_date",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Market Date" />
-    ),
-    cell: ({ row }) => <div className="tbl-col">{row.getValue("market_date")}</div>,
-  },
-  {
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
+
 ]
+
+export const ReportingColumns = (tokens: TokenReport[]): ColumnDef<ReportsColumnsType>[] => {
+  return [...BaseStartReportingColumns, ...tokenColumns(tokens), ...BaseEndReportingColumns]
+}

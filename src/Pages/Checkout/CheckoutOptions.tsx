@@ -7,7 +7,7 @@ import MSMCalendarPicker from "@MSMComponents/Inputs/MSMCalendarPicker";
 import { callEndpoint } from "@lib/API/APIDefinitions";
 import { DisplayAlert } from "@MSMComponents/Popups/PopupHelpers";
 import { CheckoutOption, GetCheckoutOptions } from "./CheckoutAPICalls";
-import { format } from "date-fns"
+import { format, formatDate } from "date-fns"
 import { useNavigate } from "react-router-dom";
 import MSMPage from "@MSMComponents/Layout/MSMPage";
 
@@ -64,7 +64,7 @@ const CheckoutOptions: React.FC = () => {
     if (selectedMarket && selectedDate) {
       const marketId = selectedMarket[1];
       const marketName = selectedMarket[0];
-      const date = format(selectedDate, "yyyy-MM-dd");
+      const date = selectedDate.toISOString()
       navigate(`/checkout?market=${encodeURIComponent(marketId)}&date=${encodeURIComponent(date)}&market_name=${encodeURIComponent(marketName)}`);
     }
   };

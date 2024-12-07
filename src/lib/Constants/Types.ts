@@ -1,5 +1,6 @@
 import { AlertColor, AlertPropsColorOverrides } from '@mui/material';
 import { OverridableStringUnion } from '@mui/types';
+import { toReadableString } from 'Helpers';
 
 export enum VendorType {
     PRODUCER = "PRODUCER",
@@ -19,6 +20,19 @@ export enum TokenType {
   EBT = "EBT",
   MARKET_MATCH = "MARKET_MATCH",
   ATM = "ATM"
+}
+
+export namespace TokenType {
+  export function toString(token: TokenType): string {
+    switch (token){
+      case TokenType.ATM:
+        return "ATM"
+      case TokenType.EBT:
+        return "EBT"
+      default:
+        return toReadableString(token);
+  }
+}
 }
 
 export interface ProducerContact {

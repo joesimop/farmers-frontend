@@ -24,6 +24,16 @@ export interface VendorReport {
     tokens: TokenReport[]; // Array of Token objects
 }
 
+export interface VendorTotals {
+    fees_paid: number,
+    tokens: TokenReport[]
+}
+
+export interface CompleteVendorReport {
+    reports: VendorReport[],
+    totals: VendorTotals
+}
+
 export const GetReportingOptions = async (MarketManager: number): Promise<AxiosResponse<ReportingOption[]>> => {
 
     const urlString = `/market_manager/${MarketManager}/reporting/options`;
@@ -31,11 +41,11 @@ export const GetReportingOptions = async (MarketManager: number): Promise<AxiosR
 
   };
 
-export const GetVendorReport = async ( MarketManager: number, MarketID: number, MarketDate: string): Promise<AxiosResponse<VendorReport[]>> => {
+export const GetVendorReport = async ( MarketManager: number, MarketID: number, MarketDate: string): Promise<AxiosResponse<CompleteVendorReport>> => {
     
     const MarketIDString = "market_id=" + MarketID + "&";
     const MarketDateString = MarketDate === "" ? "" : "market_date=" + MarketDate + "&";
     const urlString = `market_manager/${MarketManager}/reporting/report?${MarketIDString}${MarketDateString}sort_by=MARKET_DATE&sort_direction=DESC`
 
-    return axiosInstance.get<VendorReport[]>(urlString);
+    return axiosInstance.get<CompleteVendorReport>(urlString);
 }

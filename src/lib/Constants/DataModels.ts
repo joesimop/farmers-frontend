@@ -1,4 +1,4 @@
-import { alerttype, VendorType } from "./Types";
+import { alerttype, TokenType, VendorType } from "./Types";
 
 export interface Vendor {
     id: number;
@@ -27,7 +27,7 @@ export interface MarketFee {
   
 export interface MarketToken {
     id: number;
-    type: string;
+    type: TokenType;
     per_dollar_value: number;
 }
 

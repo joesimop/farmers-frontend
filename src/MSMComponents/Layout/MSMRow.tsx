@@ -15,13 +15,17 @@ const MSMRow: React.FC<MSMRowProps> = ({
     lastElementRight = false,
     className = "",
 }) => {
+
+    // Normalize children into an array
+    const childArray = React.Children.toArray(children);
+
     return (
         <div
             className={`flex items-${align} justify-${justify} ${className}`}
         >
             {lastElementRight ? (
                 <>
-                    {children.slice(0, -1).map((child, index) => (
+                    {childArray.slice(0, -1).map((child, index) => (
                         <div key={index} className="flex-grow mr-4 last:mr-0">
                             {child}
                         </div>
@@ -29,7 +33,7 @@ const MSMRow: React.FC<MSMRowProps> = ({
                     <div>{children[children.length - 1]}</div>
                 </>
             ) : (
-                children.map((child, index) => (
+                childArray.map((child, index) => (
                     <div key={index} className="mr-4 last:mr-0">
                         {child}
                     </div>
